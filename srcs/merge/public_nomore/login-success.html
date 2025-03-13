@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 성공</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: green; /* 기본적으로 성공 메시지를 초록색으로 표시 */
+        }
+        .error {
+            color: red; /* 오류 메시지를 빨간색으로 표시 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <% if (message === '데이터베이스 오류가 발생했습니다.' || message === '사용자 정보가 없습니다.') { %>
+            <h1 class="error"><%= message %></h1>
+        <% } else { %>
+            <h1><%= message %></h1>
+        <% } %>
+        <p>OTP 인증이 완료되었습니다.</p>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = '/profile';
+        }, 3000); // 3초 후에 /profile로 리다이렉트
+    </script>
+</body>
+</html>
