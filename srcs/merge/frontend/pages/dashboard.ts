@@ -45,8 +45,8 @@ export const dashboardPage = `
 	<!-- 메인 콘텐츠 영역 -->
 	<main class="flex-1 flex">
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4">
-			<h2 class="text-5xl mb-10 text-center font-semibold">🏠 HOME</h2>
-			<p class="text-xl text-center">Hello! this is Home page.</p>
+			<h2 class="text-5xl mb-10 text-center font-semibold">📊 DASHBOARD</h2>
+			<p class="text-xl text-center">Hello! this is Dashboard page.</p>
 		</div>
 	</main>
 
