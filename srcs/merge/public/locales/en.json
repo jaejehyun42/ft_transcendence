@@ -1,0 +1,14 @@
+{
+  "dashboard": "DASHBOARD",
+  "game": "GAME",
+  "profile": "PROFILE",
+  "start": "Start",
+  "player1": "PLAYER 1",
+  "player2": "PLAYER 2",
+  "scoreboard": "Player 1: 0 | Player 2: 0",
+  "username": "USER NAME",
+  "editprofile": "👤 EDIT PRFILE",
+  "changephoto": "CHANGE PHOTO",
+  "enternewname": "ENTER NEW NAME",
+  "savechanges": "SAVE CHANGES"
+}
