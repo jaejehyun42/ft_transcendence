@@ -1,0 +1,21 @@
+{
+  "dashboard": "DASHBOARD",
+  "game": "GAME",
+  "profile": "PROFILE",
+  "start": "Start",
+  "player1": "PLAYER 1",
+  "player2": "PLAYER 2",
+  "selectmode": "🎮 Select Mode",
+  "localmatch": "🕹️ Local Match",
+  "aimatch": "🤖 AI Match",
+  "tournament": "🏆 Tournament",
+  "tournamentsetup": "🏆 Tournament Setup",
+  "tournamentbracket": "🏆 Tournament Bracket",
+  "starttournament": "Start Tournament",
+  "numberofplayers": "Number of Players (Max: 8)",
+  "username": "USER NAME",
+  "editprofile": "👤 EDIT PRFILE",
+  "changephoto": "CHANGE PHOTO",
+  "enternewname": "ENTER NEW NAME",
+  "savechanges": "SAVE CHANGES"
+}
