@@ -33,6 +33,12 @@ export function initializeGame(canvas: HTMLCanvasElement)
     window.addEventListener("resize", () => engine.resize());
 }
 
+export function disposeEngine()
+{
+    if (engine)
+        engine.dispose();
+}
+
 // 오브젝트 및 효과 시작
 export function initializeDraw(style: string)
 {
@@ -101,7 +107,7 @@ function createGround()
 
     // 중앙선 생성
     centerLine = MeshBuilder.CreateBox("centerLine", { width: 0.3, height: 18, depth: 0.1 }, scene);
-    centerLine.position.set(0, 0.01, 0.5); // 살짝 띄워서 자연스럽게 보이도록
+    centerLine.position.set(0, 0, 0.5); // 살짝 띄워서 자연스럽게 보이도록
 
     // 중앙선 재질
     let lineMaterial = new StandardMaterial("lineMat", scene);
@@ -199,12 +205,12 @@ function createShadow(mesh: Mesh)
     // 그림자의 위치 설정
     shadow.position.x = mesh.position.x;
     shadow.position.y = mesh.position.y - 0.1;
-    shadow.position.z = 0.5;
+    shadow.position.z = 0.48;
 
     // 그림자가 업데이트
     scene.registerBeforeRender(() => {
         shadow.position.x = mesh.position.x;
         shadow.position.y = mesh.position.y - 0.1;
-        shadow.position.z = 0.5;
+        shadow.position.z = 0.48;
     });
 }

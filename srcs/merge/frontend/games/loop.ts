@@ -1,7 +1,9 @@
 import { createStartButton } from "./ui.js";
-import { initializeDraw, initializeGame, scene } from "./draw.js";
-import { resetGame, startGame, update, winner } from "./game.js";
+import { startGame, update, winner } from "./game.js";
+import { moveAIPostion, startIntervalAI, clearIntervalAI } from "./AI.js";
+import { initializeDraw, initializeGame, disposeEngine, scene } from "./draw.js";
 
+let gamePaused = false;
 let gameLoopRunning = false;
 let animationFrameId: number | null = null;
 
@@ -19,11 +21,11 @@ export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player
         name_1p = player1;
         name_2p = player2;
         initializeGame(canvas);
-        console.log(`${name_1p}, ${name_2p}`);
-        
+
         createStartButton((style) => {
             initializeDraw(style);
             startGame(mode);
+            startIntervalAI();
             gameLoop(resolve);
         });
     });
@@ -31,26 +33,49 @@ export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player
 
 export function stopGameLoop() 
 {
+    console.log("Game Stop")
+    gameLoopRunning = false;
     if (animationFrameId) 
     {
-        resetGame();
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
     }
-    gameLoopRunning = false;
+    disposeEngine();
+    clearIntervalAI();
 }
 
 function gameLoop(resolve: (winner: string) => void) 
 {
-    // 승자가 정해지면 게임 루프 종료
-    if (winner) 
+    if (gamePaused)
+        return;
+
+    if (winner)
     {
-        gameLoopRunning = false;
+        stopGameLoop();
         resolve(winner);
+        return;
+    }
+    if (!document.getElementById("gameCanvas"))
+    {
+        stopGameLoop();
+        resolve("");
         return;
     }
 
     let deltaTime = scene.getEngine().getDeltaTime() / 1000;
     update(deltaTime);
+    moveAIPostion();
     animationFrameId = requestAnimationFrame(() => gameLoop(resolve));
+}
+
+export function pauseGame()
+{
+    gamePaused = true;
+}
+
+export function resumeGame(resolve: (winner: string) => void)
+{
+    if (!gamePaused) return;
+    gamePaused = false;
+    gameLoop(resolve); // 다시 실행
 }
