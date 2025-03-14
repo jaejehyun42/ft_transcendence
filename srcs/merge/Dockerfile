@@ -1,4 +1,5 @@
 FROM node:22-alpine
+
 WORKDIR /app
 
 RUN apk update && apk add openssl && \
@@ -8,27 +9,10 @@ RUN apk update && apk add openssl && \
     -out /app/backend/certs/server.crt \
     -subj "/CN=localhost"
 
-COPY package*.json ./
+COPY package*.json .
 
-RUN npm install \
-    npm install sqlite3 \
-                fastify-oauth2 \
-                axios \
-                dotenv \
-				tailwindcss \
-				typescript \
-				autoprefixer \
-				postcss \
-				babylonjs \
-				--save-dev vite
+RUN npm install 
 
-RUN npm install @fastify/static@latest \
-                @fastify/multipart \
-                @fastify/swagger \
-                @fastify/swagger-ui \
-				@tailwindcss/postcss \
-				@babylonjs/gui \
-				@babylonjs/materials
 COPY . .
 
 EXPOSE 3000
