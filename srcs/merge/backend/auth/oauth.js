@@ -1,5 +1,5 @@
 // oauth.js
-const fastifyOauth2 = require('fastify-oauth2');
+const fastifyOauth2 = require('@fastify/oauth2');
 const axios = require('axios');
 
 
