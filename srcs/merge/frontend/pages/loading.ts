@@ -1,5 +1,5 @@
 export const loadingPage = `
-    <div id="loading-screen" class="flex items-center justify-center h-screen bg-gray-900 text-white opacity-0 transition-opacity duration-500">
+    <div id="loading-screen" class="fixed inset-0 flex items-center justify-center bg-gray-900 text-white opacity-0 transition-opacity duration-500">
         <h1 class="text-[100px] font-bold">PONG</h1>
     </div>
 `;

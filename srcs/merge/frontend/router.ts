@@ -1,4 +1,4 @@
-import "../public/styles.css";
+import "./sidebar.js"
 import { initLanguageToggle, loadLanguage } from "./locales/lang.js";
 import { loadingPage, loadingScreen } from "./pages/loading.js";
 import { loginPage, setupLogin } from "./pages/login.js";
