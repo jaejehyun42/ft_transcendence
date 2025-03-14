@@ -7,7 +7,6 @@ document.addEventListener("showGameOptions", () => {
 });
 
 export const gamePage = `
-<body class="flex h-screen bg-gray-100">
 	<!-- 오버레이 추가 -->
 	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
 
@@ -25,7 +24,7 @@ export const gamePage = `
 
 	<!-- 반응형 사이드바 -->
 	<aside id="sidebar"
-		class="fixed left-0 z-50 left-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col items-center space-y-4
+		class="fixed top-0 z-50 left-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col items-center space-y-4
 		transform -translate-x-full transition-transform duration-300 2xl:translate-x-0 2xl:relative">
 
 		<!-- 페이지 제목 -->
@@ -42,49 +41,22 @@ export const gamePage = `
 		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="game"></button>
 		<button data-i18n="profile" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
 
-        <!-- 언어 변경 버튼 (사이드바 하단) -->
-        <div class="mt-auto mb-4">
-            <button id="lang-toggle" class="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition duration-300">
-                <img src="flag-usa.png" alt="Change Language" class="w-8 h-8">
-            </button>
-        </div>
+		<!-- 언어 변경 버튼 (사이드바 하단) -->
+		<div class="mt-auto mb-4">
+			<button id="lang-toggle" class="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition duration-300">
+				<img src="flag-usa.png" alt="Change Language" class="w-8 h-8">
+			</button>
+		</div>
 	</aside>
 
 	<!-- 메인 콘텐츠 영역 -->
-	<main class="flex-1 flex text-center h-full">
+	<main class="flex-1 flex">
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4">
-			<h2 class="text-5xl mb-10 text-center font-semibold">GAME</h2>
-			<p class="text-xl text-center">Welcome! Here is game Page.</p>
+			<h2 class="text-5xl mb-10 text-center font-semibold">🏠 HOME</h2>
+			<p class="text-xl text-center">안녕하세요! 이곳의 우리의 홈페이지입니다!</p>
 		</div>
 	</main>
-
-	<script>
-		const sidebar = document.getElementById('sidebar');
-		const menuToggle = document.getElementById('menu-toggle');
-		const closeToggle = document.getElementById('close-toggle');
-		const overlay = document.getElementById('overlay');
-
-		menuToggle.addEventListener('click', () => {
-			sidebar.classList.remove('-translate-x-full');
-			menuToggle.classList.add('hidden');
-			overlay.classList.remove('hidden');
-			setTimeout(() => {
-				overlay.classList.add('opacity-50');
-				closeToggle.classList.remove('hidden');
-			}, 250);
-		});
-
-		closeToggle.addEventListener('click', () => {
-			sidebar.classList.add('-translate-x-full');
-			closeToggle.classList.add('hidden');
-			overlay.classList.remove('opacity-50');
-			setTimeout(() => {
-				overlay.classList.add('hidden');
-				menuToggle.classList.remove('hidden');
-			}, 250);
-		});
-	</script>
-    `;
+`;
 
 // 게임 옵션 선택 화면 렌더링
 export async function setupGame()
@@ -112,7 +84,7 @@ export async function setupGame()
 	`;
 
 	const currentLang = localStorage.getItem("language") || "en";
-        await loadLanguage(currentLang);
+		await loadLanguage(currentLang);
 
 	// 버튼 이벤트 추가
 	document.getElementById("local-mode")!.addEventListener("click", () => startGame("local", "local"));
@@ -145,7 +117,7 @@ export async function startGame(player1: string, player2: string): Promise<strin
 	`;
 
 	const currentLang = localStorage.getItem("language") || "en";
-        await loadLanguage(currentLang);
+		await loadLanguage(currentLang);
 
 	const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 	if (!canvas)

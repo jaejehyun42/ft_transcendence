@@ -1,102 +1,32 @@
 export let otpPage = `
-<div class="container">
-        <h1>Google OTP 인증</h1>
-        <div id="qr-code-container">
-            <h3>QR 코드:</h3>
-            <img id="qr-code" src="/generate-qr" alt="QR Code">
-            <p>Google Authenticator 앱으로 QR 코드를 스캔하세요.</p>
-        </div>
-        <div id="otp-container">
-            <h3>OTP 입력:</h3>
-            <input type="text" id="otp-input" placeholder="6자리 숫자를 입력하세요" maxlength="6">
-            <button id="verify-btn">인증하기</button>
-            <p id="result" class="error"></p>
+    <div class="fixed inset-0 flex justify-center items-center bg-gray-200">
+        <div class="bg-blue-400 p-6 rounded-lg text-center shadow-lg w-80">
+            <h1 class="text-xl font-bold mb-4">
+                Google OTP 인증
+            </h1>
+            
+            <div id="qr-code-container" class="flex flex-col items-center">
+                <h3 class="text-lg mb-2">
+                    QR 코드:
+                </h3>
+                <img id="qr-code" src="/generate-qr" alt="QR Code" class="w-48 h-48 mb-2">
+                <p class="text-sm">
+                    Google Authenticator 앱으로 QR 코드를 스캔하세요.
+                </p>
+            </div>
+            
+            <div id="otp-container" class="flex flex-col items-center mt-4">
+                <h3 class="text-lg mb-2">
+                    OTP 입력:
+                </h3>
+                <input type="text" id="otp-input" placeholder="6자리 숫자를 입력하세요" maxlength="6" 
+                    class="w-4/5 p-2 text-center text-gray-900 bg-gray-100 border border-gray-300 rounded mb-2">
+                <button id="verify-btn" 
+                    class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded transition">인증하기</button>
+                <p id="result" class="mt-2 text-sm font-bold text-red-500"></p>
+            </div>
         </div>
     </div>
-    <style>
-        body {
-            background-color: #111;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 350px;
-        }
-
-        h1 {
-            font-size: 26px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        #qr-code-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #qr-code {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 10px;
-        }
-
-        #otp-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input {
-            width: 80%;
-            padding: 8px;
-            font-size: 16px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #result {
-            margin-top: 10px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
 `;
 
 export function setupOTP() {
