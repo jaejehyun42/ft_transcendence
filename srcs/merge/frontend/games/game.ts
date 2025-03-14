@@ -1,27 +1,47 @@
 import { Mesh } from "@babylonjs/core";
+import { updateAIPosition } from "./AI.js"
 import { createImpactEffect } from "./effect.js";
 import { scoreText, showWinner } from "./ui.js";
-import { stopGameLoop, name_1p, name_2p } from "./loop.js";
+import { name_1p, name_2p, pauseGame, resumeGame } from "./loop.js";
 import { ball, paddleLeft, paddleRight, paddleHeight, paddleWidth, ballSize } from "./draw.js";
 
+export let gameRunning = false;
+export let gameMode = "PvP";
+
 const WINNING_SCORE = 11;
-let gameMode = "PvP";
-let gameRunning = false;
 let leftScore = 0, rightScore = 0;
 let countdownEndTime: number | null = null;
 export let winner: string | null = null;
 
-let ballSpeedX = 18, ballSpeedY = 12;
+const speedIncrease = 1.02;
+const maxBounceAngle = Math.PI / 4;
+
+export const paddleSpeed = 24;
 const constSpeedX = 18, constSpeedY = 12;
-const paddleSpeed = 24;
+export let ballSpeedX = 18, ballSpeedY = 12;
+
 
 const keys: { [key: string]: boolean } = {};
-window.addEventListener("keydown", (e) => (keys[e.key] = true));
-window.addEventListener("keyup", (e) => (keys[e.key] = false));
+export const aiKeys: { [key: string]: boolean } = {};
+
+window.addEventListener("keydown", (e) => {
+    if (gameMode === "PvE" && (e.key === "ArrowUp" || e.key === "ArrowDown"))
+        return;
+
+    keys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    if (gameMode === "PvE" && (e.key === "ArrowUp" || e.key === "ArrowDown"))
+        return;
+
+    keys[e.key] = false;
+});
 
 // 게임 시작
 export function startGame(mode: string)
 {
+    console.log("Game Start")
     winner = null;
     leftScore = 0;
     rightScore = 0;
@@ -31,31 +51,8 @@ export function startGame(mode: string)
     
     if (paddleLeft) paddleLeft.position.y = 0;
     if (paddleRight) paddleRight.position.y = 0;
-    if (ball) {
-        ball.position.x = 0;
-        ball.position.y = 0;
-    }
-    ballSpeedX = Math.random() > 0.5 ? constSpeedX : -constSpeedX;
-    ballSpeedY = Math.random() > 0.5 ? constSpeedY : -constSpeedY;
-}
-
-// 게임 리셋
-export function resetGame()
-{
-    winner = null;
-    leftScore = 0;
-    rightScore = 0;
-    gameRunning = false;
-    countdownEndTime = null;
-
-    if (paddleLeft) paddleLeft.position.y = 0;
-    if (paddleRight) paddleRight.position.y = 0;
-    if (ball) {
-        ball.position.x = 0;
-        ball.position.y = 0;
-    }
-    ballSpeedX = Math.random() > 0.5 ? constSpeedX : -constSpeedX;
-    ballSpeedY = Math.random() > 0.5 ? constSpeedY : -constSpeedY;
+    resetBall();
+    updateAIPosition();
 }
 
 // 공 리셋
@@ -89,9 +86,10 @@ export function updateCountdown()
         scoreText.text = count.toString();
     else
     {
-        scoreText.text = `${leftScore}  -  ${rightScore}`;
-        countdownEndTime = null;
         gameRunning = true;
+        countdownEndTime = null;
+        scoreText.text = `${leftScore}  -  ${rightScore}`;
+        updateAIPosition();
     }
 }
 
@@ -104,13 +102,18 @@ export function update(deltaTime: number)
     if (!gameRunning || countdownEndTime !== null) return;
 
     // 패들 이동
-    if ((keys["w"] || keys["W"] || keys["ㅈ"]) && paddleLeft.position.y < 6.5) paddleLeft.position.y += paddleSpeed * deltaTime;
-    if ((keys["s"] || keys["S"] || keys["ㄴ"]) && paddleLeft.position.y > -6.5) paddleLeft.position.y -= paddleSpeed * deltaTime;;
-    if (gameMode === "PvP") {
-        if (keys["ArrowUp"] && paddleRight.position.y < 6.5) paddleRight.position.y += paddleSpeed * deltaTime;
-        if (keys["ArrowDown"] && paddleRight.position.y > -6.5) paddleRight.position.y -= paddleSpeed * deltaTime;
+    if ((keys["w"] || keys["W"] || keys["ㅈ"]) && paddleLeft.position.y < 6.8) paddleLeft.position.y += paddleSpeed * deltaTime;
+    if ((keys["s"] || keys["S"] || keys["ㄴ"]) && paddleLeft.position.y > -6.8) paddleLeft.position.y -= paddleSpeed * deltaTime;
+    if (gameMode == "PvP")
+    {
+        if (keys["ArrowUp"] && paddleRight.position.y < 6.8) paddleRight.position.y += paddleSpeed * deltaTime;
+        if (keys["ArrowDown"] && paddleRight.position.y > -6.8) paddleRight.position.y -= paddleSpeed * deltaTime;
     }
-    else {} // AI 추가
+    else
+    {
+        if (aiKeys["ArrowUp"] && paddleRight.position.y < 6.8) paddleRight.position.y += paddleSpeed * deltaTime;
+        if (aiKeys["ArrowDown"] && paddleRight.position.y > -6.8) paddleRight.position.y -= paddleSpeed * deltaTime;
+    }
 
     // 공 이동
     ball.position.x += ballSpeedX * deltaTime;
@@ -150,8 +153,6 @@ export function update(deltaTime: number)
 // 패들 좌우 충돌
 function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 {
-    const maxBounceAngle = Math.PI / 4; // 최대 반사 각도
-    const speedIncrease = 1.02; // 속도 증가율
 
     let prevX = ball.position.x - ballSpeedX * deltaTime;
     let curX = ball.position.x;
@@ -164,8 +165,8 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
         (prevX > paddleLeftEdge && curX <= paddleRightEdge);
 
     if (crossedPaddle &&
-        ball.position.y + ballSize / 2 >= paddle.position.y - paddleHeight / 2 &&
-        ball.position.y - ballSize / 2 <= paddle.position.y + paddleHeight / 2)
+        ball.position.y >= paddle.position.y - paddleHeight / 2 &&
+        ball.position.y <= paddle.position.y + paddleHeight / 2)
     {
         // 패들 중앙 기준 위치 (-1 ~ 1)
         let relativeIntersectY = (ball.position.y - paddle.position.y) / (paddleHeight / 2);
@@ -186,9 +187,9 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 
         // 공 위치 보정
         if (paddle === paddleLeft) {
-            ball.position.x = paddle.position.x + paddleWidth / 2 + ballSize / 2 + 0.01;
+            ball.position.x = paddle.position.x + paddleWidth / 2 + ballSize / 2 + 0.02;
         } else {
-            ball.position.x = paddle.position.x - paddleWidth / 2 - ballSize / 2 - 0.01;
+            ball.position.x = paddle.position.x - paddleWidth / 2 - ballSize / 2 - 0.02;
         }
         return true;
     }
@@ -198,15 +199,15 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 // 패들 상하단 충돌
 function collisionPaddleHorz(paddle: Mesh): boolean
 {
-    if (ball.position.x >= paddle.position.x - paddleWidth / 2 && ball.position.x <= paddle.position.x + paddleWidth / 2 &&
+    if (ball.position.x > paddle.position.x - paddleWidth / 2 && ball.position.x < paddle.position.x + paddleWidth / 2 &&
         ball.position.y + ballSize / 2 >= paddle.position.y - paddleHeight / 2 && ball.position.y - ballSize / 2 <= paddle.position.y + paddleHeight / 2)
     {
         if (ball.position.y > paddle.position.y) {
             ballSpeedY = Math.abs(ballSpeedY);
-            ball.position.y = paddle.position.y + paddleHeight / 2 + ballSize / 2 + 0.01;
+            ball.position.y = paddle.position.y + paddleHeight / 2 + ballSize / 2 + 0.02;
         } else {
             ballSpeedY = -Math.abs(ballSpeedY);
-            ball.position.y = paddle.position.y - paddleHeight / 2 - ballSize / 2 - 0.01;
+            ball.position.y = paddle.position.y - paddleHeight / 2 - ballSize / 2 - 0.02;
         }
         return true;
     }
@@ -235,11 +236,15 @@ function checkGameEnd(): boolean
 // 게임 종료
 async function finishGame()
 {
-    stopGameLoop();
-
+    pauseGame();
     if (leftScore > rightScore)
         winner = name_1p;
     else
         winner = name_2p;
+
+    scoreText.text = `${leftScore}  -  ${rightScore}`;
     await showWinner(winner);
+    resumeGame((winner) => {
+        console.log(`Winner: ${winner}`);
+    });
 }
