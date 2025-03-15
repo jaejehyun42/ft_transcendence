@@ -7,6 +7,9 @@ import { dashboardPage, ToOther } from "./pages/dashboard.js";
 import { gamePage, setupGame } from "./pages/game.js";
 import { profilePage, loadProfile, editProfile } from "./pages/profile.js";
 
+// 언어 변경 지원 페이지
+const languageSupportPage = ["/dashboard", "/game", "/profile"];
+
 class Router {
     private routes: {
         [key: string]: { 
@@ -43,11 +46,15 @@ class Router {
 
         // ✅ HTML 렌더링
         app.innerHTML = route.content;
-        initLanguageToggle();
 
         // ✅ 페이지 변경 시 언어 업데이트
-        const currentLang = localStorage.getItem("language") || "en";
-        await loadLanguage(currentLang);
+        if (languageSupportPage.includes(path))
+        {
+            initLanguageToggle();
+
+            const currentLang = localStorage.getItem("language") || "en";
+            await loadLanguage(currentLang);
+        }
 
         // ✅ 해당 페이지의 이벤트 리스너 등록
         if (route.pageFuncs) {
@@ -60,15 +67,15 @@ class Router {
 const routes = {
     "/": { 
         content: loadingPage, 
-        pageFuncs: [loadingScreen] 
+        pageFuncs: [loadingScreen]
     },
     "/login": { 
         content: loginPage, 
-        pageFuncs: [setupLogin] 
+        pageFuncs: [setupLogin]
     },
     "/otp": { 
         content: otpPage, 
-        pageFuncs: [setupOTP] 
+        pageFuncs: [setupOTP]
     },
     "/dashboard": { 
         content: dashboardPage,

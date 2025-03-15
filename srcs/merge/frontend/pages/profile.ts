@@ -1,3 +1,5 @@
+import { router } from "../router";
+
 export const profilePage = `
 	<!-- 오버레이 추가 -->
 	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
@@ -24,7 +26,7 @@ export const profilePage = `
 	
 		<!-- 유저 아바타 및 이름 -->
 		<div class="flex flex-col mt-2 items-center">
-			<img src="./src/Basic_image.webp" alt="User Avatar" class="w-35 h-35 rounded-full border border-gray-300">
+			<img src="./Basic_image.webp" alt="User Avatar" class="w-35 h-35 rounded-full border border-gray-300">
 			<p class="mt-4 mb-8 text-xl font-semibold text-gray-700">User Name</p>
 		</div>
 	
@@ -35,8 +37,8 @@ export const profilePage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition duration-300">
-				<img src="flag-usa.png" alt="Change Language" class="w-8 h-8">
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
 		</div>
 	</aside>
@@ -77,6 +79,7 @@ export async function loadProfile() {
 
         if (data.error) {
             console.error("❌ 프로필 로드 실패:", data.error);
+            router.navigate("/login");
             return;
         }
 
