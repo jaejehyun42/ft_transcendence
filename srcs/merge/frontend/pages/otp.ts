@@ -30,13 +30,28 @@ export let otpPage = `
 `;
 
 export function setupOTP() {
-    document.getElementById("verify-btn")?.addEventListener("click", async () => {
-        const otpInput = document.getElementById("otp-input") as HTMLInputElement;
-        const resultMessage = document.getElementById("result");
+    const otpInput = document.getElementById("otp-input") as HTMLInputElement;
+    const verifyBtn = document.getElementById("verify-btn") as HTMLButtonElement;
+    const resultMessage = document.getElementById("result");
 
-        if (!otpInput || !resultMessage) return;
+    if (!otpInput || !verifyBtn || !resultMessage) return;
 
+    // 버튼 클릭 이벤트
+    verifyBtn.addEventListener("click", async () => {
+        await handleOTPVerification();
+    });
+
+    // 엔터 키 이벤트 추가
+    otpInput.addEventListener("keyup", async (event) => {
+        if (event.key === "Enter") {
+            await handleOTPVerification();
+        }
+    });
+
+    async function handleOTPVerification() {
         const otp = otpInput.value.trim();
+        if (!resultMessage) return;
+
         if (otp.length !== 6 || isNaN(Number(otp))) {
             resultMessage.textContent = "OTP는 6자리 숫자여야 합니다.";
             resultMessage.classList.add("error");
@@ -56,5 +71,5 @@ export function setupOTP() {
             resultMessage.textContent = "OTP 인증 실패!";
             resultMessage.classList.add("error");
         }
-    });
+    }
 }

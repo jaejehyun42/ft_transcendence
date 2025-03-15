@@ -20,7 +20,7 @@ export function setupLogin() {
     console.log("🔥 setupLogin 실행됨!");
 
     document.getElementById("loginBtn")?.addEventListener("click", async () => {
-        window.location.href = "https://localhost:3000/login"; // ✅ 로그인 요청
+        window.location.href = "/login"; // ✅ 로그인 요청
 
         /*// ✅ 로그인 성공 여부를 1초 간격으로 확인
         setTimeout(async function check() {
