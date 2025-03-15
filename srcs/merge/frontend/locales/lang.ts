@@ -26,8 +26,10 @@ export async function loadLanguage(lang: string): Promise<void> {
         console.error("Error loading language:", error);
     }
 }
+
 export function initLanguageToggle(): void {
     const langToggleBtn = document.getElementById("lang-toggle") as HTMLButtonElement;
+
     if (!langToggleBtn) {
         console.warn("⚠️ 언어 변경 버튼이 없음. 페이지 로딩 후 다시 실행 필요.");
         return;
@@ -38,10 +40,10 @@ export function initLanguageToggle(): void {
     let currentLang: string = localStorage.getItem("language") || "en";
 
     function updateLanguageIcon(): void {
-        const imgElement = langToggleBtn.querySelector("img") as HTMLImageElement;
-        if (imgElement) {
-            imgElement.src = currentLang === "en" ? "/icons/flag-usa.png" : "/icons/flag-korea.png";
-        }
+        langToggleBtn.innerHTML = `
+            <img src="${currentLang === "en" ? "/icons/flag-usa.png" : "/icons/flag-korea.png"}" alt="Language Icon" class="w-6 h-6">
+            <span class="ml-2 text-lg font-medium">${currentLang === "en" ? "English" : "한국어"}</span>
+        `;
     }
 
     updateLanguageIcon();

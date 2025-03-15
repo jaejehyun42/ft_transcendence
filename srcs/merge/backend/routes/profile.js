@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const dbModule = require('../db/user');
 
-async function profileRoute(fastify, options){
+async function profileRoute(fastify, options) {
   fastify.get('/profile', async (request, reply) => {
     try {
         const user = request.session.user;
