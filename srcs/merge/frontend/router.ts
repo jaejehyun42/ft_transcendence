@@ -3,7 +3,7 @@ import { initLanguageToggle, loadLanguage } from "./locales/lang.js";
 import { loadingPage, loadingScreen } from "./pages/loading.js";
 import { loginPage, setupLogin } from "./pages/login.js";
 import { otpPage, setupOTP } from "./pages/otp.js";
-import { dashboardPage, ToOther } from "./pages/dashboard.js";
+import { dashboardPage, ToOther, setDashBoard } from "./pages/dashboard.js";
 import { gamePage, setupGame } from "./pages/game.js";
 import { profilePage, loadProfile, editProfile } from "./pages/profile.js";
 
@@ -79,7 +79,7 @@ const routes = {
     },
     "/dashboard": { 
         content: dashboardPage,
-        pageFuncs: [ToOther, loadProfile]
+        pageFuncs: [ToOther, loadProfile, setDashBoard]
     },
     "/game": {
         content: gamePage,
