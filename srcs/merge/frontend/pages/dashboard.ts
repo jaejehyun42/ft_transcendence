@@ -1,3 +1,6 @@
+import { createHistoryBox } from "../dashboard/match_history.js"
+import { setUpChart } from "../dashboard/chart.js"
+
 export const dashboardPage = `
 	<!-- 오버레이 추가 -->
 	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
@@ -43,26 +46,54 @@ export const dashboardPage = `
 
 	<!-- 메인 콘텐츠 영역 -->
 	<main class="flex-1 flex">
-		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4">
-			<h2 class="text-5xl mb-10 text-center font-semibold">📊 DASHBOARD</h2>
-			<p class="text-xl text-center">Hello! this is Dashboard page.</p>
-		</div>
+		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center">
+			<p class="text-xl text-center">안녕하세요! 이곳의 우리의 대시보드입니다!</p>
+		</div>		
 	</main>
 `;
 
 export function ToOther(router: any) {
-    document.getElementById("dashboard")?.addEventListener("click", () => {
-        console.log("✅ 대시보드 버튼 클릭됨!");
-        router.navigate("/dashboard");
-    });
+	document.getElementById("dashboard")?.addEventListener("click", () => {
+		console.log("✅ 대시보드 버튼 클릭됨!");
+		router.navigate("/dashboard");
+	});
 
-    document.getElementById("game")?.addEventListener("click", () => {
-        console.log("✅ 게임 버튼 클릭됨!");
-        router.navigate("/game");
-    });
+	document.getElementById("game")?.addEventListener("click", () => {
+		console.log("✅ 게임 버튼 클릭됨!");
+		router.navigate("/game");
+	});
 
-    document.getElementById("profile")?.addEventListener("click", () => {
-        console.log("✅ 프로필 버튼 클릭됨!");
-        router.navigate("/profile");
-    });
+	document.getElementById("profile")?.addEventListener("click", () => {
+		console.log("✅ 프로필 버튼 클릭됨!");
+		router.navigate("/profile");
+	});
 }
+
+export async function setDashBoard()
+{
+	const contentDiv = document.getElementById("content");
+	if (!contentDiv)
+		throw new Error("Error: Cannot find content element!");
+
+	contentDiv.innerHTML = `
+		<h2 class="text-5xl mt-8 text-center font-semibold">📊 DASHBOARD</h2>
+		<div class="w-3/4 flex rounded-xl mt-8 p-10 bg-red-100 justify-center">
+			<canvas id="totalWinRate" class="w-1/4"></canvas>
+			<canvas id="PvEWinRate" class="w-1/4"></canvas>
+			<canvas id="PvPWinRate" class="w-1/4"></canvas>
+			<ul class="w-1/4 text-xl m-5 font-serif flex flex-col justify-center">
+				<li class="m-2">Total Winning rate</li>
+				<li class="m-2">PvE Winning rate</li>
+				<li class="m-2">PvP Winning rate</li>
+			</ul>
+		</div>
+
+		<div class="w-3/4 flex-1 rounded-xl mt-8 p-10 bg-red-100 justify-center">
+			<div id="box-container" class="grid grid-cols-12 items-center"></div>
+		</div>			
+		`;
+		
+		createHistoryBox(5);
+		setUpChart();
+	}
+	
