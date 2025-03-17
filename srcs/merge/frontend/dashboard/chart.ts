@@ -61,6 +61,7 @@ export function setUpChart() {
 		options: {
 			responsive: false,
 			aspectRatio: 1,
+			maintainAspectRatio: false,
 			plugins: {
 				legend: {
 					position: 'top',
@@ -80,6 +81,7 @@ export function setUpChart() {
 		options: {
 			responsive: false,
 			aspectRatio: 1,
+			maintainAspectRatio: false,
 			plugins: {
 				legend: {
 					position: 'top',
@@ -99,6 +101,7 @@ export function setUpChart() {
 		options: {
 			responsive: false,
 			aspectRatio: 1,
+			maintainAspectRatio: false,
 			plugins: {
 				legend: {
 					position: 'top',

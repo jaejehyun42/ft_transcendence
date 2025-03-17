@@ -1,11 +1,11 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("click", () => {
     const sidebar = document.getElementById("sidebar");
     const menuToggle = document.getElementById("menu-toggle");
     const closeToggle = document.getElementById("close-toggle");
     const overlay = document.getElementById("overlay");
 
     if (!sidebar || !menuToggle || !closeToggle || !overlay) {
-        console.error("Sidebar elements not found");
+        console.warn("Sidebar elements not found");
         return;
     }
 

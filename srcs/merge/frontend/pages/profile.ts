@@ -1,4 +1,5 @@
 import { router } from "../router";
+import {loadLanguage } from "../locales/lang"
 
 export const profilePage = `
 	<!-- 오버레이 추가 -->
@@ -52,7 +53,7 @@ export const profilePage = `
             <div class="flex flex-col items-center mb-4">
                 <img id="avatar" src="/Basic_image.webp" alt="User Avatar" class="w-32 h-32 rounded-full border border-gray-300">
                 <input id="avatar-input" type="file" accept="image/*" class="hidden">
-                <button onclick="document.getElementById('avatar-input').click()" 
+                <button id="upload-btn" onclick="document.getElementById('avatar-input').click()" 
                     data-i18n="changephoto" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600">
                 </button>
             </div>
@@ -68,6 +69,9 @@ export const profilePage = `
             <button data-i18n="savechanges" id="save-btn" 
                 class="w-full px-4 py-2 bg-green-500 text-white rounded-md text-lg font-semibold hover:bg-green-600">
             </button>
+
+            <!-- 상태 메시지 표시 -->
+            <p data-i18n="status-message" id="profile-status" class="mt-4 text-center text-sm"></p>
         </div>
     </main>
 `;
@@ -102,22 +106,57 @@ export async function loadProfile() {
 }
 
 export function editProfile() {
+    const avatarInput = document.getElementById("avatar-input") as HTMLInputElement;
+    const avatar = document.getElementById("avatar") as HTMLImageElement;
+
+    if (!avatarInput || !avatar) {
+        console.error("❌ avatarInput 또는 avatar 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // ✅ change 이벤트 리스너를 editProfile 실행 즉시 등록
+    avatarInput.addEventListener('change', function () {
+        console.log("✅ 파일 선택 감지됨!");
+        if (avatarInput.files && avatarInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                if (typeof e.target?.result === "string") {
+                    avatar.src = e.target.result;
+                    console.log("✅ 아바타 이미지 변경됨!");
+                }
+            };
+            reader.readAsDataURL(avatarInput.files[0]);
+        }
+    });
+
     document.getElementById("save-btn")?.addEventListener("click", async (event) => {
         event.preventDefault();
 
         const nicknameInput = document.getElementById("username-input") as HTMLInputElement;
-        const avatarInput = document.getElementById("avatar-input") as HTMLInputElement;
+        const statusMessage = document.getElementById("profile-status") as HTMLParagraphElement;
 
-        if (!nicknameInput || !avatarInput) {
+        if (!nicknameInput) {
             console.error("❌ 닉네임 또는 프로필 사진 입력 필드가 없습니다.");
             return;
         }
 
-        const formData = new FormData();
-        formData.append("nickname", nicknameInput.value); // ✅ 닉네임 추가
-        if (avatarInput.files?.length) {
-            formData.append("profile_picture", avatarInput.files[0]); // ✅ 이미지 추가 (파일 존재 시)
+        const newNickname = nicknameInput.value.trim();
+        const newAvatar = avatarInput.files?.[0];
+        let currentLang: string = localStorage.getItem("language") || "en";
+
+        if (!newNickname && !newAvatar) {
+            console.warn("⚠ 변경 사항이 없습니다.");
+            statusMessage.className = "mt-4 text-center text-sm text-yellow-300";
+            statusMessage.setAttribute("data-i18n", "nochanges");
+            loadLanguage(currentLang);
+            return;
         }
+
+        const formData = new FormData();
+        if (newNickname)
+            formData.append("nickname", newNickname); // 닉네임이 변경된 경우 추가
+        if (newAvatar)
+            formData.append("profile_picture", newAvatar); // 프로필 이미지가 변경된 경우 추가
 
         try {
             const response = await fetch("/profile", {
@@ -128,14 +167,24 @@ export function editProfile() {
             const data = await response.json();
             if (data.success) {
                 console.log("✅ 프로필 업데이트 성공!");
-
-                // ✅ 프로필 업데이트 후 화면 즉시 반영
-                loadProfile();
+                statusMessage.className = "mt-4 text-center text-sm text-green-300";
+                statusMessage.setAttribute("data-i18n", "profileupdatesuccess");
+                loadLanguage(currentLang);
+                loadProfile(); // ✅ 프로필 업데이트 후 화면 즉시 반영
             } else {
                 console.error("❌ 프로필 업데이트 실패:", data.error);
+                statusMessage.className = "mt-4 text-center text-sm text-red-500";
+                if (data.error == "이미 존재하는 닉네임입니다.")
+                    statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
+                else if (data.error == "닉네임과 프로필 사진(이미지) 모두 필요합니다.")
+                    statusMessage.setAttribute("data-i18n", "nicknameandphotoreq");
+                loadLanguage(currentLang);
             }
         } catch (error) {
             console.error("❌ 프로필 업데이트 중 오류 발생:", error);
+            statusMessage.className = "mt-4 text-center text-sm text-red-500";
+            statusMessage.setAttribute("data-i18n", "networkerror");
+            loadLanguage(currentLang);
         }
     });
 }

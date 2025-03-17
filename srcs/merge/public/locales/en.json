@@ -17,5 +17,10 @@
   "editprofile": "👤 EDIT PRFILE",
   "changephoto": "CHANGE PHOTO",
   "enternewname": "ENTER NEW NAME",
-  "savechanges": "SAVE CHANGES"
+  "savechanges": "SAVE CHANGES",
+  "nochanges": "No changes were made.",
+  "profileupdatesuccess": "Profile updated successfully.",
+  "nicknamealreadyexist": "Nickname already exists.",
+  "nicknameandphotoreq": "Both nickname and profile picture (image) are required.",
+  "network_error": "A network error occurred."
 }
