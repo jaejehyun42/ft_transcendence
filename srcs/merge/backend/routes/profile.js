@@ -25,7 +25,7 @@ async function profileRoute(fastify, options) {
         let nickname;
         let profilePicturePath;
         
-        const uploadDir = '/app/uploads';
+        const uploadDir = '/app/public/uploads';
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir);
         }
@@ -38,10 +38,11 @@ async function profileRoute(fastify, options) {
 
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
             const filename = Date.now() + '_' + part.filename;
-            profilePicturePath = path.join(uploadDir, filename);
+            profilePicturePath = `/uploads/${filename}`; // 상대 경로 저장
 
             // 파일을 저장할 스트림 생성 및 파이핑
-            const writeStream = fs.createWriteStream(profilePicturePath);
+            const filePath = path.join(uploadDir, filename);
+            const writeStream = fs.createWriteStream(filePath);
             await part.file.pipe(writeStream);
             console.log('File saved to:', profilePicturePath);
           }
@@ -53,6 +54,7 @@ async function profileRoute(fastify, options) {
       }
 
       const db = fastify.db;
+      // 1. 중복된 닉네임이 있는지 확인
                 
       const result = await dbModule.addNick(db, nickname, profilePicturePath);
 
@@ -60,13 +62,14 @@ async function profileRoute(fastify, options) {
       return reply.send({
         id: result.id,
         nickname: result.nickname,
-        message: '프로필이 성공적으로 저장되었습니다.'
+        message: '프로필이 성공적으로 저장되었습니다.',
+        success: true
       });
     } catch (err) {
       console.error('프로필 저장 중 오류:', err);
-      //if (err && err.code === 'SQLITE_CONSTRAINT') {
-      //  return reply.status(409).send({ error: '이미 존재하는 닉네임입니다.'});
-      //}
+      if (err && err.code === 'SQLITE_CONSTRAINT') {
+        return reply.status(409).send({ error: '이미 존재하는 닉네임입니다.'});
+      }
       return reply.status(500).send({ error: err.message });
     }
   });
