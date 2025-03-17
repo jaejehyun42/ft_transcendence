@@ -11,7 +11,7 @@ export let otpPage = `
                 </h3>
                 <img id="qr-code" src="/generate-qr" alt="QR Code" class="w-48 h-48 mb-2">
                 <p class="text-sm">
-                    Google Authenticator 앱으로 QR 코드를 스캔하세요.
+                    Google Authenticator 앱으로 <span class="w-full block text-center"> QR 코드를 스캔하세요.
                 </p>
             </div>
             
