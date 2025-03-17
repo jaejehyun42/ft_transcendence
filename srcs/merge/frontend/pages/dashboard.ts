@@ -46,7 +46,7 @@ export const dashboardPage = `
 
 	<!-- 메인 콘텐츠 영역 -->
 	<main class="flex-1 flex h-screen overflow-hidden">
-		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center overflow-y-auto max-h-screen"></div>
+		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center max-h-screen"></div>
 	</main>
 `;
 
@@ -86,7 +86,7 @@ export async function setDashBoard()
 			</ul>
 		</div>
 
-		<div class="w-3/4 flex-1 rounded-xl mt-8 p-10 bg-red-100 justify-center">
+		<div class="w-3/4 flex-1 rounded-xl mt-8 p-10 bg-red-100 overflow-y-auto justify-center">
 			<div id="box-container" class="grid grid-cols-12 items-center"></div>
 		</div>			
 		`;
