@@ -1,47 +1,6 @@
-const sqlite3 = require('sqlite3').verbose();
 const fp = require('fastify-plugin');
 
-// 데이터베이스 연결 함수
-async function connectDB(dbPath) {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        console.error('데이터베이스 연결 오류:', err.message);
-        reject(err);
-      } else {
-        console.log('SQLite 데이터베이스에 연결되었습니다.');
-        resolve(db);
-      }
-    });
-  });
-}
-
-// 테이블 생성 함수 (애플리케이션 시작 시 한 번만 호출)
-async function createTable(db) {  
-	return new Promise((resolve, reject) => {
-	  const sql = `
-		CREATE TABLE IF NOT EXISTS users (
-		  id INTEGER PRIMARY KEY AUTOINCREMENT,
-		  username TEXT UNIQUE,
-		  nickname TEXT UNIQUE,
-		  email TEXT,
-		  profile_picture TEXT,
-		  otp_secret TEXT
-		)
-	  `;
-	  db.run(sql, (err) => {
-		if (err) {
-		  console.error('테이블 생성 오류:', err.message);
-		  reject(err);
-		} else {
-		  console.log('테이블 생성 성공');
-		  resolve();
-		}
-	  });
-	});
-  }
-
-  async function executeQuery(db, sql, params = []) { 
+async function executeQuery(db, sql, params = []) { 
 	return new Promise((resolve, reject) => {
 	  db.all(sql, params, (err, rows) => {
 		if (err) {
@@ -52,7 +11,7 @@ async function createTable(db) {
 		}
 	  });
 	});
-  }
+}
 
 // 사용자 정보 추가 함수
 async function addUser(db, username, email) { 
@@ -62,13 +21,25 @@ async function addUser(db, username, email) {
 		if (err) {
 		  console.error('사용자 정보 추가 오류:', err.message);
 		  reject(err);
-		} else {
-		  console.log(`사용자 ${username} 추가 성공`);
-		  resolve();
-		}
+		  return;
+		}		
+		console.log(`사용자 ${username} 추가 성공`);
+		console.log('ID:', this.lastID);
+
+		// 해당 유저의 기본 게임 데이터 추가
+		const gameSql = `INSERT INTO gamedb (user_id, ai_win, ai_lose, human_win, human_lose) VALUES (?, 0, 0, 0, 0)`;
+		db.run(gameSql, [this.lastID], function (err) {
+		  if (err) {
+			console.error('게임 데이터 추가 오류:', err.message);
+			reject(err);
+		  } else {
+			console.log('게임 데이터 추가 성공');
+			resolve(this.lastID);
+		  }
+		});
 	  });
 	});
-  }
+}
 
 // NICKNAME ADD
 async function addNick(db, nickname, profile_picture) { 
@@ -83,7 +54,7 @@ async function addNick(db, nickname, profile_picture) {
 			resolve({ id: this.lastID, nickname });
 		}
 		});
-});
+	});
 }
 
 async function getUserByEmail(db, email) {
@@ -100,6 +71,15 @@ async function getUserByEmail(db, email) {
 	});
 }
 
+async function getUserByRefreshToken(db, refreshToken) {
+    const query = 'SELECT id, email FROM users WHERE refresh_token = ?';
+    const results = await executeQuery(db, query, [refreshToken]);
+
+    if (results.length > 0) {
+        return results[0]; // 첫 번째 결과 반환 (유저 정보)
+    }
+    return null;
+}
 // OTP 시크릿 업데이트
 async function updateOtpSecret(db, email, otpSecret) {
 	return new Promise((resolve, reject) => {
@@ -119,25 +99,27 @@ async function updateOtpSecret(db, email, otpSecret) {
 	});
 }
 
-// Fastify 플러그인으로 데이터베이스 초기화
-async function dbPlugin(fastify, options) {
-  try {
-    const dbPath = '/data/mydb.sqlite';
-    const db = await connectDB(dbPath);
-    await createTable(db);
-    console.log('데이터베이스 초기화 완료');
-    fastify.decorate('db', db); // Fastify 인스턴스에 db를 등록
-  } catch (err) {
-    console.error('데이터베이스 초기화 오류:', err.message);
-    process.exit(1);
-  }
+async function saveRefreshToken(db, userId, refreshToken) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE users SET refresh_token = ? WHERE id = ?`;
+        db.run(query, [refreshToken, userId], function (err) {
+            if (err) {
+                console.error('리프레시 토큰 저장 오류:', err.message);
+                reject(err);
+            } else {
+                console.log(`리프레시 토큰 저장 성공 (User ID: ${userId})`);
+                resolve(true);
+            }
+        });
+    });
 }
 
 module.exports = {
-	dbPlugin: fp(dbPlugin), // fastify-plugin으로 감싸서 export
 	executeQuery,
 	addUser,
 	addNick,
+	getUserByRefreshToken,
 	getUserByEmail,
-	updateOtpSecret
-  };
+	updateOtpSecret,
+	saveRefreshToken
+};

@@ -36,6 +36,7 @@
     "fastify": "^5.2.1",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "jsonwebtoken": "^9.0.2"
   }
 }
