@@ -1,4 +1,5 @@
 const fp = require('fastify-plugin');
+const sqlite3 = require('sqlite3').verbose();
 
 async function executeQuery(db, sql, params = []) { 
 	return new Promise((resolve, reject) => {
@@ -80,6 +81,7 @@ async function getUserByRefreshToken(db, refreshToken) {
     }
     return null;
 }
+
 // OTP 시크릿 업데이트
 async function updateOtpSecret(db, email, otpSecret) {
 	return new Promise((resolve, reject) => {
@@ -99,27 +101,11 @@ async function updateOtpSecret(db, email, otpSecret) {
 	});
 }
 
-async function saveRefreshToken(db, userId, refreshToken) {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE users SET refresh_token = ? WHERE id = ?`;
-        db.run(query, [refreshToken, userId], function (err) {
-            if (err) {
-                console.error('리프레시 토큰 저장 오류:', err.message);
-                reject(err);
-            } else {
-                console.log(`리프레시 토큰 저장 성공 (User ID: ${userId})`);
-                resolve(true);
-            }
-        });
-    });
-}
-
 module.exports = {
 	executeQuery,
 	addUser,
 	addNick,
 	getUserByRefreshToken,
 	getUserByEmail,
-	updateOtpSecret,
-	saveRefreshToken
+	updateOtpSecret
 };
