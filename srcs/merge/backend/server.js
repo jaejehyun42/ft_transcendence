@@ -3,12 +3,28 @@ const fs = require('fs');
 const path = require('path');
 const port = 3000;
 
-// Fastify 인스턴스 생성 (HTTPS 옵션 포함)
+const certPath = path.resolve(__dirname, '../cert/.certificate'); // 절대 경로 변환
+const certData = fs.readFileSync(certPath, 'utf8');
+console.log("✅ Certificate loaded successfully!");
+
+function parseCertificate(certFileContent) {
+	const parts = certFileContent.split('-----END PRIVATE KEY-----');
+	if (parts.length !== 2) {
+		throw new Error('.certificate 파일 형식이 올바르지 않습니다.');
+	}
+
+	const key = parts[0] + '-----END PRIVATE KEY-----\n'; // 개인 키
+	const cert = parts[1].trim(); // 인증서
+	return { key, cert };
+}
+
+const { key, cert } = parseCertificate(certData);
+
 const app = fastify({
 	logger: true,
 	https: {
-		key: fs.readFileSync(path.join(__dirname, 'certs', 'server.key')),
-		cert: fs.readFileSync(path.join(__dirname, 'certs', 'server.crt'))
+		key,
+		cert
 	}
 });
 

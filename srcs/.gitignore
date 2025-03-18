@@ -1,3 +1,4 @@
 .env
 ./srcs/.env
 .DS_Store
+./srcs/merge/backend/cert/.certificate
