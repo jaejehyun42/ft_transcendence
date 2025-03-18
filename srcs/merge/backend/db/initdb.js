@@ -26,7 +26,8 @@ async function createTable(db) {
                 nickname TEXT UNIQUE,
                 email TEXT,
                 profile_picture TEXT,
-                otp_secret TEXT
+                otp_secret TEXT,
+                refresh_token TEXT
             );
         `;
   

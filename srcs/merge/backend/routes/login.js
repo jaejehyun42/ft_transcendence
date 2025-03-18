@@ -2,6 +2,7 @@ const axios = require('axios');
 const otp = require('../auth/otp.js');
 const dbModule = require('../db/user');
 const qrcode = require('qrcode');
+const { generateJWT, setAuthCookies } = require('../auth/jwt');
 
 async function authRoute(fastify, options) {
     fastify.get('/login', async (request, reply) => {
@@ -77,29 +78,7 @@ async function authRoute(fastify, options) {
 		  return reply.redirect('/fail');
 		}
 	});
-
-	fastify.post('/verify', async (request, reply) => {
-		const { token } = request.body;
-		const secret = request.session.otpSecret;
 	
-		if (!token || !secret) {
-			return reply.status(400).send({ success: false, message: '토큰 또는 시크릿이 없습니다.' });
-		}
-	
-		try {
-			const isValid = otp.verifyOTP(token, { base32: secret });
-	
-			if (isValid) {
-				return reply.send({ success: true, message: 'OTP 인증 성공' }); // ✅ JSON 응답 반환
-			} else {
-				return reply.status(401).send({ success: false, message: 'OTP 인증 실패' });
-			}
-		} catch (error) {
-			fastify.log.error('❌ OTP 검증 중 오류 발생:', error);
-			return reply.status(500).send({ success: false, message: 'OTP 검증 중 오류 발생: ' + error.message });
-		}
-	});
-
 	fastify.get('/db-save', async (request, reply) => {
 		const userInfo = request.session.userInfo;
 	  
@@ -110,11 +89,11 @@ async function authRoute(fastify, options) {
 		}
 
 		request.session.user = {
-            id: userInfo.id,
-            email: userInfo.email,
-            nickname: userInfo.id || "User",
-            profile_picture: userInfo.profile_picture || "/Basic_image.webp"
-        };
+			id: userInfo.id,
+			email: userInfo.email,
+			nickname: userInfo.id || "User",
+			profile_picture: userInfo.profile_picture || "/Basic_image.webp"
+		};
 	  
 		const db = fastify.db;
 	  
@@ -140,7 +119,45 @@ async function authRoute(fastify, options) {
 		  return reply.redirect("/otp");
 		  //return reply.send({ success: true, userName: userInfo.name, email: userInfo.email }); // succcess: false?
 		}
-	  });
+	});
+
+	fastify.post('/verify', async (request, reply) => {
+		const db = fastify.db;
+		const { token } = request.body;
+		const userInfo = request.session.userInfo;
+		const secret = request.session.otpSecret;
+	
+		if (!token || !secret) {
+			return reply.status(400).send({ success: false, message: '토큰 또는 시크릿이 없습니다.' });
+		}
+		
+		const existingUser = await dbModule.getUserByEmail(db, userInfo.email);
+		if (!existingUser || !existingUser.id) {
+			return reply.status(500).send({ success: false, message: '사용자 ID를 가져올 수 없습니다.' });
+		}
+		if (!existingUser.otp_secret) {
+            return reply.status(400).send({ success: false, message: 'OTP 시크릿이 없습니다.' });
+        }
+
+		try {
+			const isValid = otp.verifyOTP(token, { base32: secret });
+	
+			if (isValid) {
+				// OTP 인증 성공 -> JWT 발급
+                const userId = existingUser.id;
+                const { accessToken, refreshToken } = generateJWT({ userId, email: userInfo.email });
+                setAuthCookies(reply, accessToken, refreshToken);
+                await dbModule.saveRefreshToken(db, userId, refreshToken);
+				return reply.send({ success: true, message: 'OTP 인증 성공' }); // ✅ JSON 응답 반환
+			} else {
+				return reply.status(401).send({ success: false, message: 'OTP 인증 실패' });
+			}
+		} catch (error) {
+			fastify.log.error('❌ OTP 검증 중 오류 발생:', error);
+			return reply.status(500).send({ success: false, message: 'OTP 검증 중 오류 발생: ' + error.message });
+		}
+	});
+
 
 	  fastify.get('/login-success', async (request, reply) => {
 		// 첫 번째 요청인지 확인

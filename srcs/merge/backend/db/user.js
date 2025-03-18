@@ -71,6 +71,15 @@ async function getUserByEmail(db, email) {
 	});
 }
 
+async function getUserByRefreshToken(db, refreshToken) {
+    const query = 'SELECT id, email FROM users WHERE refresh_token = ?';
+    const results = await executeQuery(db, query, [refreshToken]);
+
+    if (results.length > 0) {
+        return results[0]; // 첫 번째 결과 반환 (유저 정보)
+    }
+    return null;
+}
 // OTP 시크릿 업데이트
 async function updateOtpSecret(db, email, otpSecret) {
 	return new Promise((resolve, reject) => {
@@ -90,10 +99,27 @@ async function updateOtpSecret(db, email, otpSecret) {
 	});
 }
 
+async function saveRefreshToken(db, userId, refreshToken) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE users SET refresh_token = ? WHERE id = ?`;
+        db.run(query, [refreshToken, userId], function (err) {
+            if (err) {
+                console.error('리프레시 토큰 저장 오류:', err.message);
+                reject(err);
+            } else {
+                console.log(`리프레시 토큰 저장 성공 (User ID: ${userId})`);
+                resolve(true);
+            }
+        });
+    });
+}
+
 module.exports = {
 	executeQuery,
 	addUser,
 	addNick,
+	getUserByRefreshToken,
 	getUserByEmail,
-	updateOtpSecret
+	updateOtpSecret,
+	saveRefreshToken
 };

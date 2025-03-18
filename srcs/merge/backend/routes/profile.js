@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const dbModule = require('../db/user');
+const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
-  fastify.get('/profile', async (request, reply) => {
+  fastify.get('/profile', { preHandler: authenticateJWT.authenticateJWT }, async (request, reply) => {
     try {
         const user = request.session.user;
         if (!user) {
