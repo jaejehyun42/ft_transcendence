@@ -21,7 +21,7 @@ async function profileRoute(fastify, options) {
     }
 });
 
-  fastify.post('/profile',  {}, async (request, reply) => {
+  fastify.post('/profile/save',  {}, async (request, reply) => {
       try {
         let nickname;
         let profilePicturePath;
@@ -55,11 +55,9 @@ async function profileRoute(fastify, options) {
       }
 
       const db = fastify.db;
-      // 1. 중복된 닉네임이 있는지 확인
                 
       const result = await dbModule.addNick(db, nickname, profilePicturePath);
 
-      // 성공 응답 전송
       return reply.send({
         id: result.id,
         nickname: result.nickname,
