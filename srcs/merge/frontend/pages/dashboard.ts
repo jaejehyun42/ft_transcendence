@@ -46,7 +46,11 @@ export const dashboardPage = `
 
 	<!-- 메인 콘텐츠 영역 -->
 	<main class="flex-1 flex h-screen overflow-hidden">
+<<<<<<< HEAD
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center max-h-screen"></div>
+=======
+		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center overflow-y-auto max-h-screen"></div>
+>>>>>>> 2adc264 (feat: 대쉬보드 화면이 콘텐츠 영역 밖으로 나가는 오류 수정)
 	</main>
 `;
 
