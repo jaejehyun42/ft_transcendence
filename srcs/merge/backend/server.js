@@ -13,8 +13,6 @@ const app = fastify({
 });
 
 require('./plugins/server_plugin')(app);
-const dbModule = require('./db/user');
-app.register(dbModule.dbPlugin);
 const dbPlugin = require('./db/initdb');
 console.log(typeof dbPlugin); // 'object'인지 확인
 app.register(dbPlugin);

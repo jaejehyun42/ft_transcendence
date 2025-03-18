@@ -47,7 +47,7 @@ async function authenticateJWT(request, reply) {
 
         if (!accessToken || !refreshToken) {
             console.log("🚨 토큰 없음, 로그인 필요");
-            return reply.redirect('/login');
+            return reply.redirect('/');
         }
 
         let decoded;
@@ -58,7 +58,7 @@ async function authenticateJWT(request, reply) {
                 console.log("🔄 Access Token 만료, Refresh Token으로 갱신 시도");
             } else {
                 console.log("🚨 Access Token이 유효하지 않음:", error.message);
-                return reply.redirect('/login');
+                return reply.redirect('/');
             }
         }
 
@@ -66,7 +66,7 @@ async function authenticateJWT(request, reply) {
         const user = await dbModule.getUserByRefreshToken(db, refreshToken);
         if (!user) {
             console.log("🚨 Refresh Token이 DB에 없음, 다시 로그인 필요");
-            return reply.redirect('/login');
+            return reply.redirect('/');
         }
 
         // ✅ Access Token 재발급 (인증할 때마다 연장)
@@ -87,7 +87,7 @@ async function authenticateJWT(request, reply) {
         return;
     } catch (error) {
         console.error("🚨 JWT 인증 오류:", error);
-        return reply.redirect('/login');
+        return reply.redirect('/');
     }
 }
 
