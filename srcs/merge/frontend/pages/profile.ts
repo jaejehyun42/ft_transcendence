@@ -78,7 +78,7 @@ export const profilePage = `
 
 export async function loadProfile() {
     try {
-        const response = await fetch("/profile"); // ✅ 서버에서 유저 정보 가져오기
+        const response = await fetch("/profile/send"); // ✅ 서버에서 유저 정보 가져오기
         const data = await response.json();
 
         if (data.error) {
@@ -159,7 +159,7 @@ export function editProfile() {
             formData.append("profile_picture", newAvatar); // 프로필 이미지가 변경된 경우 추가
 
         try {
-            const response = await fetch("/profile", {
+            const response = await fetch("/profile/save", {
                 method: "POST",
                 body: formData,
             });

@@ -39,22 +39,23 @@ async function addUser(db, username, email) {
 	});
 }
 
-// NICKNAME ADD
-async function addNick(db, nickname, profile_picture) { 
-	return new Promise((resolve, reject) => {
-		const sql = `INSERT INTO users (nickname, profile_picture) VALUES (?, ?)`;
-		db.run(sql, [nickname, profile_picture], function (err) {
-		if (err) {
-			console.error('사용자 nickname 정보 추가 오류:', err.message);
-			reject(err);
-		} else {
-			console.log(`사용자 ${nickname} 추가 성공`);
-			resolve({ id: this.lastID, nickname });
-		}
-		});
-	});
-}
+async function updateInfo(db, email, newNickname, newProfilePicture) { 
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE users SET nickname = ?, profile_picture = ? WHERE email = ?`;
 
+        db.run(sql, [newNickname, newProfilePicture, email], function (err) {
+            if (err) {
+                console.error('사용자 nickname 업데이트 오류:', err.message);
+                reject(err);
+            } else if (this.changes === 0) {  // 변경된 행이 없을 경우
+                reject(new Error(`User with email ${email} not found`));
+            } else {
+                console.log(`사용자 ${email} 닉네임 변경 완료: ${newNickname}`);
+                resolve({ email, nickname: newNickname });
+            }
+        });
+    });
+}
 async function getUserByEmail(db, email) {
 	return new Promise((resolve, reject) => {
 		const sql = `SELECT * FROM users WHERE email = ?`;
@@ -116,7 +117,7 @@ async function saveRefreshToken(db, userId, refreshToken) {
 module.exports = {
 	executeQuery,
 	addUser,
-	addNick,
+	updateInfo,
 	getUserByRefreshToken,
 	getUserByEmail,
 	updateOtpSecret,

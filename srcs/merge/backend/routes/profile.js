@@ -4,13 +4,11 @@ const dbModule = require('../db/user');
 const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
-  fastify.get('/profile', { preHandler: authenticateJWT.authenticateJWT }, async (request, reply) => {
+  fastify.get('/profile/send', { preHandler: authenticateJWT.authenticateJWT }, async (request, reply) => {
     try {
-        const user = request.session.user;
-        if (!user) {
-            return reply.status(401).send({ error: "인증이 필요합니다." });
-        }
-
+        const db = fastify.db;
+        const userInfo = request.session.userInfo;
+        const user = await dbModule.getUserByEmail(db, userInfo.email);
         return reply.send({
             nickname: user.nickname || "",
             profile_picture: user.profile_picture || ""
@@ -19,9 +17,9 @@ async function profileRoute(fastify, options) {
         console.error("프로필 정보 가져오기 오류:", error);
         return reply.status(500).send({ error: "프로필 정보를 가져오는 중 오류가 발생했습니다." });
     }
-});
+  });
 
-  fastify.post('/profile',  {}, async (request, reply) => {
+  fastify.post('/profile/save', { preHandler: authenticateJWT.authenticateJWT}, async (request, reply) => {
       try {
         let nickname;
         let profilePicturePath;
@@ -57,7 +55,7 @@ async function profileRoute(fastify, options) {
       const db = fastify.db;
       // 1. 중복된 닉네임이 있는지 확인
                 
-      const result = await dbModule.addNick(db, nickname, profilePicturePath);
+      const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);
 
       // 성공 응답 전송
       return reply.send({
