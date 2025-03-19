@@ -64,7 +64,11 @@ async function authRoute(fastify, options) {
             const db = fastify.db;
             await dbModule.invalidateRefreshToken(db, request.cookies.refresh_token);
             // 2️⃣ 성공 응답
-            return reply.send({ success: true, message: '로그아웃 되었습니다.' });
+            reply.clearCookie('authToken', {     // 기존의 인증 정보를 무효화
+                domain: 'localhost',
+                path: '/'
+            });
+            return reply.send({ success: true, logoutUrl: 'https://accounts.google.com/Logout' });
         } catch (error) {
             console.error("🚨 로그아웃 오류:", error);
             return reply.status(500).send({ success: false, message: '로그아웃 중 오류 발생' });
