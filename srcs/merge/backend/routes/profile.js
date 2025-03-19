@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const dbModule = require('../db/user');
-const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
   const db = fastify.db;
@@ -10,7 +9,7 @@ async function profileRoute(fastify, options) {
     try {
         // 1️⃣ `/auth/check` API 호출하여 JWT 검증
         const authResponse = await fastify.inject({
-            method: 'GET',
+            method: 'POST',
             url: '/auth/check',
             cookies: request.cookies // 현재 요청의 쿠키를 전달
         });
@@ -42,17 +41,6 @@ async function profileRoute(fastify, options) {
         let nickname;
         let profilePicturePath;
         
-        const authResponse = await fastify.inject({
-          method: 'GET',
-          url: '/auth/check',
-          cookies: request.cookies // 현재 요청의 쿠키를 전달
-        });
-
-        const authData = authResponse.json();
-        if (!authData.authenticated) {
-            return reply.redirect('/');
-        }
-
         const uploadDir = '/app/uploads';
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir);

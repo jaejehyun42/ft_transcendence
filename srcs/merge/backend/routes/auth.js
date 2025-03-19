@@ -2,7 +2,7 @@ const dbModule = require('../db/user');
 const jwt = require('jsonwebtoken');
 
 async function authRoute(fastify, options) {
-    fastify.get('/auth/check', async (request, reply) => {
+    fastify.post('/auth/check', async (request, reply) => {
         try {
             const accessToken = request.cookies.access_token; 
             const refreshToken = request.cookies.refresh_token;
