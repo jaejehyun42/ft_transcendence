@@ -4,7 +4,9 @@ const dbModule = require('../db/user');
 const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
- fastify.get('/profile/send', async (request, reply) => {
+  const db = fastify.db;
+  
+  fastify.get('/profile/send', async (request, reply) => {
     try {
         // 1️⃣ `/auth/check` API 호출하여 JWT 검증
         const authResponse = await fastify.inject({
@@ -19,7 +21,6 @@ async function profileRoute(fastify, options) {
         }
 
         // 2️⃣ 인증된 사용자 정보 가져오기
-        const db = fastify.db;
         const user = await dbModule.getUserByEmail(db, authData.user.email);
         if (!user) {
             return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
