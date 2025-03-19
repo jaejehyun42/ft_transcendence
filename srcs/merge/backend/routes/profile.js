@@ -89,32 +89,6 @@ async function profileRoute(fastify, options) {
       return reply.status(500).send({ error: err.message });
     }
   });
-
-  fastify.get('/logout', async (request, reply) => {
-    try {
-      if (request.session.accessToken) {
-      const revokeUrl = `https://accounts.google.com/o/oauth2/revoke?token=${request.session.accessToken}`;
-    
-      // Google에 액세스 토큰 무효화 요청
-      await fetch(revokeUrl, { method: 'POST' }).catch(err => console.error('Google 토큰 무효화 실패:', err));
-      }
-    
-      // Fastify 세션 삭제 (올바른 방식)
-      request.session.destroy(err => {
-      if (err) {
-        console.error('세션 삭제 중 오류:', err);
-        return reply.status(500).send({ error: '세션 삭제 실패' });
-      }
-      
-      // 클라이언트에서 Google 로그아웃을 실행하도록 /logout-client로 리디렉트
-      return reply.redirect('/login');
-      });
-    
-    } catch (error) {
-      console.error('로그아웃 중 오류:', error);
-      return reply.status(500).send({ error: '로그아웃 실패' });
-    }
-    });
-  }
+}
 
 module.exports = profileRoute;

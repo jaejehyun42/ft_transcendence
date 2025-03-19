@@ -1,4 +1,5 @@
 const dbModule = require('../db/user');
+const jwt = require('jsonwebtoken');
 
 async function authRoute(fastify, options) {
     fastify.get('/auth/check', async (request, reply) => {
@@ -51,6 +52,22 @@ async function authRoute(fastify, options) {
         } catch (error) {
             console.error("🚨 JWT 인증 오류:", error);
             return reply.status(500).send({ authenticated: false, message: 'Server error' });
+        }
+    });
+
+    fastify.get('/auth/logout', async (request, reply) => {
+        try {
+            // 1️⃣ Access Token & Refresh Token 쿠키 삭제
+            reply.clearCookie('access_token', { path: '/' });
+            reply.clearCookie('refresh_token', { path: '/' });
+            
+            const db = fastify.db;
+            await dbModule.invalidateRefreshToken(db, request.cookies.refresh_token);
+            // 2️⃣ 성공 응답
+            return reply.send({ success: true, message: '로그아웃 되었습니다.' });
+        } catch (error) {
+            console.error("🚨 로그아웃 오류:", error);
+            return reply.status(500).send({ success: false, message: '로그아웃 중 오류 발생' });
         }
     });
 }

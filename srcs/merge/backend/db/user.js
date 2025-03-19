@@ -113,6 +113,21 @@ async function saveRefreshToken(db, userId, refreshToken) {
     });
 }
 
+async function invalidateRefreshToken(db, refreshToken) {
+    return new Promise((resolve, reject) => {
+        const query = `DELETE FROM users WHERE refresh_token = ?`;
+        db.run(query, [refreshToken], function (err) {
+            if (err) {
+                console.error('리프레시 토큰 무효화 오류:', err.message);
+                reject(err);
+            } else {
+                console.log(`리프레시 토큰 무효화 성공 (Refresh Token: ${refreshToken})`);
+                resolve(true);
+            }
+        });
+    });
+}
+
 module.exports = {
 	executeQuery,
 	addUser,
@@ -120,5 +135,6 @@ module.exports = {
 	getUserByRefreshToken,
 	getUserByEmail,
 	updateOtpSecret,
-	saveRefreshToken
+	saveRefreshToken,
+	invalidateRefreshToken
 };

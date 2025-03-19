@@ -27,7 +27,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
         secure: true, 
         sameSite: 'Lax', 
         path: '/', // 모든 경로에서 쿠키 접근 가능
-        maxAge: 15 * 60 // 15분 (초 단위)
+        maxAge: 15 * 60 * 1000 // 15분 (초 단위)
     });
 
     // ✅ 리프레시 토큰 → 쿠키 저장
@@ -36,7 +36,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
         secure: true, 
         sameSite: 'Lax', 
         path: '/', // 모든 경로에서 쿠키 접근 가능
-        maxAge: 7 * 24 * 60 // 7일 (초 단위)
+        maxAge: 60 * 60 * 1000 // 1시간 (초 단위)
     });
 }
 
