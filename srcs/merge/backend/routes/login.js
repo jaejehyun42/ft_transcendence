@@ -9,7 +9,7 @@ async function loginRoute(fastify, options) {
 		return reply.redirect('/login/google');
     });
 	
-	fastify.get('/success', async (request, reply) => {
+	fastify.get('/login/success', async (request, reply) => {
 		const accessToken = request.session.accessToken;
 		try {
 		  const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -38,7 +38,7 @@ async function loginRoute(fastify, options) {
 				const newAccessToken = newTokenResponse.data.access_token;
 				request.session.accessToken = newAccessToken;		
 				// 갱신된 accessToken으로 다시 시도합니다.
-				return reply.redirect('/success');
+				return reply.redirect('/login/success');
 			}
 			return reply.redirect('/fail');
 		}

@@ -43,7 +43,7 @@ async function handleGoogleCallback(request, reply, options) {
 		secure: true,
 		httpOnly: true
 		});
-	  return reply.redirect('/success');
+	  return reply.redirect('/login/success');
 	} catch (error) {
 	  console.error(error);
 	  return reply.redirect('/fail');
