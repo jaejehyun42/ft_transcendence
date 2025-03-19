@@ -56,7 +56,13 @@ async function checkNicknameExists(db, nickname) {
 
 async function updateInfo(db, email, newNickname, newProfilePicture) { 
     return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET nickname = ?, profile_picture = ? WHERE email = ?`;
+		const sql = `
+		UPDATE users 
+		SET 
+			nickname = COALESCE(?, nickname), 
+			profile_picture = COALESCE(?, profile_picture) 
+		WHERE email = ?
+		`;
 
         db.run(sql, [newNickname, newProfilePicture, email], function (err) {
             if (err) {

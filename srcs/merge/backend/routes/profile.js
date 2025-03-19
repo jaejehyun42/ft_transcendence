@@ -12,7 +12,7 @@ async function profileRoute(fastify, options) {
         const authResponse = await fastify.inject({
             method: 'GET',
             url: '/auth/check',
-            cookies: request.cookies // 현재 요청의 쿠키를 전달
+            cookies: request.cookies
         });
 
         const authData = authResponse.json();
@@ -37,7 +37,19 @@ async function profileRoute(fastify, options) {
     }
   });
 
-  fastify.post('/profile/save', { preHandler: authenticateJWT.authenticateJWT}, async (request, reply) => {
+  fastify.post('/profile/save', async (request, reply) => {
+      // 1️⃣ `/auth/check` API 호출하여 JWT 검증
+      const authResponse = await fastify.inject({
+        method: 'GET',
+        url: '/auth/check',
+        cookies: request.cookies // 현재 요청의 쿠키를 전달
+      });
+
+      const authData = authResponse.json();
+      if (!authData.authenticated) {
+          return reply.redirect('/');
+      }
+
       try {
         let nickname;
         let profilePicturePath;
@@ -71,9 +83,9 @@ async function profileRoute(fastify, options) {
           }
         }
 
-      if (!nickname) {
-        console.log('닉네임 데이터가 누락되었습니다.');
-        return reply.status(400).send({ error: '닉네임 데이터가 필요합니다.' });
+      if (!nickname && !profilePicturePath) {
+        console.log('데이터가 누락되었습니다.');
+        return reply.status(400).send({ error: '데이터가 필요합니다.' });
       }
 
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);

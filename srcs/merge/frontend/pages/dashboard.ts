@@ -50,6 +50,8 @@ export const dashboardPage = `
 	</main>
 `;
 
+
+
 export function ToOther(router: any) {
 	document.getElementById("dashboard")?.addEventListener("click", () => {
 		console.log("✅ 대시보드 버튼 클릭됨!");
@@ -93,5 +95,5 @@ export async function setDashBoard()
 		
 		createHistoryBox(5);
 		setUpChart();
-	}
+}
 	

@@ -1,116 +1,84 @@
 declare var Chart: any;
 
-export function setUpChart() {
-	
-	const ctx = (document.getElementById('totalWinRate') as HTMLCanvasElement).getContext('2d');
-	const ctx1 = (document.getElementById('PvEWinRate') as HTMLCanvasElement).getContext('2d');
-	const ctx2 = (document.getElementById('PvPWinRate') as HTMLCanvasElement).getContext('2d');
+async function fetchGameStats() {
+    try {
+        const response = await fetch('/api/game-stats');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-	const total_data = {
-		labels: [
-			'Lose',
-			'Win'
-		],
-		datasets: [{
-			label: 'Total Winning Rate',
-			data: [300, 50],
-			backgroundColor: [
-				'rgb(255, 99, 132)',
-				'rgb(54, 162, 235)'
-			],
-			hoverOffset: 4
-		}]
-	};
-	
-	const pve_data = {
-		labels: [
-			'Lose',
-			'Win'
-		],
-		datasets: [{
-			label: 'PvE Winning Rate',
-			data: [50, 100],
-			backgroundColor: [
-				'rgb(255, 99, 132)',
-				'rgb(54, 162, 235)'
-			],
-			hoverOffset: 4
-		}]
-	};
-	
-	const pvp_data = {
-		labels: [
-			'Lose',
-			'Win'
-		],
-		datasets: [{
-			label: 'PvP Winning Rate',
-			data: [300, 100],
-			backgroundColor: [
-				'rgb(255, 99, 132)',
-				'rgb(54, 162, 235)'
-			],
-			hoverOffset: 4
-		}]
-	};
-	
-	// @ts-ignore
-	const totalWinRate = new Chart(ctx, {
-		type: 'doughnut',
-		data: total_data,
-		options: {
-			responsive: false,
-			aspectRatio: 1,
-			maintainAspectRatio: false,
-			plugins: {
-				legend: {
-					position: 'top',
-				},
-				title: {
-					display: true,
-					text: 'Total Win Rate'
-				}
-			}
-		}
-	});
-	
-	// @ts-ignore
-	const pveWinRate = new Chart(ctx1, {
-		type: 'doughnut',
-		data: pve_data,
-		options: {
-			responsive: false,
-			aspectRatio: 1,
-			maintainAspectRatio: false,
-			plugins: {
-				legend: {
-					position: 'top',
-				},
-				title: {
-					display: true,
-					text: 'PvE Win Rate'
-				}
-			}
-		}
-	});
-	
-	// @ts-ignore
-	const pvpWinRate = new Chart(ctx2, {
-		type: 'doughnut',
-		data: pvp_data,
-		options: {
-			responsive: false,
-			aspectRatio: 1,
-			maintainAspectRatio: false,
-			plugins: {
-				legend: {
-					position: 'top',
-				},
-				title: {
-					display: true,
-					text: 'PvP Win Rate'
-				}
-			}
-		}
-	});
+        const gameData = await response.json();
+        return gameData;
+    } catch (error) {
+        console.error('Error fetching game stats:', error);
+        return [];
+    }
+}
+
+async function calculateWinRates() {
+    const gameData = await fetchGameStats();
+
+    if (gameData.length === 0) {
+        return { totalWinRate: 0, PvEWinRate: 0, PvPWinRate: 0 };
+    }
+
+    let totalWins = 0, totalLosses = 0;
+    let pveWins = 0, pveLosses = 0;
+    let pvpWins = 0, pvpLosses = 0;
+
+    gameData.forEach((game: any) => {
+        totalWins += game.ai_win + game.human_win;
+        totalLosses += game.ai_lose + game.human_lose;
+        pveWins += game.ai_win;
+        pveLosses += game.ai_lose;
+        pvpWins += game.human_win;
+        pvpLosses += game.human_lose;
+    });
+
+    return {
+        totalWinRate: totalWins / (totalWins + totalLosses) * 100 || 0,
+        PvEWinRate: pveWins / (pveWins + pveLosses) * 100 || 0,
+        PvPWinRate: pvpWins / (pvpWins + pvpLosses) * 100 || 0
+    };
+}
+
+function createWinRateChart(canvasId: string, winRate: number, label: string) {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) {
+        console.error(`Error: Cannot find canvas element with ID ${canvasId}`);
+        return;
+    }
+
+    new Chart(canvas.getContext('2d')!, {
+        type: 'doughnut',
+        data: {
+            labels: ["Wins", "Losses"],
+            datasets: [{
+                label: label,
+                data: [winRate, 100 - winRate],
+                backgroundColor: ["#4CAF50", "#FF6384"],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: false,
+            aspectRatio: 1,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: label
+                }
+            }
+        }
+    });
+}
+
+export async function setUpChart() {
+    const { totalWinRate, PvEWinRate, PvPWinRate } = await calculateWinRates();
+
+    createWinRateChart("totalWinRate", totalWinRate, "Total Win Rate");
+    createWinRateChart("PvEWinRate", PvEWinRate, "PvE Win Rate");
+    createWinRateChart("PvPWinRate", PvPWinRate, "PvP Win Rate");
 }
