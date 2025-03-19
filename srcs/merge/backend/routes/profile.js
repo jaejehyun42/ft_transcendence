@@ -4,20 +4,35 @@ const dbModule = require('../db/user');
 const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
-  fastify.get('/profile', { preHandler: authenticateJWT.authenticateJWT }, async (request, reply) => {
+ fastify.get('/profile', async (request, reply) => {
     try {
-        const user = request.session.user;
-        if (!user) {
-            return reply.status(401).send({ error: "인증이 필요합니다." });
+        // 1️⃣ `/auth/check` API 호출하여 JWT 검증
+        const authResponse = await fastify.inject({
+            method: 'GET',
+            url: '/auth/check',
+            cookies: request.cookies // 현재 요청의 쿠키를 전달
+        });
+
+        const authData = authResponse.json();
+        if (!authData.authenticated) {
+            return reply.redirect('/');
         }
 
+        // 2️⃣ 인증된 사용자 정보 가져오기
+        const db = fastify.db;
+        const user = await dbModule.getUserByEmail(db, authData.user.email);
+        if (!user) {
+            return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
+        }
+
+        // 3️⃣ 사용자 프로필 정보 응답
         return reply.send({
             nickname: user.nickname || "",
             profile_picture: user.profile_picture || ""
         });
     } catch (error) {
-        console.error("프로필 정보 가져오기 오류:", error);
-        return reply.status(500).send({ error: "프로필 정보를 가져오는 중 오류가 발생했습니다." });
+        console.error("🚨 프로필 정보 가져오기 오류:", error);
+        return reply.status(500).send({ error: "서버 오류 발생" });
     }
 });
 

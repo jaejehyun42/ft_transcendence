@@ -50,6 +50,7 @@ app.setNotFoundHandler((req, reply) => {
 // ✅ API 라우트
 app.register(require('./routes/login'));
 app.register(require('./routes/profile'));
+app.register(require('./routes/auth'));
 
 // 서버 시작
 const start = async () => {
