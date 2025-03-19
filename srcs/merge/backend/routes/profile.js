@@ -37,11 +37,22 @@ async function profileRoute(fastify, options) {
     }
   });
 
-  fastify.post('/profile/save', { preHandler: authenticateJWT.authenticateJWT}, async (request, reply) => {
+  fastify.post('/profile/save', async (request, reply) => {
       try {
         let nickname;
         let profilePicturePath;
         
+        const authResponse = await fastify.inject({
+          method: 'GET',
+          url: '/auth/check',
+          cookies: request.cookies // 현재 요청의 쿠키를 전달
+        });
+
+        const authData = authResponse.json();
+        if (!authData.authenticated) {
+            return reply.redirect('/');
+        }
+
         const uploadDir = '/app/uploads';
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir);

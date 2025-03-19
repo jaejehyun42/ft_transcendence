@@ -11,7 +11,7 @@ down :
 
 clean :
 	make down
-	rm ./srcs/backend/uploads/*
+	rm ./srcs/merge/uploads/*
 
 re :
 	make down
