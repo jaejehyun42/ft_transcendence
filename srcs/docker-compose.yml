@@ -7,7 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - data:/data
-      - ./merge/uploads:/app/uploads
+      - ./merge/public/uploads:/app/public/uploads
       - ./merge/backend/cert:/app/cert
     env_file:
       - ./.env

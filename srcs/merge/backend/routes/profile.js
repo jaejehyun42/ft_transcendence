@@ -42,7 +42,7 @@ async function profileRoute(fastify, options) {
         let nickname;
         let profilePicturePath;
         
-        const uploadDir = '/app/uploads';
+        const uploadDir = '/app/public/uploads';
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir);
         }
@@ -61,7 +61,7 @@ async function profileRoute(fastify, options) {
 
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
             const filename = Date.now() + '_' + part.filename;
-            profilePicturePath = `/uploads/${filename}`; // 상대 경로 저장
+            profilePicturePath = `/app/public/uploads/${filename}`;
 
             // 파일을 저장할 스트림 생성 및 파이핑
             const filePath = path.join(uploadDir, filename);
@@ -71,9 +71,9 @@ async function profileRoute(fastify, options) {
           }
         }
 
-      if (!nickname || !profilePicturePath) {
-        console.log('닉네임 또는 프로필 사진 데이터가 누락되었습니다.');
-        return reply.status(400).send({ error: '닉네임과 프로필 사진(이미지) 모두 필요합니다.' });
+      if (!nickname) {
+        console.log('닉네임 데이터가 누락되었습니다.');
+        return reply.status(400).send({ error: '닉네임 데이터가 필요합니다.' });
       }
 
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);

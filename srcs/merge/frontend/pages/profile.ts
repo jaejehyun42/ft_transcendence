@@ -176,8 +176,8 @@ export function editProfile() {
                 statusMessage.className = "mt-4 text-center text-sm text-red-500";
                 if (data.error == "이미 존재하는 닉네임입니다.")
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
-                else if (data.error == "닉네임과 프로필 사진(이미지) 모두 필요합니다.")
-                    statusMessage.setAttribute("data-i18n", "nicknameandphotoreq");
+                else if (data.error == "닉네임 데이터가 필요합니다.")
+                    statusMessage.setAttribute("data-i18n", "nicknamereq");
                 loadLanguage(currentLang);
             }
         } catch (error) {

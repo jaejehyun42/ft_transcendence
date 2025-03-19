@@ -21,6 +21,6 @@
   "nochanges": "No changes were made.",
   "profileupdatesuccess": "Profile updated successfully.",
   "nicknamealreadyexist": "Nickname already exists.",
-  "nicknameandphotoreq": "Both nickname and profile picture (image) are required.",
+  "nicknamereq": "Nickname is required.",
   "network_error": "A network error occurred."
 }
