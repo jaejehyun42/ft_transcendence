@@ -5,11 +5,88 @@ const qrcode = require('qrcode');
 const { generateJWT, setAuthCookies } = require('../auth/jwt');
 
 async function loginRoute(fastify, options) {
-    fastify.get('/login', async (request, reply) => {
-        return reply.redirect('/login/google');
+	fastify.get('/login', async (request, reply) => {
+		return reply.redirect('/login/google');
     });
+	
+	fastify.get('/success', async (request, reply) => {
+		const accessToken = request.session.accessToken;
+		try {
+		  const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+			headers: { Authorization: `Bearer ${accessToken}` }
+		  });
+		  const userInfo = response.data;
+	  
+		  // 사용자 정보를 처리합니다.
+		  request.session.userInfo = {
+			username: userInfo.name,
+			email: userInfo.email
+		  };
+		  return reply.redirect('/db-save');
+		} catch (error) {
+			console.error('Error fetching user info:', error);
+			// 만약 accessToken이 만료되었다면 refreshToken을 사용하여 갱신합니다.
+			if (error.response.status === 401) {
+				const refreshToken = request.session.refreshToken;
+				const newTokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+					grant_type: 'refresh_token',
+					refresh_token: refreshToken,
+					client_id: clientId,
+					client_secret: clientSecret
+				});
+			
+				const newAccessToken = newTokenResponse.data.access_token;
+				request.session.accessToken = newAccessToken;		
+				// 갱신된 accessToken으로 다시 시도합니다.
+				return reply.redirect('/success');
+			}
+			return reply.redirect('/fail');
+		}
+	});
 
-    fastify.get('/generate-qr', async (request, reply) => {
+	fastify.get('/db-save', async (request, reply) => {
+		const userInfo = request.session.userInfo;
+	
+		if (!userInfo || !userInfo.email) {
+		console.error('userInfo 또는 email 속성이 없습니다.');
+		request.session.errorMessage = '사용자 정보가 없습니다.';
+		return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
+		}
+
+		request.session.user = {
+			id: userInfo.id,
+			email: userInfo.email,
+			nickname: userInfo.id || "User",
+			profile_picture: userInfo.profile_picture || "/Basic_image.webp"
+		};
+	
+		const db = fastify.db;
+	
+		try {
+			const existingUser = await dbModule.executeQuery(
+			db,
+			'SELECT id FROM users WHERE email = ?',
+			[userInfo.email]
+			);
+		
+			if (existingUser.length > 0) {
+				request.session.successMessage = '이미 존재하는 이메일입니다.';
+				return reply.redirect("/otp"); // ✅ 브라우저 직접 접근 시 OTP 페이지로 이동
+				//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
+			} else {
+				await dbModule.addUser(db, userInfo.username, userInfo.email);
+				request.session.successMessage = '로그인 성공!';
+				return reply.redirect("/otp");
+				//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
+			}
+		} catch (dbError) {
+			request.session.errorMessage = '데이터베이스 오류가 발생했습니다.';
+			return reply.redirect("/");
+			//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email }); // succcess: false?
+		}
+	});
+
+	fastify.get('/generate-qr', async (request, reply) => {
 		const userInfo = request.session.userInfo;
 		if (!userInfo || !userInfo.email) {
 			return reply.status(400).send({ success: false, message: '사용자 정보가 없습니다.' });
@@ -40,85 +117,6 @@ async function loginRoute(fastify, options) {
 			console.error('OTP 생성 오류:', error);
 			reply.status(500).send({ success: false, message: 'OTP 생성 오류 발생' });
 		  }
-		});
-
-	fastify.get('/success', async (request, reply) => {
-		const accessToken = request.session.accessToken;
-		try {
-		  const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-			headers: { Authorization: `Bearer ${accessToken}` }
-		  });
-		  const userInfo = response.data;
-	  
-		  // 사용자 정보를 처리합니다.
-		  request.session.userInfo = {
-			username: userInfo.name,
-			email: userInfo.email
-		  };
-		  return reply.redirect('/db-save');
-		} catch (error) {
-		  console.error('Error fetching user info:', error);
-		  // 만약 accessToken이 만료되었다면 refreshToken을 사용하여 갱신합니다.
-		  if (error.response.status === 401) {
-			const refreshToken = request.session.refreshToken;
-			const newTokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
-			  grant_type: 'refresh_token',
-			  refresh_token: refreshToken,
-			  client_id: clientId,
-			  client_secret: clientSecret
-			});
-	  
-			const newAccessToken = newTokenResponse.data.access_token;
-			request.session.accessToken = newAccessToken;
-	  
-			// 갱신된 accessToken으로 다시 시도합니다.
-			return reply.redirect('/success');
-		  }
-	  
-		  return reply.redirect('/fail');
-		}
-	});
-	
-	fastify.get('/db-save', async (request, reply) => {
-		const userInfo = request.session.userInfo;
-	  
-		if (!userInfo || !userInfo.email) {
-		  console.error('userInfo 또는 email 속성이 없습니다.');
-		  request.session.errorMessage = '사용자 정보가 없습니다.';
-		  return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
-		}
-
-		request.session.user = {
-			id: userInfo.id,
-			email: userInfo.email,
-			nickname: userInfo.id || "User",
-			profile_picture: userInfo.profile_picture || "/Basic_image.webp"
-		};
-	  
-		const db = fastify.db;
-	  
-		try {
-		  const existingUser = await dbModule.executeQuery(
-			db,
-			'SELECT id FROM users WHERE email = ?',
-			[userInfo.email]
-		  );
-	  
-		  if (existingUser.length > 0) {
-			request.session.successMessage = '이미 존재하는 이메일입니다.';
-			return reply.redirect("/otp"); // ✅ 브라우저 직접 접근 시 OTP 페이지로 이동
-			//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
-		  } else {
-			await dbModule.addUser(db, userInfo.username, userInfo.email);
-			request.session.successMessage = '로그인 성공!';
-			return reply.redirect("/otp");
-			//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
-		  }
-		} catch (dbError) {
-		  request.session.errorMessage = '데이터베이스 오류가 발생했습니다.';
-		  return reply.redirect("/otp");
-		  //return reply.send({ success: true, userName: userInfo.name, email: userInfo.email }); // succcess: false?
-		}
 	});
 
 	fastify.post('/verify', async (request, reply) => {
@@ -156,27 +154,7 @@ async function loginRoute(fastify, options) {
 			fastify.log.error('❌ OTP 검증 중 오류 발생:', error);
 			return reply.status(500).send({ success: false, message: 'OTP 검증 중 오류 발생: ' + error.message });
 		}
-	});
-
-
-	  fastify.get('/login-success', async (request, reply) => {
-		// 첫 번째 요청인지 확인
-		if (request.headers['sec-fetch-mode'] === 'cors') {
-		  return reply.code(204).send(); // 빈 응답으로 첫 번째 요청 무시
-		}
-	  
-		let message = '';
-	  
-		if (request.session.errorMessage) {
-		  message = request.session.errorMessage;
-		  delete request.session.errorMessage;
-		} else if (request.session.successMessage) {
-		  message = request.session.successMessage;
-		  delete request.session.successMessage;
-		}
-		return reply.send({ success: true, message: message });
-	  });
-	  
+	});	  
 
     fastify.get('/fail', async (request, reply) => {
         return 'fail!';
