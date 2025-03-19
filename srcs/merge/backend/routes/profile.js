@@ -4,13 +4,18 @@ const dbModule = require('../db/user');
 const authenticateJWT = require('../auth/jwt');
 
 async function profileRoute(fastify, options) {
+  const db = fastify.db;
+
   fastify.get('/profile/send', { preHandler: authenticateJWT.authenticateJWT }, async (request, reply) => {
     try {
-        const db = fastify.db;
         const userInfo = request.session.userInfo;
         const user = await dbModule.getUserByEmail(db, userInfo.email);
+        console.log("==================")
+        console.log(user.username);
+        console.log(user.profile_picture);
+        console.log("==================")
         return reply.send({
-            nickname: user.nickname || "",
+            nickname: user.nickname || user.username,
             profile_picture: user.profile_picture || ""
         });
     } catch (error) {
@@ -24,7 +29,7 @@ async function profileRoute(fastify, options) {
         let nickname;
         let profilePicturePath;
         
-        const uploadDir = '/app/public/uploads';
+        const uploadDir = '/app/uploads';
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir);
         }
@@ -33,6 +38,12 @@ async function profileRoute(fastify, options) {
         for await (const part of parts) {
           if (part.fieldname === 'nickname') {
             nickname = part.value;
+            const isNicknameTaken = await dbModule.checkNicknameExists(db, nickname);
+    
+            if (isNicknameTaken) {
+                console.log('이미 존재하는 닉네임입니다.');
+                return reply.status(409).send({ error: '이미 존재하는 닉네임입니다.' });
+            }
           } else if (part.fieldname === 'profile_picture' && part.filename) {
 
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
@@ -52,11 +63,8 @@ async function profileRoute(fastify, options) {
         return reply.status(400).send({ error: '닉네임과 프로필 사진(이미지) 모두 필요합니다.' });
       }
 
-      const db = fastify.db;
-      // 1. 중복된 닉네임이 있는지 확인
-                
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);
-
+      
       // 성공 응답 전송
       return reply.send({
         id: result.id,
@@ -66,9 +74,6 @@ async function profileRoute(fastify, options) {
       });
     } catch (err) {
       console.error('프로필 저장 중 오류:', err);
-      if (err && err.code === 'SQLITE_CONSTRAINT') {
-        return reply.status(409).send({ error: '이미 존재하는 닉네임입니다.'});
-      }
       return reply.status(500).send({ error: err.message });
     }
   });

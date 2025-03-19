@@ -39,6 +39,21 @@ async function addUser(db, username, email) {
 	});
 }
 
+async function checkNicknameExists(db, nickname) {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT email FROM users WHERE nickname = ?`;
+
+        db.get(sql, [nickname], (err, row) => {
+            if (err) {
+                console.error('닉네임 중복 검사 오류:', err.message);
+                reject(err);
+                return;
+            }
+			resolve(!!row);
+        });
+    });
+}
+
 async function updateInfo(db, email, newNickname, newProfilePicture) { 
     return new Promise((resolve, reject) => {
         const sql = `UPDATE users SET nickname = ?, profile_picture = ? WHERE email = ?`;
@@ -47,7 +62,7 @@ async function updateInfo(db, email, newNickname, newProfilePicture) {
             if (err) {
                 console.error('사용자 nickname 업데이트 오류:', err.message);
                 reject(err);
-            } else if (this.changes === 0) {  // 변경된 행이 없을 경우
+            } else if (this.changes === 0) { 
                 reject(new Error(`User with email ${email} not found`));
             } else {
                 console.log(`사용자 ${email} 닉네임 변경 완료: ${newNickname}`);
@@ -56,6 +71,7 @@ async function updateInfo(db, email, newNickname, newProfilePicture) {
         });
     });
 }
+
 async function getUserByEmail(db, email) {
 	return new Promise((resolve, reject) => {
 		const sql = `SELECT * FROM users WHERE email = ?`;
@@ -117,6 +133,7 @@ async function saveRefreshToken(db, userId, refreshToken) {
 module.exports = {
 	executeQuery,
 	addUser,
+	checkNicknameExists,
 	updateInfo,
 	getUserByRefreshToken,
 	getUserByEmail,

@@ -8,7 +8,6 @@ services:
     volumes:
       - data:/data
       - ./merge/uploads:/app/uploads
-        #     - ./merge:/app
     env_file:
       - ./.env
 

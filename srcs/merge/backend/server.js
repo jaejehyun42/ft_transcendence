@@ -14,7 +14,6 @@ const app = fastify({
 
 require('./plugins/server_plugin')(app);
 const dbPlugin = require('./db/initdb');
-console.log(typeof dbPlugin); // 'object'인지 확인
 app.register(dbPlugin);
 
 app.register(require('@fastify/static'), {
