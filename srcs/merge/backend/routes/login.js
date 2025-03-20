@@ -5,7 +5,7 @@ const qrcode = require('qrcode');
 const { generateJWT, setAuthCookies } = require('../auth/jwt');
 
 async function loginRoute(fastify, options) {
-	fastify.get('/login', async (request, reply) => {
+	fastify.get('/oauth/login', async (request, reply) => {
 		return reply.redirect('/login/google');
     });
 	

@@ -23,24 +23,6 @@ export function setupLogin() {
     console.log("🔥 setupLogin 실행됨!");
 
     document.getElementById("loginBtn")?.addEventListener("click", async () => {
-        window.location.href = "/login"; // ✅ 로그인 요청
-
-        /*// ✅ 로그인 성공 여부를 1초 간격으로 확인
-        setTimeout(async function check() {
-            try {
-                const response = await fetch("/db-save");
-                const data = await response.json();
-
-                if (data.success) {
-                    console.log("✅ DB 저장 완료! OTP 페이지로 이동");
-                    router.navigate("/otp"); // ✅ OTP 페이지로 이동
-                } else {
-                    console.log("⌛ 로그인 진행 중...");
-                    setTimeout(check, 1000); // ✅ 1초 후 다시 확인
-                }
-            } catch (error) {
-                console.error("❌ 로그인 확인 중 오류 발생:", error);
-            }
-        }, 1000); // 🔥 1초마다 `/db-save` 확인*/
+        window.location.href = "/oauth/login"; // ✅ 로그인 요청
     });
 }

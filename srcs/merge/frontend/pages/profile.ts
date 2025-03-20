@@ -164,6 +164,13 @@ export function editProfile() {
             loadLanguage(currentLang);
             return;
         }
+        else if (newNickname.length > 10) {
+            console.error("⚠ 닉네임은 10자 이하로 입력해야합니다.");
+            statusMessage.className = "mt-4 text-center text-sm text-red-500";
+            statusMessage.setAttribute("data-i18n", "nicknamelength");
+            loadLanguage(currentLang);
+            return;
+        }
 
         const formData = new FormData();
         if (newNickname)

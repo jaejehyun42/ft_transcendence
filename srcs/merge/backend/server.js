@@ -25,6 +25,8 @@ const app = fastify({
 	https: {
 		key,
 		cert
+		key,
+		cert
 	}
 });
 

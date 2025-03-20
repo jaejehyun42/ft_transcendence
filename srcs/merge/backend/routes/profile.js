@@ -24,17 +24,23 @@ async function profileRoute(fastify, options) {
         const user = await dbModule.getUserByEmail(db, authData.user.email);
         if (!user) {
             return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
+            return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
         }
 
         // 3️⃣ 사용자 프로필 정보 응답
+        // 3️⃣ 사용자 프로필 정보 응답
         return reply.send({
+            nickname: user.nickname || user.username,
             nickname: user.nickname || user.username,
             profile_picture: user.profile_picture || ""
         });
     } catch (error) {
         console.error("🚨 프로필 정보 가져오기 오류:", error);
         return reply.status(500).send({ error: "서버 오류 발생" });
+        console.error("🚨 프로필 정보 가져오기 오류:", error);
+        return reply.status(500).send({ error: "서버 오류 발생" });
     }
+  });
   });
 
   fastify.post('/profile/save', async (request, reply) => {
@@ -77,6 +83,7 @@ async function profileRoute(fastify, options) {
 
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
             const filename = Date.now() + '_' + part.filename;
+            profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
             profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
 
             // ✅ 두 개의 디렉토리에 파일 저장
