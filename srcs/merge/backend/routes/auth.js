@@ -2,6 +2,25 @@ const dbModule = require('../db/user');
 const jwt = require('jsonwebtoken');
 
 async function authRoute(fastify, options) {
+    fastify.post('/auth/oauth', async (request, reply) => {
+        try{
+            const accessToken = request.session.accessToken;
+
+            if (!accessToken){
+                console.log("🚨 oauth 토큰 없음, 로그인 필요");
+                return reply.status(401).send({ authenticated: false, message: 'Unauthorized' });
+            }
+            else{
+                return reply.send({
+                    authenticated: true
+                });
+            }
+        } catch (error) {
+            console.error("🚨 Oauth 인증 오류:", error);
+            return reply.status(500).send({ authenticated: false, message: 'Server error' });
+        }
+    })
+
     fastify.get('/auth/check', async (request, reply) => {
         try {
             const accessToken = request.cookies.access_token; 
