@@ -1,29 +1,43 @@
 const authenticateJWT = require('../auth/jwt');
-const db = fastify.db;
 
-fastify.get('/api/game-stats', async (request, reply) => {
-    try {
-        const authResponse = await fastify.inject({
-            method: 'GET',
-            url: '/auth/check',
-            cookies: request.cookies // 현재 요청의 쿠키를 전달
-        });
+async function gameStatsRoute(fastify, options) {
+    const db = fastify.db;
 
-        const authData = authResponse.json();
-        if (!authData.authenticated) {
-            return reply.redirect('/');
-        }
-        
-        const db = fastify.db;
-        db.all(`SELECT * FROM gamedb`, [], (err, rows) => {
-            if (err) {
-                console.error("게임 데이터 조회 오류:", err.message);
-                return reply.status(500).send({ error: "데이터 조회 오류" });
+    fastify.get('/api/game-stats/:id', async (request, reply) => {
+        try {
+            const { id } = request.params;
+            const authResponse = await fastify.inject({
+                method: 'GET',
+                url: '/auth/check',
+                cookies: request.cookies
+            });
+    
+            const authData = await authResponse.json();
+            if (!authData.authenticated) {
+                return reply.redirect('/');
             }
-            reply.send(rows);
-        });
-    } catch (error) {
-        console.error("게임 데이터 조회 오류:", error);
-        return reply.status(500).send({ error: "서버 오류" });
-    }
-});
+    
+            // 🔹 DB에서 특정 ID의 데이터 조회
+            const db = fastify.db;
+            const row = await new Promise((resolve, reject) => {
+                db.get(`SELECT * FROM gamedb WHERE id = ?`, [id], (err, row) => {
+                    if (err) {
+                        console.error("게임 데이터 조회 오류:", err.message);
+                        reject(new Error("데이터 조회 오류"));
+                    } else if (!row) {
+                        reject(new Error(`id=${id}인 데이터를 찾을 수 없습니다.`));
+                    } else {
+                        resolve(row);
+                    }
+                });
+            });
+    
+            return reply.send(row);
+        } catch (error) {
+            console.error("게임 데이터 조회 오류:", error);
+            return reply.status(500).send({ error: error.message });
+        }
+    });
+}
+
+module.exports = gameStatsRoute;

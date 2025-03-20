@@ -23,7 +23,7 @@ async function getScoreData(db, userId, type) {
 		return;
 	  }
 
-	  db.get(sql, [userId], (err, row) => {
+	  db.get(sql, [id], (err, row) => {
 		if (err) {
 		  console.error('게임 데이터 조회 오류:', err.message);
 		  reject(err);

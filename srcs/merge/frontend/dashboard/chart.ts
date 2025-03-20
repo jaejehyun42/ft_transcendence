@@ -1,20 +1,28 @@
 declare var Chart: any;
 
-async function fetchGameStats() {
+async function fetchGameStatsById(id: number) {
     try {
-        const response = await fetch('/api/game-stats');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch(`/api/game-stats/${id}`, {
+            method: 'GET',
+            credentials: 'include', // 인증 필요 시 사용
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
         const gameData = await response.json();
+        console.log(`🎯 ID=${id} 게임 데이터:`, gameData);
         return gameData;
     } catch (error) {
-        console.error('Error fetching game stats:', error);
-        return [];
+        console.error('❌ Error fetching game stats:', error);
+        return null;
     }
 }
 
 async function calculateWinRates() {
-    const gameData = await fetchGameStats();
+    const gameData = await fetchGameStatsById(1);
 
     if (gameData.length === 0) {
         return { totalWinRate: 0, PvEWinRate: 0, PvPWinRate: 0 };

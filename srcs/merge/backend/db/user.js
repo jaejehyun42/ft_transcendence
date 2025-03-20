@@ -25,7 +25,7 @@ async function addUser(db, username, email) {
 		console.log('ID:', this.lastID);
 
 		// 해당 유저의 기본 게임 데이터 추가
-		const gameSql = `INSERT INTO gamedb (user_id, ai_win, ai_lose, human_win, human_lose) VALUES (?, 0, 0, 0, 0)`;
+		const gameSql = `INSERT INTO gamedb (user_id) VALUES (?)`;
 		db.run(gameSql, [this.lastID], function (err) {
 		  if (err) {
 			console.error('게임 데이터 추가 오류:', err.message);
