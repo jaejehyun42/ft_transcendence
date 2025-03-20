@@ -7,11 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - data:/data
-<<<<<<< HEAD
-      - ./merge/uploads:/app/uploads
-=======
       - ./merge/public/uploads:/app/public/uploads
->>>>>>> seunghan
       - ./merge/backend/cert:/app/cert
     env_file:
       - ./.env
