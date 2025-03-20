@@ -171,13 +171,9 @@ module.exports = {
 	addUser,
 	checkNicknameExists,
 	updateInfo,
-	checkNicknameExists,
-	updateInfo,
 	getUserByRefreshToken,
 	getUserByEmail,
 	updateOtpSecret,
-	saveRefreshToken,
-	invalidateRefreshToken
 	saveRefreshToken,
 	invalidateRefreshToken
 };

@@ -28,7 +28,6 @@ async function profileRoute(fastify, options) {
         }
 
         // 3️⃣ 사용자 프로필 정보 응답
-        // 3️⃣ 사용자 프로필 정보 응답
         return reply.send({
             nickname: user.nickname || user.username,
             nickname: user.nickname || user.username,
@@ -40,7 +39,6 @@ async function profileRoute(fastify, options) {
         console.error("🚨 프로필 정보 가져오기 오류:", error);
         return reply.status(500).send({ error: "서버 오류 발생" });
     }
-  });
   });
 
   fastify.post('/profile/save', async (request, reply) => {
