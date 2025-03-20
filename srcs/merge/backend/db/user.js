@@ -15,7 +15,7 @@ async function executeQuery(db, sql, params = []) {
 async function addUser(db, username, email) { 
 	return new Promise((resolve, reject) => {
 	  const sql = `INSERT INTO users (username, email) VALUES (?, ?)`;
-	  db.run(sql, [username, email], (err) => {
+	  db.run(sql, [username, email], function(err) {
 		if (err) {
 		  console.error('사용자 정보 추가 오류:', err.message);
 		  reject(err);

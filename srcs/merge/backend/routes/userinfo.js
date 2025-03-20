@@ -1,11 +1,11 @@
 const authenticateJWT = require('../auth/jwt');
 const db = fastify.db;
 
-fastify.get('/api/users/:id', async (request, reply) => {
+fastify.get('/api/users/:nickname', async (request, reply) => {
     try {
         const { id } = request.params;
 
-        const user = await db.get('SELECT nickname, profile_picture FROM users WHERE id = ?', [id]);
+        const user = await db.get('SELECT nickname FROM users WHERE id = ?', [id]);
         if (!user) {
             return reply.status(404).send({ error: 'User not found' });
         }
