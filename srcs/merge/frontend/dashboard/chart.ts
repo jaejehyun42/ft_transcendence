@@ -32,6 +32,7 @@ async function calculateWinRates() {
     let pveWins = 0, pveLosses = 0;
     let pvpWins = 0, pvpLosses = 0;
 
+    console.log(gameData);
     gameData.forEach((game: any) => {
         totalWins += game.ai_win + game.human_win;
         totalLosses += game.ai_lose + game.human_lose;

@@ -46,9 +46,6 @@ export const gamePage = `
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
-        <!-- 로그아웃 버튼 -->
-            <button data-i18n="logout" id="logout" class="w-full mt-2 px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-700 transition duration-300">
-            </button>
 		</div>
 	</aside>
 

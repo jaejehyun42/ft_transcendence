@@ -32,7 +32,7 @@ async function gameStatsRoute(fastify, options) {
                 });
             });
     
-            return reply.send(row);
+            return reply.send([row]);
         } catch (error) {
             console.error("게임 데이터 조회 오류:", error);
             return reply.status(500).send({ error: error.message });
