@@ -2,8 +2,8 @@ const dbModule = require('../db/user');
 const jwt = require('jsonwebtoken');
 
 async function authRoute(fastify, options) {
-     fastify.get('/auth/oauth', async (request, reply) => {
-        try {
+    fastify.post('/auth/oauth', async (request, reply) => {
+        try{
             const accessToken = request.session.accessToken;
 
             if (!accessToken){
