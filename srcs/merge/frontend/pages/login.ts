@@ -23,6 +23,7 @@ export function setupLogin() {
     console.log("🔥 setupLogin 실행됨!");
 
     document.getElementById("loginBtn")?.addEventListener("click", async () => {
+<<<<<<< HEAD
         window.location.href = "/ouath/login"; // ✅ 로그인 요청
 
         /*// ✅ 로그인 성공 여부를 1초 간격으로 확인
@@ -42,5 +43,8 @@ export function setupLogin() {
                 console.error("❌ 로그인 확인 중 오류 발생:", error);
             }
         }, 1000); // 🔥 1초마다 `/db-save` 확인*/
+=======
+        window.location.href = "/oauth/login"; // ✅ 로그인 요청
+>>>>>>> seunghan
     });
 }

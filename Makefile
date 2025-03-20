@@ -1,18 +1,65 @@
-DOCKER_COMPOSE_FILE := ./srcs/docker-compose.yml
+# Personal files
+*.DS_*
+.vscode
+.env
 
-# Open Docker
-# open -a Docker
+# Prerequisites
+*.d
 
-up :
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up --build
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-down : 
-	docker-compose -f $(DOCKER_COMPOSE_FILE) down -v
+# Linker output
+*.ilk
+*.map
+*.exp
 
+<<<<<<< HEAD
 clean :
 	make down
 	rm ./srcs/merge/uploads/*
+=======
+# Precompiled Headers
+*.gch
+*.pch
+>>>>>>> seunghan
 
-re :
-	make down
-	make up
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+./srcs/merge/public/uploads/*
+./srcs/merge/backend/cert/.certificate

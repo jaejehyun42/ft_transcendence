@@ -27,19 +27,18 @@ export const dashboardPage = `
 	
 		<!-- 유저 아바타 및 이름 -->
 		<div class="flex flex-col mt-2 items-center">
-			<img src="/Basic_image.webp" alt="User Avatar" class="w-35 h-35 rounded-full border border-gray-300">
-			<p class="mt-4 mb-8 text-xl font-semibold text-gray-700">User Name</p>
+			<img id="user-avatar" src="" class="w-35 h-35 rounded-full border border-gray-300">
+			<p id="user-nickname" class="mt-4 mb-8 text-xl font-semibold text-gray-700"></p>
 		</div>
 	
 		<!-- 네비게이션 버튼 -->
 		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="home"></button>
 		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="game"></button>
-		<button data-i18n="profile" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
+		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
-				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
 		</div>
 	</aside>

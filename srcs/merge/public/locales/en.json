@@ -14,13 +14,16 @@
   "starttournament": "Start Tournament",
   "numberofplayers": "Number of Players (Max: 8)",
   "username": "USER NAME",
+  "nickname": "NICK NAME",
   "editprofile": "👤 EDIT PRFILE",
+  "editprofilenoemoge": "EDIT PROFILE",
   "changephoto": "CHANGE PHOTO",
   "enternewname": "ENTER NEW NAME",
   "savechanges": "SAVE CHANGES",
   "nochanges": "No changes were made.",
   "profileupdatesuccess": "Profile updated successfully.",
   "nicknamealreadyexist": "Nickname already exists.",
-  "nicknameandphotoreq": "Both nickname and profile picture (image) are required.",
-  "network_error": "A network error occurred."
+  "nicknameandphotoreq": "Both nickname and photo(image) are required.",
+  "network_error": "A network error occurred.",
+  "logout": "logout"
 }

@@ -27,19 +27,18 @@ export const profilePage = `
 	
 		<!-- 유저 아바타 및 이름 -->
 		<div class="flex flex-col mt-2 items-center">
-			<img src="./Basic_image.webp" alt="User Avatar" class="w-35 h-35 rounded-full border border-gray-300">
-			<p class="mt-4 mb-8 text-xl font-semibold text-gray-700">User Name</p>
+			<img id="user-avatar" src="" class="w-35 h-35 rounded-full border border-gray-300">
+			<p id="user-nickname" class="mt-4 mb-8 text-xl font-semibold text-gray-700"></p>
 		</div>
 	
 		<!-- 네비게이션 버튼 -->
 		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="home"></button>
 		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="game"></button>
-		<button data-i18n="profile" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
+		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
-				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
 		</div>
 	</aside>
@@ -51,7 +50,7 @@ export const profilePage = `
 
             <!-- 프로필 이미지 변경 -->
             <div class="flex flex-col items-center mb-4">
-                <img id="avatar" src="/Basic_image.webp" alt="User Avatar" class="w-32 h-32 rounded-full border border-gray-300">
+                <img id="avatar" src="" class="w-32 h-32 rounded-full border border-gray-300">
                 <input id="avatar-input" type="file" accept="image/*" class="hidden">
                 <button id="upload-btn" onclick="document.getElementById('avatar-input').click()" 
                     data-i18n="changephoto" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600">
@@ -60,8 +59,8 @@ export const profilePage = `
 
             <!-- 이름 변경 입력 필드 -->
             <div class="mb-4">
-                <label data-i18n="username" for="username-input" class="block text-gray-700 font-medium"></label>
-                <input data-i18n="enternewname" id="username-input" type="text" placeholder="Enter new name" 
+                <label data-i18n="nickname" for="nickname-input" class="block text-gray-700 font-medium"></label>
+                <input data-i18n="enternewname" id="nickname-input" type="text" placeholder="Enter new name" 
                     class="w-full p-2 border border-gray-300 rounded-md text-black">
             </div>
 
@@ -88,16 +87,20 @@ export async function loadProfile() {
         }
 
         // ✅ HTML 요소 업데이트
-        const avatar = document.querySelector("img[alt='User Avatar']") as HTMLImageElement;
-        const username = document.querySelector("p.text-lg.font-semibold") as HTMLParagraphElement;
+        const avatar = document.getElementById("user-avatar") as HTMLImageElement;
+        const nickname = document.getElementById("user-nickname") as HTMLParagraphElement;
+        const editavatar = document.getElementById("avatar") as HTMLImageElement;
 
         if (avatar) {
             avatar.src = data.profile_picture || "/Basic_image.webp"; // ✅ 기본 이미지 처리
         }
 
-        if (username) {
-            username.textContent = data.nickname || "User Name"; // ✅ 닉네임 업데이트
+        if (nickname) {
+            nickname.textContent = data.nickname; // ✅ 닉네임 업데이트
         }
+        
+        if (editavatar)
+            editavatar.src = data.profile_picture || "/Basic_image.webp"; // ✅ 수정 기본 이미지 처리
 
         console.log("✅ 프로필 로드 완료:", data);
     } catch (error) {
@@ -118,6 +121,12 @@ export function editProfile() {
     avatarInput.addEventListener('change', function () {
         console.log("✅ 파일 선택 감지됨!");
         if (avatarInput.files && avatarInput.files[0]) {
+            const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+
+            if (!allowedTypes.includes(avatarInput.files?.[0].type)) { // 파일 타입 체크
+                alert("❌ 허용되지 않는 파일 형식입니다! (png, jpeg, jpg, webp만 가능)");
+                avatarInput.value = ""; // 파일 입력 필드 초기화
+            }
             const reader = new FileReader();
             reader.onload = function (e) {
                 if (typeof e.target?.result === "string") {
@@ -132,7 +141,7 @@ export function editProfile() {
     document.getElementById("save-btn")?.addEventListener("click", async (event) => {
         event.preventDefault();
 
-        const nicknameInput = document.getElementById("username-input") as HTMLInputElement;
+        const nicknameInput = document.getElementById("nickname-input") as HTMLInputElement;
         const statusMessage = document.getElementById("profile-status") as HTMLParagraphElement;
 
         if (!nicknameInput) {
