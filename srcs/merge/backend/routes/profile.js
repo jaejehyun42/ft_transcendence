@@ -23,7 +23,6 @@ async function profileRoute(fastify, options) {
         const user = await dbModule.getUserByEmail(db, authData.user.email);
         if (!user) {
             return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
-            return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
         }
 
         // 3️⃣ 사용자 프로필 정보 응답
@@ -33,8 +32,6 @@ async function profileRoute(fastify, options) {
             profile_picture: user.profile_picture || ""
         });
     } catch (error) {
-        console.error("🚨 프로필 정보 가져오기 오류:", error);
-        return reply.status(500).send({ error: "서버 오류 발생" });
         console.error("🚨 프로필 정보 가져오기 오류:", error);
         return reply.status(500).send({ error: "서버 오류 발생" });
     }
