@@ -36,7 +36,7 @@ async function profileRoute(fastify, options) {
     }
   });
 
-  fastify.post('/profile/save', { preHandler: authenticateJWT.authenticateJWT}, async (request, reply) => {
+  fastify.post('/profile/save', async (request, reply) => {
       try {
         let nickname;
         let profilePicturePath;
