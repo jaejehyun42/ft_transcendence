@@ -77,7 +77,7 @@ async function profileRoute(fastify, options) {
         }
 
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);
-      
+				
       // 성공 응답 전송
       return reply.send({
         id: result.id,
