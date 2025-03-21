@@ -1,5 +1,6 @@
 import { router } from "../router";
-import {loadLanguage } from "../locales/lang"
+import { loadLanguage } from "../locales/lang"
+import { setPlayer1 } from "./game.js";
 
 export const profilePage = `
 	<!-- 오버레이 추가 -->
@@ -97,6 +98,7 @@ export async function loadProfile() {
         }
 
         if (nickname) {
+            setPlayer1(data.nickname);
             nickname.textContent = data.nickname; // ✅ 닉네임 업데이트
         }
         

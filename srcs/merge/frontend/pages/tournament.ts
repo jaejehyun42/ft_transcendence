@@ -4,7 +4,7 @@ import { loadLanguage } from "../locales/lang";
 const disabledMatches = new Set<string>();
 
 // 토너먼트 설정 페이지
-export async function setupTournament()
+export async function setupTournament(name: string)
 {
 	const contentDiv = document.getElementById("content");
 	if (!contentDiv) throw new Error("Error: Cannot find content element!");
@@ -19,8 +19,19 @@ export async function setupTournament()
 			<div class="flex flex-col space-y-4 items-center flex-grow justify-center">
 				<label data-i18n="numberofplayers" class="text-xl"></label>
 				<input type="number" id="player-count" class="p-2 border rounded text-center w-24" min="1" max="8" value="4">
-				<button data-i18n="starttournament" id="start-tournament" class="btn bg-purple-500 text-white text-xl py-3 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
+				<button data-i18n="starttournament" id="enter-tournament" class="btn bg-purple-500 text-white text-xl py-3 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
 				</button>
+			</div>
+		</div>
+
+		<div id="nickname-modal-wrapper" class="absolute inset-0 z-60 hidden flex items-center justify-center" style="background-color: rgba(0, 0, 0, 0.45)">
+			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center w-80">
+				<h3 class="text-2xl font-semibold mb-4">Enter Player's Nicknames</h3>
+				<div id="nickname-inputs" class="w-full mb-4"></div>
+				<div class="flex space-x-4">
+					<button id="start-tournament" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
+					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
+				</div>
 			</div>
 		</div>
 	`;
@@ -28,22 +39,67 @@ export async function setupTournament()
 	const currentLang = localStorage.getItem("language") || "en";
         await loadLanguage(currentLang);
 
+	// 토너먼트 참가 인원 이름 입력
+	document.getElementById("enter-tournament")!.addEventListener("click", () => {
+		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
+		const nicknameInputsDiv = document.getElementById("nickname-inputs")!;
+
+		if (playerCount == 1) {
+			startTournament(1, [name]);
+			return;
+		}
+
+		nicknameInputsDiv.innerHTML = ""; 
+		for (let i = 2; i <= playerCount; i++) {
+			const input = document.createElement("input");
+			input.type = "text";
+			input.placeholder = `Player ${i}`;
+			input.className = "border px-4 py-2 mb-2 w-full";
+			input.id = `player-${i}-name`;
+			nicknameInputsDiv.appendChild(input);
+		}
+		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
+	});
+
 	document.getElementById("start-tournament")!.addEventListener("click", () => {
 		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
-		disabledMatches.clear();
-		startTournament(playerCount);
+		const nicknames = new Set<string>();
+		let duplicateFound = false;
+
+		nicknames.add(name);
+		for (let i = 2; i <= playerCount; i++) {
+			const playerName = (document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim();
+			const finalName = playerName || `Player ${i}`;
+	
+			if (nicknames.has(finalName)) {
+				duplicateFound = true;
+				alert(`Duplicate nickname found: "${finalName}". Please use a unique nickname.`);
+				return;
+			}
+			nicknames.add(finalName);
+		}
+	
+		if (!duplicateFound) {
+			console.log("Tournament Players:", Array.from(nicknames));
+			document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
+			startTournament(playerCount, Array.from(nicknames));
+		}
+	});
+
+	document.getElementById("close-modal")!.addEventListener("click", () => {
+		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 	});
 }
 
 // 대진표 구성
-function startTournament(playerCount: number)
+function startTournament(playerCount: number, nicknames: string[])
 {
 	const totalPlayers = 8;
 	let players: string[] = [];
 
 	// 배열에 플레이어 추가 후 셔플
-	for (let i = 1; i <= playerCount; i++)
-		players.push(`Player ${i}`);
+	for (let i = 0; i < playerCount; i++)
+		players.push(`${nicknames[i]}`);
 	for (let i = playerCount + 1; i <= totalPlayers; i++)
 		players.push(`AI ${i - playerCount}`);
 	players = players.sort(() => Math.random() - 0.5);
@@ -118,7 +174,7 @@ function renderBracket(bracket: string[][])
 
 	// 경기 버튼 이벤트 추가
 	document.querySelectorAll(".match-btn").forEach((btn) => {
-		btn.addEventListener("click", (event) => {
+		btn.addEventListener("click", async (event) => {
 			const target = event.currentTarget as HTMLButtonElement; // 여기서 currentTarget 사용
 			const round = parseInt(target.getAttribute("data-round")!, 10);
 			const index = parseInt(target.getAttribute("data-match")!, 10);
@@ -131,7 +187,7 @@ function renderBracket(bracket: string[][])
 	
 			disabledMatches.add(matchKey);
 			target.disabled = true;
-			setupGame(player1, player2, bracket, round, index);
+			await setupGame(player1, player2, bracket, round, index);
 		});
 	});
 }
