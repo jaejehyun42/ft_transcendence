@@ -44,8 +44,8 @@ export const gamePage = `
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
-
 		</div>
 	</aside>
 
@@ -84,9 +84,17 @@ export async function setupGame()
 		await loadLanguage(currentLang);
 
 	// 버튼 이벤트 추가
-	document.getElementById("local-mode")!.addEventListener("click", () => startGame("local", "local"));
-	document.getElementById("ai-mode")!.addEventListener("click", () => startGame("local", "AI"));
-	document.getElementById("tournament-mode")!.addEventListener("click", () => setupTournament());
+	document.getElementById("local-mode")!.addEventListener("click", async () => {
+		await startGame("local", "local")
+		setupGame();
+	});
+	document.getElementById("ai-mode")!.addEventListener("click", async () => {
+		await startGame("local", "AI")
+		setupGame();
+	});
+	document.getElementById("tournament-mode")!.addEventListener("click", async () => {
+		setupTournament()
+	});
 }
 
 export async function startGame(player1: string, player2: string): Promise<string>
@@ -98,6 +106,7 @@ export async function startGame(player1: string, player2: string): Promise<strin
 
 	if (player1.startsWith("AI"))
 		[player1, player2] = [player2, player1];
+
 	contentDiv.innerHTML = `
 		<div class="relative flex flex-col items-center h-full">
 			<!-- 헤더 -->
@@ -120,8 +129,45 @@ export async function startGame(player1: string, player2: string): Promise<strin
 	if (!canvas)
 		throw new Error("🚨 Error: Cannot find gameCanvas element!");
 
+	let result: { [key:string]: string | null };
 	if (player1.startsWith("AI") || player2.startsWith("AI"))
-		return await startGameLoop(canvas, player1, player2, "PvE");
+		result = await startGameLoop(canvas, player1, player2, "PvE");
 	else
-		return await startGameLoop(canvas, player1, player2, "PvP");
+		result = await startGameLoop(canvas, player1, player2, "PvP");
+	sendMatchResult(result);
+
+	if (result["winner"])
+		return result["winner"];
+	else
+		return "???";
+}
+
+async function sendMatchResult(result: { [key: string]: string | null })
+{
+	const dataToSend = {
+		user1: result["name_1p"] || '',
+		user2: result["name_2p"] || '',
+		user1_score: result["score_1p"] || '0',
+		user2_score: result["score_2p"] || '0'
+	};
+	
+	try {
+		const response = await fetch('/api/match-results', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(dataToSend),
+		});
+	
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+	
+		const data = await response.json();
+		console.log('Match result sent successfully:', data);
+	}
+	catch (error) {
+		console.error('Error sending match result:', error);
+	}
 }
