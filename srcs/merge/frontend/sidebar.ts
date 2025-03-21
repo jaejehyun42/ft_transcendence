@@ -1,4 +1,4 @@
-document.addEventListener("click", () => {
+export function initSidebarEvents() {
     const sidebar = document.getElementById("sidebar");
     const menuToggle = document.getElementById("menu-toggle");
     const closeToggle = document.getElementById("close-toggle");
@@ -32,4 +32,4 @@ document.addEventListener("click", () => {
     menuToggle.addEventListener("click", openSidebar);
     closeToggle.addEventListener("click", closeSidebar);
     overlay.addEventListener("click", closeSidebar);
-});
+}
