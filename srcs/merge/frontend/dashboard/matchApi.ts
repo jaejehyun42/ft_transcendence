@@ -22,6 +22,26 @@ async function fetchRecentMatches() {
     }
 }
 
+export async function getProfilePictureByNickname(nickname: string) {
+	try {
+		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		});
+
+		if (!res.ok) {
+			throw new Error(`❌ 사용자 정보 조회 실패: ${res.status}`);
+		}
+
+		const data = await res.json();
+		console.log('✅ 프로필 이미지:', data.profile_picture);
+		return data.profile_picture;
+	} catch (err) {
+		console.error('❌ 프로필 이미지 가져오기 실패:', err);
+		return null;
+	}
+}
+
 export async function loadMatchHistory() {
 	try {
 		const matches = await fetchRecentMatches(); // 🔹 5개의 경기 기록 가져오기

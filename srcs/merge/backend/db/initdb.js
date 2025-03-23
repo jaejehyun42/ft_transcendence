@@ -35,10 +35,10 @@ async function createTable(db) {
           CREATE TABLE IF NOT EXISTS gamedb (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               user_id INTEGER,
-              ai_win INTEGER DEFAULT 1,
-              ai_lose INTEGER DEFAULT 2,
-              human_win INTEGER DEFAULT 3,
-              human_lose INTEGER DEFAULT 4,
+              ai_win INTEGER DEFAULT 0,
+              ai_lose INTEGER DEFAULT 0,
+              human_win INTEGER DEFAULT 0,
+              human_lose INTEGER DEFAULT 0,
               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
           );
         `;
