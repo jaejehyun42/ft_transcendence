@@ -23,6 +23,7 @@ async function fetchRecentMatches() {
 }
 
 export async function getProfilePictureByNickname(nickname: string) {
+    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
 	try {
 		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
 			method: 'GET',
@@ -30,12 +31,13 @@ export async function getProfilePictureByNickname(nickname: string) {
 		});
 
 		if (!res.ok) {
-			throw new Error(`❌ 사용자 정보 조회 실패: ${res.status}`);
+			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
+			return DEFAULT_PROFILE_PICTURE;
 		}
 
 		const data = await res.json();
-		console.log('✅ 프로필 이미지:', data.profile_picture);
-		return data.profile_picture;
+		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
+
 	} catch (err) {
 		console.error('❌ 프로필 이미지 가져오기 실패:', err);
 		return null;
