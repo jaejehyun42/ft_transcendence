@@ -24,7 +24,7 @@ async function calculateWinRates() {
     const gameData = await loadGameStats();
 
     if (gameData.length === 0) {
-        return { totalWinRate: 0, PvEWinRate: 0, PvPWinRate: 0 };
+        return { totalWins: 0, totalLosses: 0, pveWins: 0, pveLosses: 0, pvpWins: 0, pvpLosses: 0 };
     }
 
     let totalWins = 0, totalLosses = 0;
@@ -42,13 +42,13 @@ async function calculateWinRates() {
     });
 
     return {
-        totalWinRate: totalWins / (totalWins + totalLosses) * 100 || 0,
-        PvEWinRate: pveWins / (pveWins + pveLosses) * 100 || 0,
-        PvPWinRate: pvpWins / (pvpWins + pvpLosses) * 100 || 0
+        totalWins, totalLosses,
+        pveWins, pveLosses,
+        pvpWins, pvpLosses
     };
 }
 
-function createWinRateChart(canvasId: string, winRate: number, label: string) {
+function createWinRateChart(canvasId: string, wins: number, loses: number, label: string) {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) {
         console.error(`Error: Cannot find canvas element with ID ${canvasId}`);
@@ -61,7 +61,7 @@ function createWinRateChart(canvasId: string, winRate: number, label: string) {
             labels: ["Wins", "Losses"],
             datasets: [{
                 label: label,
-                data: [winRate, 100 - winRate],
+                data: [wins, loses],
                 backgroundColor: ["#4CAF50", "#FF6384"],
                 hoverOffset: 4
             }]
@@ -84,9 +84,9 @@ function createWinRateChart(canvasId: string, winRate: number, label: string) {
 }
 
 export async function setUpChart() {
-    const { totalWinRate, PvEWinRate, PvPWinRate } = await calculateWinRates();
+    const { totalWins, totalLosses, pveWins, pveLosses, pvpWins, pvpLosses } = await calculateWinRates();
 
-    createWinRateChart("totalWinRate", totalWinRate, "Total Win Rate");
-    createWinRateChart("PvEWinRate", PvEWinRate, "PvE Win Rate");
-    createWinRateChart("PvPWinRate", PvPWinRate, "PvP Win Rate");
+    createWinRateChart("totalWinRate", totalWins, totalLosses, "Total Win Rate");
+    createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE Win Rate");
+    createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP Win Rate");
 }
