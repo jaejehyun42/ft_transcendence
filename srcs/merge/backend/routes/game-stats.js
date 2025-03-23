@@ -1,4 +1,3 @@
-const authenticateJWT = require('../auth/jwt');
 const dbModule = require('../db/user');
 
 async function gameStatsRoute(fastify, options) {

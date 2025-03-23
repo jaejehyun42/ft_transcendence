@@ -1,4 +1,3 @@
-const authenticateJWT = require('../auth/jwt');
 const gameModule = require('../db/game')
 
 async function matchHistoryRoute(fastify, options){
