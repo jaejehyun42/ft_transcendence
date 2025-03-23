@@ -100,6 +100,7 @@ const routes = {
     "/profile": {
         content: profilePage,
         pageFuncs: [initSidebarEvents, ToOther, loadProfile, editProfile, logout]
+
     }
 };
 

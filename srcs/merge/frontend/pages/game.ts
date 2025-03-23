@@ -51,6 +51,7 @@ export const gamePage = `
 
 		<!-- 로그아웃 버튼 -->
 			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-300 transition duration-300">
+
 			</button>
 		</div>
 	</aside>
