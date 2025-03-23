@@ -1,0 +1,16 @@
+services:
+  nodejs:
+    build: ./merge
+    image: merge
+    container_name: merge
+    ports:
+      - "3000:3000"
+    volumes:
+      - data:/data
+      - ./merge/public/uploads:/app/public/uploads
+      - ./merge/backend/cert:/app/cert
+    env_file:
+      - ./.env
+
+volumes:
+  data:
