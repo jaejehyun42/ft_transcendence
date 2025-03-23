@@ -146,20 +146,12 @@ export function update(deltaTime: number)
         ballSpeedY *= -1;
     }
 
-    // 패들 상하단 충돌
-    if (collision != "left")
-    {
-        if (collisionPaddleHorz(paddleLeft))
-            afterCollision("left");
-        else if (collisionPaddleVert(paddleLeft, deltaTime))
-            afterCollision("left")
+    // 패들 충돌
+    if (collision !== "left" && checkPaddleCollision(paddleLeft, deltaTime)) {
+        afterCollision("left");
     }
-    if (collision != "right")
-    {
-        if (collisionPaddleHorz(paddleRight))
-            afterCollision("right");
-        else if (collisionPaddleVert(paddleRight, deltaTime))
-            afterCollision("right")
+    if (collision !== "right" && checkPaddleCollision(paddleRight, deltaTime)) {
+        afterCollision("right");
     }
 
     // 득점 판정
@@ -182,20 +174,26 @@ function afterCollision(side: string)
 // 패들 좌우 충돌
 function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 {
+    let steps = Math.ceil(Math.abs(ballSpeedX * deltaTime / (ballSize / 2)));
+    let stepSize = deltaTime / steps;
+    let detected = false;
 
-    let prevX = ball.position.x - ballSpeedX * deltaTime;
-    let curX = ball.position.x;
+    for (let i = 0; i < steps; i++)
+        {
+        let interpolatedX = ball.position.x - ballSpeedX * (deltaTime - i * stepSize);
+        let paddleLeftEdge = paddle.position.x - paddleWidth / 2 - ballSize / 2;
+        let paddleRightEdge = paddle.position.x + paddleWidth / 2 + ballSize / 2;
 
-    let paddleLeftEdge = paddle.position.x - paddleWidth / 2 - ballSize / 2;
-    let paddleRightEdge = paddle.position.x + paddleWidth / 2 + ballSize / 2;
+        if (interpolatedX >= paddleLeftEdge && interpolatedX <= paddleRightEdge &&
+            ball.position.y >= paddle.position.y - paddleHeight / 2 &&
+            ball.position.y <= paddle.position.y + paddleHeight / 2)
+        {
+            detected = true;
+            break;
+        }
+    }
 
-    let crossedPaddle =
-        (prevX < paddleRightEdge && curX >= paddleLeftEdge) ||
-        (prevX > paddleLeftEdge && curX <= paddleRightEdge);
-
-    if (crossedPaddle &&
-        ball.position.y >= paddle.position.y - paddleHeight / 2 &&
-        ball.position.y <= paddle.position.y + paddleHeight / 2)
+    if (detected)
     {
         // 패들 중앙 기준 위치 (-1 ~ 1)
         let relativeIntersectY = (ball.position.y - paddle.position.y) / (paddleHeight / 2);
@@ -203,20 +201,17 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 
         // 반사 각도 계산
         let bounceAngle = relativeIntersectY * maxBounceAngle;
-
-        // 속도 계산
         let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-        if (increaseCount < 20)
-        {
+        if (increaseCount < 20) {
             speed *= speedIncrease;
             increaseCount++;
         }
-        
+
         // 속도 설정
         ballSpeedX = (paddle === paddleLeft ? 1 : -1) * Math.abs(speed * Math.cos(bounceAngle));
-        ballSpeedY = (ballSpeedY >= 0 ? 1 : -1) * Math.abs(speed * Math.sin(bounceAngle));
+        ballSpeedY = Math.sign(ballSpeedY) * Math.abs(speed * Math.sin(bounceAngle));
 
-        // 공 위치 보정
+        // 위치 보정
         if (paddle === paddleLeft) {
             ball.position.x = paddle.position.x + paddleWidth / 2 + ballSize / 2 + 0.02;
         } else {
@@ -227,13 +222,31 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
     return false;
 }
 
-// 패들 상하단 충돌
-function collisionPaddleHorz(paddle: Mesh): boolean
+// 패들 상하 충돌
+function collisionPaddleHorz(paddle: Mesh, deltaTime: number): boolean
 {
-    if (ball.position.x > paddle.position.x - paddleWidth / 2 && ball.position.x < paddle.position.x + paddleWidth / 2 &&
-        ball.position.y + ballSize / 2 >= paddle.position.y - paddleHeight / 2 && ball.position.y - ballSize / 2 <= paddle.position.y + paddleHeight / 2)
+    let steps = Math.ceil(Math.abs(ballSpeedY * deltaTime / (ballSize / 2)));
+    let stepSize = deltaTime / steps;
+    let detected = false;
+
+    for (let i = 0; i < steps; i++)
     {
-        if (ball.position.y > paddle.position.y) {
+        let interpolatedY = ball.position.y - ballSpeedY * (deltaTime - i * stepSize);
+        let paddleTopEdge = paddle.position.y + paddleHeight / 2 + ballSize / 2;
+        let paddleBottomEdge = paddle.position.y - paddleHeight / 2 - ballSize / 2;
+
+        if (interpolatedY >= paddleBottomEdge && interpolatedY <= paddleTopEdge &&
+            ball.position.x >= paddle.position.x - paddleWidth / 2 &&
+            ball.position.x <= paddle.position.x + paddleWidth / 2)
+        {
+            detected = true;
+            break;
+        }
+    }
+
+    if (detected)
+    {
+        if (ball.position.y >= paddle.position.y) {
             ballSpeedY = Math.abs(ballSpeedY);
             ball.position.y = paddle.position.y + paddleHeight / 2 + ballSize / 2 + 0.02;
         } else {
@@ -245,7 +258,14 @@ function collisionPaddleHorz(paddle: Mesh): boolean
     return false;
 }
 
-// 게임 종료 조건 체크
+// 충돌 검사
+function checkPaddleCollision(paddle: Mesh, deltaTime: number): boolean {
+    if (collisionPaddleVert(paddle, deltaTime))
+        return true;
+    return collisionPaddleHorz(paddle, deltaTime);
+}
+
+// 게임 종료 조건 체크  
 function checkGameEnd(): boolean
 {
     if (leftScore >= 10 && rightScore >= 10)
