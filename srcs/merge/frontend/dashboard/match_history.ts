@@ -1,4 +1,4 @@
-export function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
+export async function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number) {
     const container = document.getElementById('box-container');
     if (!container) return;
 
@@ -20,7 +20,7 @@ export function createHistoryBox(user1: string, user2: string, user1_score: numb
     //유저1 이미지
     const user1_img = document.createElement('img');
     user1_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
-    user1_img.src = './ai_icon.png';
+    user1_img.src = await getProfilePictureByNickname(user1);
     box.append(user1_img);
 
     const user1_txtbox = document.createElement('div');
@@ -85,7 +85,7 @@ export function createHistoryBox(user1: string, user2: string, user1_score: numb
     //유저2 이미지
     const user2_img = document.createElement('img');
     user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
-    user2_img.src = './ai_icon.png';
+    user2_img.src = await getProfilePictureByNickname(user2);
     box.append(user2_img);
 
     user1_name.className = 'text-2xl font-bold text-black';
@@ -133,4 +133,26 @@ async function loadMatchHistory() {
 
 export function createHistory() {
     loadMatchHistory();
+}
+
+async function getProfilePictureByNickname(nickname: string) {
+    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
+	try {
+		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		});
+
+		if (!res.ok) {
+			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
+			return DEFAULT_PROFILE_PICTURE;
+		}
+
+		const data = await res.json();
+		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
+
+	} catch (err) {
+		console.error('❌ 프로필 이미지 가져오기 실패:', err);
+		return null;
+	}
 }
