@@ -15,7 +15,7 @@ function predictBallY(): number
 	let predictedY = ball.position.y;
 	let predictedSpeedY = ballSpeedY;
 
-	while (tempX < 16 && tempX > -18)
+	while (tempX < 15.5 && tempX > -18)
 	{
 		tempX += tempSpeedX / 60;
 		predictedY += predictedSpeedY / 60;
@@ -31,12 +31,12 @@ function predictBallY(): number
 		}
 
 		// 패들 충돌 처리
-		if (tempX <= -16 && tempSpeedX < 0) {
+		if (tempX <= -15.5 && tempSpeedX < 0) {
 			tempSpeedX *= -1;
 		}
 	}
 
-	return predictedY * (0.9 + Math.random() * 0.2);
+	return predictedY;
 }
 
 // 키 입력을 일정 시간 동안 유지하는 함수
@@ -56,7 +56,7 @@ function simulateKeyPress(key: string, duration: number)
 export function updateAIPosition()
 {
 	if (gameMode === "PvE" && gameRunning)
-		aiTargetY = predictBallY() + (Math.random() - 0.5) * 2;
+		aiTargetY = predictBallY() * (0.9 + Math.random() * 0.2);
 }
 
 export function moveAIPostion()
@@ -89,7 +89,7 @@ export function startIntervalAI()
 	}, 1000);
 
 	moveID = setInterval(() => {
-		if (Math.random() > 0.95)
+		if (Math.random() > 0.97)
 		{
 			aiKeys["ArrowUP"] = false;
 			aiKeys["ArrowDown"] = false;
