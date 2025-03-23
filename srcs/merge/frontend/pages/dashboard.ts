@@ -1,4 +1,5 @@
-import { createHistory } from "../dashboard/match_history.js"
+// import { createHistory } from "../dashboard/match_history.js"
+import { loadMatchHistory } from "../dashboard/matchApi.js"
 import { setUpChart } from "../dashboard/chart.js"
 
 export const dashboardPage = `
@@ -93,7 +94,8 @@ export async function setDashBoard()
 		</div>			
 		`;
 		
-		createHistory();
+		// createHistory();
+		loadMatchHistory();
 		setUpChart();
 }
 	

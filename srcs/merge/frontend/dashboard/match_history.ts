@@ -1,4 +1,6 @@
-function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
+"use strict";
+
+export function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
     const container = document.getElementById('box-container');
     if (!container) return;
     
@@ -73,7 +75,7 @@ async function getHistory() {
 export function createHistory() {
     createHistoryBox('user1', 'user2', 10, 5, 2021);
     createHistoryBox('user1', 'user2', 5, 10, 2021);
-    createHistoryBox('user1', 'user2', 10, 5, 20221);
+    createHistoryBox('user1', 'user2', 10, 5, 2021);
     createHistoryBox('user1', 'user2', 3, 5, 2021);
     createHistoryBox('user1', 'user2', 10, 5, 2021);
     createHistoryBox('user1', 'user2', 1, 2, 2021);
