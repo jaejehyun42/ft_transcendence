@@ -1,4 +1,4 @@
-import "./sidebar.js"
+import { initSidebarEvents } from "./sidebar.js"
 import { initLanguageToggle, loadLanguage } from "./locales/lang.js";
 import { loadingPage, loadingScreen } from "./pages/loading.js";
 import { loginPage, setupLogin } from "./pages/login.js";
@@ -137,15 +137,15 @@ const routes = {
     },
     "/dashboard": { 
         content: dashboardPage,
-        pageFuncs: [ToOther, loadProfile, setDashBoard]
+        pageFuncs: [initSidebarEvents, ToOther, loadProfile, setDashBoard]
     },
     "/game": {
         content: gamePage,
-        pageFuncs: [setupGame, ToOther, loadProfile]
+        pageFuncs: [initSidebarEvents, setupGame, ToOther, loadProfile]
     },
     "/profile": {
         content: profilePage,
-        pageFuncs: [ToOther, loadProfile, editProfile]
+        pageFuncs: [initSidebarEvents, ToOther, loadProfile, editProfile]
     }
 };
 

@@ -6,6 +6,8 @@ document.addEventListener("showGameOptions", () => {
 	setupGame();
 });
 
+export let player1 = "Nick Name";
+
 export const gamePage = `
 	<!-- 오버레이 추가 -->
 	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
@@ -44,8 +46,8 @@ export const gamePage = `
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
-
 		</div>
 	</aside>
 
@@ -53,7 +55,13 @@ export const gamePage = `
 	<main class="flex-1 flex">
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4"></div>
 	</main>
+
 `;
+
+export function setPlayer1(nickname: string)
+{
+	player1 = nickname;
+}
 
 // 게임 옵션 선택 화면 렌더링
 export async function setupGame()
@@ -78,15 +86,49 @@ export async function setupGame()
 				</button>
 			</div>
 		</div>
+
+		<!-- 닉네임 입력 모달 -->
+		<div id="nickname-modal-wrapper" class="absolute inset-0 z-60 hidden flex items-center justify-center"
+			style="background-color: rgba(0, 0, 0, 0.45)">
+			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
+				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
+				<input type="text" id="player2-name" placeholder="Local Player" class="border px-4 py-2 mb-4 w-full">
+				<div class="flex space-x-4">
+					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
+					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
+				</div>
+			</div>
+		</div>
 	`;
 
 	const currentLang = localStorage.getItem("language") || "en";
 		await loadLanguage(currentLang);
 
-	// 버튼 이벤트 추가
-	document.getElementById("local-mode")!.addEventListener("click", () => startGame("local", "local"));
-	document.getElementById("ai-mode")!.addEventListener("click", () => startGame("local", "AI"));
-	document.getElementById("tournament-mode")!.addEventListener("click", () => setupTournament());
+	document.getElementById("local-mode")!.addEventListener("click", () => {
+		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
+	});
+	document.getElementById("start-local-game")!.addEventListener("click", async () => {
+		const player2 = (document.getElementById("player2-name") as HTMLInputElement).value.trim() || "Local Player";
+		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
+
+		if (player1 === player2)
+		{
+			alert(`Duplicate nickname: "${player2}". Please use a unique nickname.`);
+			return;
+		}
+		await startGame(player1, player2)
+		setupGame();
+	});
+	document.getElementById("ai-mode")!.addEventListener("click", async () => {
+		await startGame(player1, "AI")
+		setupGame();
+	});
+	document.getElementById("tournament-mode")!.addEventListener("click", async () => {
+		setupTournament(player1)
+	});
+	document.getElementById("close-modal")!.addEventListener("click", () => {
+		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
+	});
 }
 
 export async function startGame(player1: string, player2: string): Promise<string>
@@ -98,6 +140,7 @@ export async function startGame(player1: string, player2: string): Promise<strin
 
 	if (player1.startsWith("AI"))
 		[player1, player2] = [player2, player1];
+
 	contentDiv.innerHTML = `
 		<div class="relative flex flex-col items-center h-full">
 			<!-- 헤더 -->
@@ -120,8 +163,45 @@ export async function startGame(player1: string, player2: string): Promise<strin
 	if (!canvas)
 		throw new Error("🚨 Error: Cannot find gameCanvas element!");
 
+	let result: { [key:string]: string | null };
 	if (player1.startsWith("AI") || player2.startsWith("AI"))
-		return await startGameLoop(canvas, player1, player2, "PvE");
+		result = await startGameLoop(canvas, player1, player2, "PvE");
 	else
-		return await startGameLoop(canvas, player1, player2, "PvP");
+		result = await startGameLoop(canvas, player1, player2, "PvP");
+	sendMatchResult(result);
+
+	if (result["winner"])
+		return result["winner"];
+	else
+		return "???";
+}
+
+async function sendMatchResult(result: { [key: string]: string | null })
+{
+	const dataToSend = {
+		user1: result["name_1p"] || '',
+		user2: result["name_2p"] || '',
+		user1_score: result["score_1p"] || '0',
+		user2_score: result["score_2p"] || '0'
+	};
+	
+	try {
+		const response = await fetch('/api/match-results', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(dataToSend),
+		});
+	
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+	
+		const data = await response.json();
+		console.log('Match result sent successfully:', data);
+	}
+	catch (error) {
+		console.error('Error sending match result:', error);
+	}
 }

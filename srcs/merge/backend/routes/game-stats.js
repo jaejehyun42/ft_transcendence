@@ -1,11 +1,11 @@
 const authenticateJWT = require('../auth/jwt');
+const dbModule = require('../db/user');
 
 async function gameStatsRoute(fastify, options) {
     const db = fastify.db;
 
-    fastify.get('/api/game-stats/:id', async (request, reply) => {
+    fastify.get('/api/game-stats', async (request, reply) => {
         try {
-            const { id } = request.params;
             const authResponse = await fastify.inject({
                 method: 'GET',
                 url: '/auth/check',
@@ -17,15 +17,19 @@ async function gameStatsRoute(fastify, options) {
                 return reply.redirect('/');
             }
     
-            // 🔹 DB에서 특정 ID의 데이터 조회
-            const db = fastify.db;
+            const user = await dbModule.getUserByEmail(db, authData.user.email);
+            console.log(user);
+            if (!user) {
+                return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
+            }
+
             const row = await new Promise((resolve, reject) => {
-                db.get(`SELECT * FROM gamedb WHERE id = ?`, [id], (err, row) => {
+                db.get(`SELECT * FROM gamedb WHERE user_id = ?`, [user.id], (err, row) => {
                     if (err) {
                         console.error("게임 데이터 조회 오류:", err.message);
                         reject(new Error("데이터 조회 오류"));
                     } else if (!row) {
-                        reject(new Error(`id=${id}인 데이터를 찾을 수 없습니다.`));
+                        reject(new Error(`user_id=${user.id}인 데이터를 찾을 수 없습니다.`));
                     } else {
                         resolve(row);
                     }

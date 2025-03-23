@@ -1,5 +1,5 @@
 import { createStartButton } from "./ui.js";
-import { startGame, update, winner } from "./game.js";
+import { startGame, update, result } from "./game.js";
 import { moveAIPostion, startIntervalAI, clearIntervalAI } from "./AI.js";
 import { initializeDraw, initializeGame, disposeEngine, scene } from "./draw.js";
 
@@ -10,7 +10,7 @@ let animationFrameId: number | null = null;
 export let name_1p = "";
 export let name_2p = "";
 
-export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player2: string, mode: string): Promise<string>
+export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player2: string, mode: string): Promise<{ [key: string]: string | null }>
 {
     return new Promise((resolve) => {
         if (gameLoopRunning)
@@ -33,7 +33,6 @@ export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player
 
 export function stopGameLoop() 
 {
-    console.log("Game Stop")
     gameLoopRunning = false;
     if (animationFrameId) 
     {
@@ -42,29 +41,32 @@ export function stopGameLoop()
     }
     disposeEngine();
     clearIntervalAI();
+    console.log("Game Stop");
 }
 
-function gameLoop(resolve: (winner: string) => void) 
+function gameLoop(resolve: (result: { [key: string]: string | null }) => void) 
 {
-    if (gamePaused)
-        return;
-
-    if (winner)
+    if (!gamePaused)
     {
-        stopGameLoop();
-        resolve(winner);
-        return;
-    }
-    if (!document.getElementById("gameCanvas"))
-    {
-        stopGameLoop();
-        resolve("");
-        return;
-    }
+        if (result["winner"])
+        {
+            stopGameLoop();
+            resolve(result);
+            return;
+        }
+        if (!document.getElementById("gameCanvas"))
+        {
+            stopGameLoop();
+            resolve({});
+            console.log("Canvas not found, stopping game."); // 디버깅용 로그
+            return;
+        }
 
-    let deltaTime = scene.getEngine().getDeltaTime() / 1000;
-    update(deltaTime);
-    moveAIPostion();
+        let deltaTime = scene.getEngine().getDeltaTime() / 1000;
+        update(deltaTime);
+        moveAIPostion();
+    }
+    
     animationFrameId = requestAnimationFrame(() => gameLoop(resolve));
 }
 
@@ -73,9 +75,7 @@ export function pauseGame()
     gamePaused = true;
 }
 
-export function resumeGame(resolve: (winner: string) => void)
+export function resumeGame()
 {
-    if (!gamePaused) return;
     gamePaused = false;
-    gameLoop(resolve); // 다시 실행
 }

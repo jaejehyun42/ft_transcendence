@@ -11,11 +11,19 @@ export let gameMode = "PvP";
 const WINNING_SCORE = 11;
 let leftScore = 0, rightScore = 0;
 let countdownEndTime: number | null = null;
-export let winner: string | null = null;
+export let result: { [key: string]: string | null} = {
+    "winner": null,
+    "name_1p": null,
+    "score_1p": null,
+    "name_2p": null,
+    "score_2p": null
+};
 
-const speedIncrease = 1.02;
+let increaseCount = 0;
+const speedIncrease = 1.01;
 const maxBounceAngle = Math.PI / 4;
 
+let collision: string | null = null;
 export const paddleSpeed = 24;
 const constSpeedX = 18, constSpeedY = 12;
 export let ballSpeedX = 18, ballSpeedY = 12;
@@ -41,18 +49,25 @@ window.addEventListener("keyup", (e) => {
 // 게임 시작
 export function startGame(mode: string)
 {
-    console.log("Game Start")
-    winner = null;
     leftScore = 0;
     rightScore = 0;
-    gameRunning = true;
     gameMode = mode;
-    setCountdown();
-    
+    gameRunning = true;
+
+    result["winner"] = null;
+    result["name_1p"] = name_1p;
+    result["score_1p"] = null;
+    result["name_2p"] = name_2p;
+    result["score_2p"] = null;
+
+
     if (paddleLeft) paddleLeft.position.y = 0;
     if (paddleRight) paddleRight.position.y = 0;
-    resetBall();
+
+    setCountdown();
     updateAIPosition();
+
+    console.log("Game Start")
 }
 
 // 공 리셋
@@ -60,6 +75,8 @@ export function resetBall()
 {
     if (!ball) return;
 
+    collision = null;
+    increaseCount = 0;
     ball.position.x = 0;
     ball.position.y = 0;
     ballSpeedX = Math.random() > 0.5 ? constSpeedX : -constSpeedX;
@@ -130,13 +147,19 @@ export function update(deltaTime: number)
     }
 
     // 패들 상하단 충돌
-    if (collisionPaddleHorz(paddleLeft) || collisionPaddleHorz(paddleRight))
+    if (collision != "left")
     {
-        createImpactEffect(ball.position);
+        if (collisionPaddleHorz(paddleLeft))
+            afterCollision("left");
+        else if (collisionPaddleVert(paddleLeft, deltaTime))
+            afterCollision("left")
     }
-    else if (collisionPaddleVert(paddleLeft, deltaTime) || collisionPaddleVert(paddleRight, deltaTime))
+    if (collision != "right")
     {
-        createImpactEffect(ball.position);
+        if (collisionPaddleHorz(paddleRight))
+            afterCollision("right");
+        else if (collisionPaddleVert(paddleRight, deltaTime))
+            afterCollision("right")
     }
 
     // 득점 판정
@@ -148,6 +171,12 @@ export function update(deltaTime: number)
         leftScore++;
         if (!checkGameEnd()) setCountdown();
     }
+}
+
+function afterCollision(side: string)
+{
+    collision = side;
+    createImpactEffect(ball.position);
 }
 
 // 패들 좌우 충돌
@@ -175,15 +204,17 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
         // 반사 각도 계산
         let bounceAngle = relativeIntersectY * maxBounceAngle;
 
-        // 속도 계산 후 증가량 적용
-        let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY) * speedIncrease;
+        // 속도 계산
+        let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+        if (increaseCount < 20)
+        {
+            speed *= speedIncrease;
+            increaseCount++;
+        }
         
         // 속도 설정
-        ballSpeedX = (paddle === paddleLeft ? 1 : -1) * speed * Math.cos(bounceAngle);
-        if (ballSpeedY >= 0)
-            ballSpeedY = Math.abs(speed * Math.sin(bounceAngle));
-        else
-            ballSpeedY = -Math.abs(speed * Math.sin(bounceAngle));
+        ballSpeedX = (paddle === paddleLeft ? 1 : -1) * Math.abs(speed * Math.cos(bounceAngle));
+        ballSpeedY = (ballSpeedY >= 0 ? 1 : -1) * Math.abs(speed * Math.sin(bounceAngle));
 
         // 공 위치 보정
         if (paddle === paddleLeft) {
@@ -237,14 +268,18 @@ function checkGameEnd(): boolean
 async function finishGame()
 {
     pauseGame();
+    
+    let winner;
     if (leftScore > rightScore)
         winner = name_1p;
     else
         winner = name_2p;
 
+    result["winner"] = winner
+    result["score_1p"] = leftScore.toString();
+    result["score_2p"] = rightScore.toString();
+
     scoreText.text = `${leftScore}  -  ${rightScore}`;
-    await showWinner(winner);
-    resumeGame((winner) => {
-        console.log(`Winner: ${winner}`);
-    });
+    await showWinner(result["winner"]);
+    resumeGame();
 }
