@@ -6,11 +6,11 @@ function createHistoryBox(user1: string, user2: string, user1_score: number, use
     
     // 승패 색상
     const win_lose_color = document.createElement('div');
-    container.appendChild(win_lose_color);
+    container.append(win_lose_color);
     if(user1_score > user2_score)
         win_lose_color.className = 'col-span-12 pl-2 pr-2 h-32 bg-gradient-to-r from-blue-800 via-blue-800 to-red-800 m-2 rounded-xl';
     else
-        win_lose_color.className = 'col-span-12 pl-2 h-32 bg-gradient-to-r from-red-800 via-red-800 to-blue-800 m-2 rounded-xl';
+        win_lose_color.className = 'col-span-12 pl-2 pr-2 h-32 bg-gradient-to-r from-red-800 via-red-800 to-blue-800 m-2 rounded-xl';
 
     //정보 들어갈 박스
     const box = document.createElement('div');
@@ -61,7 +61,10 @@ function createHistoryBox(user1: string, user2: string, user1_score: number, use
 }
 
 export function createHistory() {
-    for (let i = 0; i < 5; i++) {
-        createHistoryBox('user1', 'user2', 10, 5, 2021);
-    }
+    createHistoryBox('user1', 'user2', 10, 5, 2021);
+    createHistoryBox('user1', 'user2', 5, 10, 2021);
+    createHistoryBox('user1', 'user2', 10, 5, 20221);
+    createHistoryBox('user1', 'user2', 3, 5, 2021);
+    createHistoryBox('user1', 'user2', 10, 5, 2021);
+    createHistoryBox('user1', 'user2', 1, 2, 2021);
 }
