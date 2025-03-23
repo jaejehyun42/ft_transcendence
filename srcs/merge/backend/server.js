@@ -51,7 +51,7 @@ app.register(require('./routes/login'));
 app.register(require('./routes/profile'));
 app.register(require('./routes/auth'));
 app.register(require('./routes/game-stats'));
-
+app.register(require('./routes/match-results'));
 
 // 서버 시작
 const start = async () => {

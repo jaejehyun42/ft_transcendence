@@ -1,6 +1,3 @@
-const fp = require('fastify-plugin');
-const { dbPlugin } = require('./initdb.js');
-
 // userId??
 // user = getUserByEmail(db, email);
 // userId = user.id
@@ -23,7 +20,7 @@ async function getScoreData(db, userId, type) {
 		return;
 	  }
 
-	  db.get(sql, [id], (err, row) => {
+	  db.get(sql, [userId], (err, row) => {
 		if (err) {
 		  console.error('게임 데이터 조회 오류:', err.message);
 		  reject(err);
@@ -83,7 +80,6 @@ async function updateScore(db, userId, player, result) {
 }
 
 module.exports = {
-    dbPlugin: fp(dbPlugin),
     getScoreData,
     updateScore
 }

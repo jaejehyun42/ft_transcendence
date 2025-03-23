@@ -1,6 +1,3 @@
-const fp = require('fastify-plugin');
-const { dbPlugin } = require('./initdb.js');
-
 //사용 예시 await addMatchHistory(db, 'user1', 'user2', 10, 8);  user1 vs user2 경기 결과: 10 vs 8
 async function addMatchHistory(db, user1, user2, user1Score, user2Score) {
 	return new Promise((resolve, reject) => {
@@ -41,7 +38,6 @@ async function getRecentMatches(db) {
 }
 
 module.exports = {
-    dbPlugin: fp(dbPlugin),
     addMatchHistory,
     getRecentMatches
 }
