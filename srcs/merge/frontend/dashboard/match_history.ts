@@ -1,6 +1,6 @@
 "use strict";
 
-function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
+export function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
     const container = document.getElementById('box-container');
     if (!container) return;
     
