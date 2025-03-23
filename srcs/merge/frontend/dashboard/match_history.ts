@@ -1,5 +1,3 @@
-"use strict";
-
 function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number): void {
     const container = document.getElementById('box-container');
     if (!container) return;
@@ -15,7 +13,7 @@ function createHistoryBox(user1: string, user2: string, user1_score: number, use
     //정보 들어갈 박스
     const box = document.createElement('div');
     win_lose_color.append(box);
-    box.className = 'w-full h-32 bg-white rounded-xl flex items-center justify-between pl-16 gap-16';
+    box.className = 'w-full h-32 bg-white rounded-xl flex items-center p-8 justify-between gap-16';
 
     //유저1 이미지
     const user1_img = document.createElement('img');
@@ -33,17 +31,17 @@ function createHistoryBox(user1: string, user2: string, user1_score: number, use
      center_info.className = 'flex flex-col items-center';
      box.append(center_info);
      
-     // VS 표시
-     const vs_text = document.createElement('p');
-     vs_text.textContent = 'VS';
-     vs_text.className = 'text-2xl font-bold text-gray-700';
-     center_info.append(vs_text);
-     
      // 경기 날짜 표시
      const date_display = document.createElement('p');
      date_display.textContent = new Date(match_date).toLocaleDateString();
      date_display.className = 'text-sm text-gray-500';
      center_info.append(date_display);
+     
+     // VS 표시
+     const vs_text = document.createElement('p');
+     vs_text.textContent = 'VS';
+     vs_text.className = 'text-2xl font-bold text-gray-700';
+     center_info.append(vs_text);
 
      //유저2 이름
      const user2_name = document.createElement('p');
@@ -58,6 +56,18 @@ function createHistoryBox(user1: string, user2: string, user1_score: number, use
 
     user1_name.className = 'text-2xl font-bold text-black';
     user2_name.className = 'text-2xl font-bold text-black';
+}
+
+async function getHistory() {
+    try {
+        const response = await fetch('/api/history');
+        const history = await response.json();
+        return history;
+    }
+    catch (error) {
+        console.error('❌ Error fetching history:', error);
+        return null;
+    }
 }
 
 export function createHistory() {

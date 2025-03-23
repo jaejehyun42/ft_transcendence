@@ -45,7 +45,7 @@ export const dashboardPage = `
 	</aside>
 
 	<!-- 메인 콘텐츠 영역 -->
-	<main class="flex-1 flex h-screen overflow-hidden">
+	<main class="flex-1 flex h-screen">
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center max-h-screen"></div>
 	</main>
 `;

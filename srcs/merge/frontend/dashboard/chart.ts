@@ -2,7 +2,7 @@ declare var Chart: any;
 
 async function loadGameStats() {
     try {
-        const response = await fetch(`/api/game-stats`, {
+            const response = await fetch(`/api/game-stats`, {
             method: 'GET',
             credentials: 'include', // 인증 필요 시 사용
             headers: { 'Content-Type': 'application/json' }
