@@ -114,7 +114,7 @@ async function fetchRecentMatches() {
     }
 }
 
-export async function loadMatchHistory() {
+async function loadMatchHistory() {
     try {
         const matches = await fetchRecentMatches(); // 🔹 5개의 경기 기록 가져오기
 
