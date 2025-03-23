@@ -1,4 +1,4 @@
-import { createHistoryBox } from "../dashboard/match_history.js"
+import { createHistory } from "../dashboard/match_history.js"
 import { setUpChart } from "../dashboard/chart.js"
 
 export const dashboardPage = `
@@ -93,7 +93,7 @@ export async function setDashBoard()
 		</div>			
 		`;
 		
-		createHistoryBox(5);
+		createHistory();
 		setUpChart();
 }
 	
