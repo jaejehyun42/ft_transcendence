@@ -191,7 +191,7 @@ async function sendMatchResult(result: { [key: string]: string | null })
 	};
 	
 	try {
-		const response = await fetch('/api/match-results', {
+		const response = await fetch('/api/match-results/save', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

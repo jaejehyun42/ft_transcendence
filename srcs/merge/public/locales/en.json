@@ -26,5 +26,6 @@
   "nicknamealreadyexist": "Nickname already exists.",
   "nicknameandphotoreq": "Both nickname and photo(image) are required.",
   "network_error": "A network error occurred.",
-  "logout": "logout"
+  "logout": "logout",
+  "win": "win"
 }

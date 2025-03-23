@@ -26,5 +26,6 @@
   "nicknamealreadyexist": "이미 존재하는 닉네임입니다.",
   "nicknameandphotoreq": "닉네임과 프로필 사진(이미지) 모두 필요합니다.",
   "network_error": "네트워크 오류가 발생했습니다.",
-  "logout": "로그아웃"
+  "logout": "로그아웃",
+  "win": "승리"
 }
