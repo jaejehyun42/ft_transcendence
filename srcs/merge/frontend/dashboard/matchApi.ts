@@ -49,9 +49,7 @@ export async function loadMatchHistory() {
 		const matches = await fetchRecentMatches(); // 🔹 5개의 경기 기록 가져오기
 
 		matches.forEach((match: MatchData) => {
-			const { user1, user2, user1_score, user2_score, match_date } = match;
-
-			// 🔸 날짜 문자열 → timestamp 변환 (선택 사항)
+			const { user1, user2, user1_score, user2_score, match_date } = match;   
 			const timestamp = new Date(match_date).getTime();
 
 			createHistoryBox(user1, user2, user1_score, user2_score, timestamp);

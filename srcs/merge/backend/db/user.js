@@ -14,28 +14,32 @@ async function executeQuery(db, sql, params = []) {
 // 사용자 정보 추가 함수
 async function addUser(db, username, email) { 
 	return new Promise((resolve, reject) => {
-	  const sql = `INSERT INTO users (username, email) VALUES (?, ?)`;
-	  db.run(sql, [username, email], function(err) {
-		if (err) {
-		  console.error('사용자 정보 추가 오류:', err.message);
-		  reject(err);
-		  return;
-		}		
-		console.log(`사용자 ${username} 추가 성공`);
-		console.log('ID:', this.lastID);
+		// nickname 컬럼 추가
+		const sql = `INSERT INTO users (username, nickname, email) VALUES (?, ?, ?)`;
 
-		// 해당 유저의 기본 게임 데이터 추가
-		const gameSql = `INSERT INTO gamedb (user_id) VALUES (?)`;
-		db.run(gameSql, [this.lastID], function (err) {
-		  if (err) {
-			console.error('게임 데이터 추가 오류:', err.message);
-			reject(err);
-		  } else {
-			console.log('게임 데이터 추가 성공');
-			resolve(this.lastID);
-		  }
+		// username을 nickname에도 넣기
+		db.run(sql, [username, username, email], function (err) {
+			if (err) {
+				console.error('사용자 정보 추가 오류:', err.message);
+				reject(err);
+				return;
+			}		
+
+			console.log(`✅ 사용자 ${username} 추가 성공`);
+			console.log('📌 ID:', this.lastID);
+
+			// 기본 게임 데이터도 추가
+			const gameSql = `INSERT INTO gamedb (user_id) VALUES (?)`;
+			db.run(gameSql, [this.lastID], function (err) {
+				if (err) {
+					console.error('게임 데이터 추가 오류:', err.message);
+					reject(err);
+				} else {
+					console.log('✅ 게임 데이터 추가 성공');
+					resolve(this.lastID);
+				}
+			});
 		});
-	  });
 	});
 }
 
@@ -87,6 +91,21 @@ async function getUserByEmail(db, email) {
 				reject(err);
 			} else {
 				resolve(row);
+			}
+		});
+	});
+}
+
+function getUserIdByNickname(db, nickname) {
+	return new Promise((resolve, reject) => {
+		db.get(`SELECT id FROM users WHERE nickname = ?`, [nickname], (err, row) => {
+			if (err) {
+				console.error('❌ user ID 조회 오류:', err.message);
+				reject(err);
+			} else if (!row) {
+				reject(new Error(`닉네임 "${nickname}"에 해당하는 유저를 찾을 수 없습니다.`));
+			} else {
+				resolve(row.id);
 			}
 		});
 	});
@@ -173,6 +192,7 @@ module.exports = {
 	updateInfo,
 	getUserByRefreshToken,
 	getUserByEmail,
+	getUserIdByNickname,
 	updateOtpSecret,
 	saveRefreshToken,
 	invalidateRefreshToken

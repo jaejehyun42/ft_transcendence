@@ -1,49 +1,62 @@
 const gameModule = require('../db/game')
+const dbModule = require('../db/user')
 
 async function matchHistoryRoute(fastify, options){
     const db = fastify.db;
 
     fastify.post('/api/match-results/save', async (request, reply) => {
+        const db = fastify.db;
         try {
             const { user1, user2, user1_score, user2_score } = request.body;
             console.log('📥 경기 데이터 수신:', { user1, user2, user1_score, user2_score });
-            // 필수 값 확인
+    
+            // 필수 값 체크
             if (!user1 || !user2) {
                 return reply.status(400).send({ error: 'User names are required' });
             }
     
-            // `matchhistory` 테이블에 데이터 삽입
-            const sql = `INSERT INTO matchhistory (user1, user2, user1_score, user2_score) VALUES (?, ?, ?, ?)`;
-            
-            db.run(sql, [user1, user2, user1_score || 0, user2_score || 0], function (err) {
-                if (err) {
-                    console.error('DB 저장 오류:', err.message);
-                    return reply.status(500).send({ error: 'Database insert failed' });
-                }
+            // user1 → id 가져오기
+            const user1Id = await dbModule.getUserIdByNickname(db, user1);
+            if (!user1Id) {
+                return reply.status(404).send({ error: 'User1 not found' });
+            }
     
-                const matchId = this.lastID; // 삽입된 데이터의 ID 가져오기
-    
-                // 🏆 `gamedb` 테이블 업데이트 (승/패 반영)
-                gameModule.updateScore(db, user1, user2 == 'ai' ? 'ai' : 'human', user1_score > user2_score ? 'win' : 'lose')
-                    .then(() => {
-                        reply.status(201).send({
-                            match_id: matchId,
-                            user1,
-                            user2,
-                            user1_score,
-                            user2_score,
-                            match_date: new Date().toISOString()
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Score update error:', error);
-                        reply.status(500).send({ error: 'Score update failed' });
-                    });
+            // matchhistory 삽입
+            const matchId = await new Promise((resolve, reject) => {
+                const sql = `
+                    INSERT INTO matchhistory (user1, user2, user1_score, user2_score)
+                    VALUES (?, ?, ?, ?)
+                `;
+                db.run(sql, [user1, user2, user1_score || 0, user2_score || 0], function (err) {
+                    if (err) {
+                        console.error('DB 저장 오류:', err.message);
+                        reject(err);
+                    } else {
+                        resolve(this.lastID);
+                    }
+                });
             });
     
+            // gamedb 점수 업데이트
+            const result = user1_score > user2_score ? 'win' : 'lose';
+            const playerType = user2 === 'ai' ? 'ai' : 'human';
+    
+            await gameModule.updateScore(db, user1Id, playerType, result);
+    
+            // 최종 응답
+            return reply.status(201).send({
+                match_id: matchId,
+                user1,
+                user2,
+                user1_score,
+                user2_score,
+                match_date: new Date().toISOString(),
+            });
         } catch (error) {
-            console.error('Server error:', error);
-            reply.status(500).send({ error: 'Server error' });
+            console.error('❌ 서버 오류:', error);
+            if (!reply.sent) {
+                return reply.status(500).send({ error: 'Server error' });
+            }
         }
     });
 
