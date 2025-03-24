@@ -22,7 +22,7 @@ function generateJWT(user) {
 
 function setAuthCookies(reply, accessToken, refreshToken) {
     // ✅ 액세스 토큰 → 쿠키 저장
-    reply.setCookie('access_token', accessToken, { 
+    reply.setCookie('access_jwt', accessToken, { 
         httpOnly: true, 
         secure: true, 
         sameSite: 'Lax', 
@@ -31,7 +31,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
     });
 
     // ✅ 리프레시 토큰 → 쿠키 저장
-    reply.setCookie('refresh_token', refreshToken, { 
+    reply.setCookie('refresh_jwt', refreshToken, { 
         httpOnly: true, 
         secure: true, 
         sameSite: 'Lax', 

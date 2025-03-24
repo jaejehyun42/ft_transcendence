@@ -25,6 +25,7 @@
   "profileupdatesuccess": "Profile updated successfully.",
   "nicknamealreadyexist": "Nickname already exists.",
   "nicknameandphotoreq": "Both nickname and photo(image) are required.",
+  "ainicknamenotallowed": "AI nickname is not allowed.",
   "networkerror": "A network error occurred.",
   "filetoolarge": "Request file is too large",
   "logout": "logout",
