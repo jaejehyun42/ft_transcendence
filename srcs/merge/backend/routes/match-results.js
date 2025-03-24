@@ -39,7 +39,7 @@ async function matchHistoryRoute(fastify, options){
     
             // gamedb 점수 업데이트
             const result = user1_score > user2_score ? 'win' : 'lose';
-            const playerType = user2 === 'ai' ? 'ai' : 'human';
+            const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
             await gameModule.updateScore(db, user1Id, playerType, result);
     
