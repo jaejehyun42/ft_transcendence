@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker');
+
 async function executeQuery(db, sql, params = []) { 
 	return new Promise((resolve, reject) => {
 	  db.all(sql, params, (err, rows) => {
@@ -17,8 +19,13 @@ async function addUser(db, username, email) {
 		// nickname 컬럼 추가
 		const sql = `INSERT INTO users (username, nickname, email) VALUES (?, ?, ?)`;
 
-		// username을 nickname에도 넣기
-		db.run(sql, [username, username, email], function (err) {
+		let nickname = faker.internet.userName();
+		while (nickname.startsWith('AI')) {
+			nickname = faker.internet.userName();
+		}
+		nickname = nickname.length > 10 ? nickname.slice(0, 10) : nickname;
+
+		db.run(sql, [username, nickname, email], function (err) {
 			if (err) {
 				console.error('사용자 정보 추가 오류:', err.message);
 				reject(err);
