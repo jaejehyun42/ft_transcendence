@@ -3,9 +3,11 @@ import { initLanguageToggle, loadLanguage } from "./locales/lang.js";
 import { loadingPage, loadingScreen } from "./pages/loading.js";
 import { loginPage, setupLogin } from "./pages/login.js";
 import { otpPage, setupOTP } from "./pages/otp.js";
+import { checkJWTAuth, checkOAuth, checkJWTexist } from "./auth/auth.js";
 import { dashboardPage, ToOther, setDashBoard } from "./pages/dashboard.js";
 import { gamePage, setupGame } from "./pages/game.js";
 import { profilePage, loadProfile, editProfile } from "./pages/profile.js";
+import { logout } from "./auth/logout.js"
 
 // 언어 변경 지원 페이지
 const languageSupportPage = ["/dashboard", "/game", "/profile"];
@@ -44,66 +46,18 @@ class Router {
 
         const route = this.routes[path] || { content: "<h1>404 Not Found</h1>" };
 
-        if (path != "/login" && path != "/" && path != "/otp") {
-            try {
-                // ✅ JWT 인증 요청 (쿠키 포함)
-                const authResponse = await fetch('/auth/check', {
-                    method: 'GET',
-                    credentials: 'include', // 중요한 옵션 (쿠키 포함)
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                });
-
-                const authData = await authResponse.json();
-
-                if (!authData.authenticated) {
-                    console.log("❌ JWT 인증 실패, 로그인 페이지로 이동");
-                    alert("먼저 로그인 해주세요.");
-                    router.navigate("/login");
-                    return;
-                }
-
-                console.log("✅ JWT 인증 성공, 페이지 렌더링");
-                app.innerHTML = route.content;
-
-            } catch (error) {
-                console.error("🚨 JWT 인증 요청 중 오류 발생:", error);
-                alert("JWT 인증 요청중 오류 발생!");
-                router.navigate("/login");
-                return;
-            }
+        let authSuccess = true;
+        if (path !== "/login" && path !== "/" && path !== "/otp")
+            authSuccess = await checkJWTAuth(route, app, this);
+        else if (path === "/otp"){
+            authSuccess = await checkOAuth(this);
+            if (!authSuccess) return;
+            authSuccess = await checkJWTexist(route, app, this);
         }
-        else if (path == "/otp"){
-            try {
-            const oauthResponse = await fetch('/auth/oauth', {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                });
-            const oauthData = await oauthResponse.json();
-
-            if (!oauthData.authenticated) {
-                console.log("❌ 구글 로그인 인증 실패, 로그인 페이지로 이동");
-                alert("먼저 로그인 해주세요.");
-                router.navigate("/login");
-                return;
-            }
-
-            console.log("✅ 구글 로그인 인증 성공, otp 페이지 렌더링");
+        else
             app.innerHTML = route.content;
 
-            } catch (error) {
-                console.error("🚨 인증 요청 중 오류 발생:", error);
-                alert("구글 로그인 인증 요청중 오류 발생!");
-                router.navigate("/login");
-                return;
-            }
-        }
-        else // 인증 페이지면 바로 렌더링
-            app.innerHTML = route.content;
+        if (!authSuccess) return;
 
         // ✅ 페이지 변경 시 언어 업데이트
         if (languageSupportPage.includes(path))
@@ -137,15 +91,16 @@ const routes = {
     },
     "/dashboard": { 
         content: dashboardPage,
-        pageFuncs: [initSidebarEvents, ToOther, loadProfile, setDashBoard]
+        pageFuncs: [initSidebarEvents, ToOther, loadProfile, setDashBoard, logout]
     },
     "/game": {
         content: gamePage,
-        pageFuncs: [initSidebarEvents, setupGame, ToOther, loadProfile]
+        pageFuncs: [initSidebarEvents, setupGame, ToOther, loadProfile, logout]
     },
     "/profile": {
         content: profilePage,
-        pageFuncs: [initSidebarEvents, ToOther, loadProfile, editProfile]
+        pageFuncs: [initSidebarEvents, ToOther, loadProfile, editProfile, logout]
+
     }
 };
 

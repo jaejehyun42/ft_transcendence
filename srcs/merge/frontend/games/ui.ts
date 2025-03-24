@@ -49,7 +49,7 @@ function createPixelButton(name: string, text: string, textColor: string, bgColo
     button.thickness = 4;
     button.cornerRadius = 5;
     button.fontSize = 30;
-    button.fontFamily = "Silkscreen";
+    button.fontFamily = "CookieRun-Regular";
 
     button.shadowBlur = 10;
     button.shadowColor = "rgba(0, 166, 255, 0.6)";
@@ -96,7 +96,7 @@ export function createScoreboard() {
     scoreText.text = "READY";
     scoreText.color = "white";
     scoreText.fontSize = 30;
-    scoreText.fontFamily = "Silkscreen";
+    scoreText.fontFamily = "CookieRun-Regular";
     scoreText.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     scoreText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
     uiBox.addControl(scoreText);
@@ -109,14 +109,15 @@ export function createWinner(winner: string)
     let guiTexture = AdvancedDynamicTexture.CreateFullscreenUI("WinnerUI");
 
     winnerButton = Button.CreateSimpleButton("WinnerButton", `${winner} Wins!!`);
-    winnerButton.width = "1200px";
-    winnerButton.height = "600px";
+    winnerButton.width = "90%";
+    winnerButton.height = "90%";
+    winnerButton.adaptWidthToChildren = true;
     winnerButton.color = "rgb(255, 205, 97)";
     winnerButton.background = "rgba(0, 0, 0, 0)";
     winnerButton.thickness = 0;
     winnerButton.cornerRadius = 0;
-    winnerButton.fontSize = 150;
-    winnerButton.fontFamily = "Silkscreen";
+    winnerButton.fontSize = 130;
+    winnerButton.fontFamily = "CookieRun-Regular";
     winnerButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     winnerButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 

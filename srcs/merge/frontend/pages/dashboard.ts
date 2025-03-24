@@ -1,6 +1,6 @@
-// import { createHistory } from "../dashboard/match_history.js"
-import { loadMatchHistory } from "../dashboard/matchApi.js"
 import { setUpChart } from "../dashboard/chart.js"
+import { loadLanguage } from "../locales/lang.js";
+import { loadMatchHistory } from "../dashboard/matchApi.js"
 
 export const dashboardPage = `
 	<!-- 오버레이 추가 -->
@@ -39,15 +39,18 @@ export const dashboardPage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-lg text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
+		<!-- 로그아웃 버튼 -->
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-lg text-white hover:bg-red-300 transition duration-300">
+			</button>
 		</div>
 	</aside>
 
 	<!-- 메인 콘텐츠 영역 -->
-	<main class="flex-1 flex h-screen">
-		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4 flex flex-col items-center max-h-screen"></div>
+	<main class="flex-1 flex">
+		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4"></div>
 	</main>
 `;
 
@@ -77,25 +80,28 @@ export async function setDashBoard()
 		throw new Error("Error: Cannot find content element!");
 
 	contentDiv.innerHTML = `
-		<h2 class="text-5xl mt-8 text-center font-semibold">📊 DASHBOARD</h2>
-		<div class="w-3/4 flex rounded-xl mt-8 p-10 bg-red-100 justify-center">
-			<canvas id="totalWinRate" class="w-1/4"></canvas>
-			<canvas id="PvEWinRate" class="w-1/4"></canvas>
-			<canvas id="PvPWinRate" class="w-1/4"></canvas>
-			<ul class="w-1/4 text-xl m-5 font-serif flex flex-col justify-center">
-				<li class="m-2">Total Winning rate</li>
-				<li class="m-2">PvE Winning rate</li>
-				<li class="m-2">PvP Winning rate</li>
-			</ul>
-		</div>
+		<div class="relative flex flex-col items-center h-full">
+			<!-- 헤더 -->
+			<h2 data-i18n="dashboardPage" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 
-		<div class="w-3/4 flex-1 rounded-xl mt-8 p-10 bg-red-100 overflow-y-auto justify-center">
-			<div id="box-container" class="grid grid-cols-12 items-center"></div>
-		</div>			
+			<!-- 통계 -->
+			<div class="w-3/4 flex rounded-xl mt-25 p-3 bg-blue-100 justify-center">
+				<canvas id="totalWinRate" class="w-1/4"></canvas>
+				<canvas id="PvEWinRate" class="w-1/4"></canvas>
+				<canvas id="PvPWinRate" class="w-1/4"></canvas>
+			</div>
+
+			<!-- 매치 히스토리 -->
+			<div class="w-3/4 flex-1 rounded-xl mt-5 p-5 bg-blue-100 overflow-y-auto justify-center">
+				<div id="box-container" class="grid grid-cols-12 items-center"></div>
+			</div>
+		</div>
 		`;
-		
-		// createHistory();
-		loadMatchHistory();
+
 		setUpChart();
+		loadMatchHistory();
+
+		const currentLang = localStorage.getItem("language") || "en";
+			await loadLanguage(currentLang);
 }
 	

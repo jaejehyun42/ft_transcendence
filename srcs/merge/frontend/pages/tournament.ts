@@ -1,4 +1,4 @@
-import { startGame } from "./game.js"
+import { startGame, sanitizeInput } from "./game.js"
 import { loadLanguage } from "../locales/lang";
 
 const disabledMatches = new Set<string>();
@@ -55,6 +55,7 @@ export async function setupTournament(name: string)
 			input.type = "text";
 			input.placeholder = `Player ${i}`;
 			input.className = "border px-4 py-2 mb-2 w-full";
+			input.maxLength = 10;
 			input.id = `player-${i}-name`;
 			nicknameInputsDiv.appendChild(input);
 		}
@@ -68,7 +69,7 @@ export async function setupTournament(name: string)
 
 		nicknames.add(name);
 		for (let i = 2; i <= playerCount; i++) {
-			const playerName = (document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim();
+			const playerName = sanitizeInput((document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim());
 			const finalName = playerName || `Player ${i}`;
 	
 			if (nicknames.has(finalName)) {

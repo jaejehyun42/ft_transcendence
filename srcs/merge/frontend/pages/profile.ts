@@ -39,9 +39,12 @@ export const profilePage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-lg text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
+		<!-- 로그아웃 버튼 -->
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-lg text-white hover:bg-red-300 transition duration-300">
+			</button>
 		</div>
 	</aside>
 
@@ -197,6 +200,8 @@ export function editProfile() {
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
                 else if (data.error == "닉네임과 프로필 사진(이미지) 모두 필요합니다.")
                     statusMessage.setAttribute("data-i18n", "nicknameandphotoreq");
+		else if (data.error == "request file too large")
+                    statusMessage.setAttribute("data-i18n", "filetoolarge");
                 loadLanguage(currentLang);
             }
         } catch (error) {

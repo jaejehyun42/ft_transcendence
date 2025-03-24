@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker');
+
 async function executeQuery(db, sql, params = []) { 
 	return new Promise((resolve, reject) => {
 	  db.all(sql, params, (err, rows) => {
@@ -14,28 +16,37 @@ async function executeQuery(db, sql, params = []) {
 // 사용자 정보 추가 함수
 async function addUser(db, username, email) { 
 	return new Promise((resolve, reject) => {
-	  const sql = `INSERT INTO users (username, email) VALUES (?, ?)`;
-	  db.run(sql, [username, email], function(err) {
-		if (err) {
-		  console.error('사용자 정보 추가 오류:', err.message);
-		  reject(err);
-		  return;
-		}		
-		console.log(`사용자 ${username} 추가 성공`);
-		console.log('ID:', this.lastID);
+		// nickname 컬럼 추가
+		const sql = `INSERT INTO users (username, nickname, email) VALUES (?, ?, ?)`;
 
-		// 해당 유저의 기본 게임 데이터 추가
-		const gameSql = `INSERT INTO gamedb (user_id) VALUES (?)`;
-		db.run(gameSql, [this.lastID], function (err) {
-		  if (err) {
-			console.error('게임 데이터 추가 오류:', err.message);
-			reject(err);
-		  } else {
-			console.log('게임 데이터 추가 성공');
-			resolve(this.lastID);
-		  }
+		let nickname = faker.internet.userName();
+		while (nickname.startsWith('AI')) {
+			nickname = faker.internet.userName();
+		}
+		nickname = nickname.length > 10 ? nickname.slice(0, 10) : nickname;
+
+		db.run(sql, [username, nickname, email], function (err) {
+			if (err) {
+				console.error('사용자 정보 추가 오류:', err.message);
+				reject(err);
+				return;
+			}		
+
+			console.log(`✅ 사용자 ${username} 추가 성공`);
+			console.log('📌 ID:', this.lastID);
+
+			// 기본 게임 데이터도 추가
+			const gameSql = `INSERT INTO gamedb (user_id) VALUES (?)`;
+			db.run(gameSql, [this.lastID], function (err) {
+				if (err) {
+					console.error('게임 데이터 추가 오류:', err.message);
+					reject(err);
+				} else {
+					console.log('✅ 게임 데이터 추가 성공');
+					resolve(this.lastID);
+				}
+			});
 		});
-	  });
 	});
 }
 
@@ -92,6 +103,21 @@ async function getUserByEmail(db, email) {
 	});
 }
 
+function getUserIdByNickname(db, nickname) {
+	return new Promise((resolve, reject) => {
+		db.get(`SELECT id FROM users WHERE nickname = ?`, [nickname], (err, row) => {
+			if (err) {
+				console.error('❌ user ID 조회 오류:', err.message);
+				reject(err);
+			} else if (!row) {
+				reject(new Error(`닉네임 "${nickname}"에 해당하는 유저를 찾을 수 없습니다.`));
+			} else {
+				resolve(row.id);
+			}
+		});
+	});
+}
+
 async function getUserByRefreshToken(db, refreshToken) {
     const query = 'SELECT id, email FROM users WHERE refresh_token = ?';
     const results = await executeQuery(db, query, [refreshToken]);
@@ -138,22 +164,7 @@ async function saveRefreshToken(db, userId, refreshToken) {
 
 async function invalidateRefreshToken(db, refreshToken) {
     return new Promise((resolve, reject) => {
-        const query = `DELETE FROM users WHERE refresh_token = ?`;
-        db.run(query, [refreshToken], function (err) {
-            if (err) {
-                console.error('리프레시 토큰 무효화 오류:', err.message);
-                reject(err);
-            } else {
-                console.log(`리프레시 토큰 무효화 성공 (Refresh Token: ${refreshToken})`);
-                resolve(true);
-            }
-        });
-    });
-}
-
-async function invalidateRefreshToken(db, refreshToken) {
-    return new Promise((resolve, reject) => {
-        const query = `DELETE FROM users WHERE refresh_token = ?`;
+        const query = 'UPDATE users SET refresh_token = NULL WHERE refresh_token = ?';
         db.run(query, [refreshToken], function (err) {
             if (err) {
                 console.error('리프레시 토큰 무효화 오류:', err.message);
@@ -173,6 +184,7 @@ module.exports = {
 	updateInfo,
 	getUserByRefreshToken,
 	getUserByEmail,
+	getUserIdByNickname,
 	updateOtpSecret,
 	saveRefreshToken,
 	invalidateRefreshToken

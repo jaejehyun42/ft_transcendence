@@ -7,23 +7,27 @@
     <script type="module" src="dist/router.js"></script>
 
     <!-- 스타일시트 적용 -->
-    <link href="./frontend/styles.css" rel="stylesheet" >
-    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel= "stylesheet">
+    <link href="./frontend/styles.css" rel="stylesheet">
     <style>
         @font-face {
-            font-family: 'dalmoori';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/dalmoori.woff') format('woff');
+            font-family: 'CookieRun-Regular';
+            src: url('/font/CookieRun_Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'CookieRun-Bold';
+            src: url('/font/CookieRun_Bold.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
         }
 
         body {
-            font-family: 'Silkscreen', 'dalmoori', sans-serif;
+            font-family: 'CookieRun-Bold', 'CookieRun-Regular', sans-serif;
         }
     </style>
-
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-
 </head>
 <body>
     <!-- 페이지 동적으로 삽입 -->

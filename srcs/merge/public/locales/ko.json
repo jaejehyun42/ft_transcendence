@@ -25,7 +25,9 @@
   "profileupdatesuccess": "프로필 업데이트 성공!",
   "nicknamealreadyexist": "이미 존재하는 닉네임입니다.",
   "nicknameandphotoreq": "닉네임과 프로필 사진(이미지) 모두 필요합니다.",
-  "network_error": "네트워크 오류가 발생했습니다.",
+  "networkerror": "네트워크 오류가 발생했습니다.",
+  "filetoolarge": "요청 파일 크기가 너무 큽니다.",
   "logout": "로그아웃",
-  "win": "승리"
+  "win": "승리",
+  "dashboardPage": "📊 대시보드"
 }
