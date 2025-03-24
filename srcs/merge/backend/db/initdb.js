@@ -44,14 +44,16 @@ async function createTable(db) {
         `;
   
         const matchHistoryTableSql = `
-          CREATE TABLE IF NOT EXISTS matchhistory (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              user1 TEXT,
-              user2 TEXT,
-              user1_score INTEGER DEFAULT 0,
-              user2_score INTEGER DEFAULT 0,
-              match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          );
+            CREATE TABLE IF NOT EXISTS matchhistory (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user1 INTEGER,
+                user2 INTEGER,
+                user1_score INTEGER DEFAULT 0,
+                user2_score INTEGER DEFAULT 0,
+                match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user1) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (user2) REFERENCES users(id) ON DELETE CASCADE
+            );
         `;
   
         db.serialize(() => {
