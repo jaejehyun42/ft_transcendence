@@ -199,7 +199,7 @@ async function sendMatchResult(result: { [key: string]: string | null })
 {
 	const dataToSend = {
 		user1: result["name_1p"] || '',
-		user2Id: result["name_2p"] || '',
+		user2: result["name_2p"] || '',
 		user1_score: result["score_1p"] || '0',
 		user2_score: result["score_2p"] || '0'
 	};

@@ -25,7 +25,7 @@ async function matchHistoryRoute(fastify, options){
             await addMatchHistory(db, user1Id, user2, user1_score, user2_score);
 
             const result = user1_score > user2_score ? 'win' : 'lose';
-            const playerType = user2Id.startsWith('AI') ? 'ai' : 'human';
+            const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
             await gameModule.updateScore(db, user1Id, playerType, result);
             // await gameModule.updateScore(db, user2Id, playerType, result);
@@ -54,18 +54,17 @@ async function matchHistoryRoute(fastify, options){
                 const sql = `
                     SELECT 
                         u1.nickname AS user1_nickname,
-                        u2.nickname AS user2_nickname,
+                        m.user2_nickname,
                         m.user1_score,
                         m.user2_score,
                         m.match_date
                     FROM matchhistory m
                     JOIN users u1 ON m.user1 = u1.id
-                    JOIN users u2 ON m.user2 = u2.id
-                    WHERE m.user1 = ? OR m.user2 = ?
+                    WHERE m.user1 = ?
                     ORDER BY m.match_date DESC
                     LIMIT 5
                 `;
-                db.all(sql, [user.id, user.id], (err, rows) => {
+                db.all(sql, [user.id], (err, rows) => {
                     if (err) {
                         console.error("❌ matchhistory 조회 오류:", err.message);
                         return reject(new Error("DB 조회 실패"));

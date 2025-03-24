@@ -1,6 +1,11 @@
 async function getProfilePictureByNickname(nickname: string) {
+    const AI_PROFILE_PICTURE = "AI_player.png"
     const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
+
 	try {
+        console.log("Profile nickname: ", nickname);
+        if (nickname == "AI")
+            return AI_PROFILE_PICTURE;
 		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
