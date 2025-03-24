@@ -1,5 +1,3 @@
-const authenticateJWT = require('../auth/jwt');
-
 async function userInfoRoute(fastify, options){
     const db = fastify.db;
 
