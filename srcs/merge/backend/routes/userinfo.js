@@ -6,7 +6,7 @@ async function userInfoRoute(fastify, options){
     fastify.get('/api/users/:nickname', async (request, reply) => {
         try {
             const { nickname } = request.params;
-    
+            console.log("nickname:", nickname);
             const user = await new Promise((resolve, reject) => {
                 db.get(
                     'SELECT profile_picture FROM users WHERE nickname = ?', [nickname], (err, row) => {

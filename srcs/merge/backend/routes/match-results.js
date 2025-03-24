@@ -19,7 +19,7 @@ async function matchHistoryRoute(fastify, options){
             const user2Id = await dbModule.getUserIdByNickname(db, user2);
 
             if (!user1Id ||!user2Id) {
-                return reply.status(404).send({ error: 'User1 not found' });
+                return reply.status(404).send({ error: 'User not found' });
             }
     
             await addMatchHistory(db, user1Id, user2Id, user1_score, user2_score);
