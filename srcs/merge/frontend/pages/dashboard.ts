@@ -1,6 +1,6 @@
 // import { createHistory } from "../dashboard/match_history.js"
 import { loadLanguage } from "../locales/lang.js";
-import { loadMatchHistory } from "../dashboard/matchApi.js"
+import { loadMatchHistory } from "../dashboard/match_history.js"
 import { setUpChart } from "../dashboard/chart.js"
 
 export const dashboardPage = `

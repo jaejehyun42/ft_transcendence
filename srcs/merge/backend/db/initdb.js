@@ -29,37 +29,45 @@ const matchHistoryTableSql = `
 CREATE TABLE IF NOT EXISTS matchhistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user1 INTEGER,
-    user2 INTEGER,
+    user2_nickname TEXT,
     user1_score INTEGER DEFAULT 0,
     user2_score INTEGER DEFAULT 0,
     match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user1) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (user2) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user1) REFERENCES users(id) ON DELETE CASCADE
 );
 `;
 
-function insertAIUser(db){
+function insertAIUser(db) {
 	return new Promise((resolve, reject) => {
-		db.run(
-			`INSERT INTO users (username, nickname, email, profile_picture) VALUES ('AI', 'AI', 'ai@pong.com', '/AI_player')`,
-			function (err) {
-				if (err) {
-					console.error('❌ AI 유저 추가 실패:', err.message);
-					return reject(err);
-				}
-				const aiUserId = this.lastID;
-				console.log(`✅ AI 유저 추가 완료 (ID: ${aiUserId})`);
+		// 먼저 AI 유저 존재 여부 확인
+		db.get(`SELECT id FROM users WHERE username = 'AI' AND nickname = 'AI'`, (err, row) => {
+			if (row) {
+				console.log('ℹ️ AI 유저가 이미 존재합니다. 삽입을 생략합니다.');
+				return resolve(); // 이미 존재하면 종료
+			}
 
-				db.run(`INSERT INTO gamedb (user_id) VALUES (?)`, [aiUserId], (err) => {
+			// 존재하지 않을 경우 삽입 진행
+			db.run(
+				`INSERT INTO users (username, nickname, email, profile_picture) VALUES ('AI', 'AI', 'ai@pong.com', '/AI_player')`,
+				function (err) {
 					if (err) {
-						console.error('❌ gamedb 삽입 실패:', err.message);
+						console.error('❌ AI 유저 추가 실패:', err.message);
 						return reject(err);
 					}
-					console.log('✅ gamedb에 AI 유저 등록 완료');
-					resolve();
-				});
-			}
-		);
+					const aiUserId = this.lastID;
+					console.log(`✅ AI 유저 추가 완료 (ID: ${aiUserId})`);
+
+					db.run(`INSERT INTO gamedb (user_id) VALUES (?)`, [aiUserId], (err) => {
+						if (err) {
+							console.error('❌ gamedb 삽입 실패:', err.message);
+							return reject(err);
+						}
+						console.log('✅ gamedb에 AI 유저 등록 완료');
+						resolve();
+					});
+				}
+			);
+		});
 	});
 }
 

@@ -1,12 +1,12 @@
-async function addMatchHistory(db, user1Id, user2Id, user1Score, user2Score) {
+async function addMatchHistory(db, user1Id, user2_nickname, user1Score, user2Score) {
 	try {
 		return new Promise((resolve, reject) => {
 			const sql = `
-				INSERT INTO matchhistory (user1, user2, user1_score, user2_score)
+				INSERT INTO matchhistory (user1, user2_nickname, user1_score, user2_score)
 				VALUES (?, ?, ?, ?)
 			`;
 
-			db.run(sql, [user1Id, user2Id, user1Score, user2Score], function (err) {
+			db.run(sql, [user1Id, user2_nickname, user1Score, user2Score], function (err) {
 				if (err) {
 					console.error('❌ 경기 기록 추가 오류:', err.message);
 					reject(err);
