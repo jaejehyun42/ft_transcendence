@@ -26,6 +26,7 @@
   "nicknamealreadyexist": "Nickname already exists.",
   "nicknameandphotoreq": "Both nickname and photo(image) are required.",
   "networkerror": "A network error occurred.",
+  "filetoolarge": "Request file is too large",
   "logout": "logout",
   "win": "win"
 }
