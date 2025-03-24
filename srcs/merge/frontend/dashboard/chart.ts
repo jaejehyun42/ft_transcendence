@@ -3,7 +3,7 @@ import { TooltipItem } from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // 폰트 설정 등록
-Chart.defaults.font.family = 'Silkscreen, dalmoori, sans-serif';
+Chart.defaults.font.family = 'CookieRun-Regular, sans-serif';
 Chart.defaults.color = '#374151';
 
 async function loadGameStats() {
@@ -81,7 +81,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         // 데이터 없음 -> 빈 차트 형태 유지
         data = [1];
         labels = ["No Data"];
-        backgroundColor = ["#E5E7EB"];  // 연한 회색
+        backgroundColor = ["#E5E7EB"];
     }
 
     new Chart(ctx, {
@@ -95,7 +95,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                 backgroundColor: backgroundColor as (string | CanvasGradient)[],
                 borderColor: '#F3F4F6',
                 borderWidth: 3,
-                hoverOffset: 8
+                hoverOffset: 8,
             }]
         },
         options: {
@@ -132,7 +132,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                             const value = data[tooltipItem.dataIndex];
                             const total = data.reduce((sum: number, num: number) => sum + num, 0);
                             const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : "0.00";
-                            return `${tooltipItem.label}: ${value} (${percentage}%)`;
+                            return ` ${tooltipItem.label}: ${value} (${percentage}%)`;
                         }
                     }
                 },
