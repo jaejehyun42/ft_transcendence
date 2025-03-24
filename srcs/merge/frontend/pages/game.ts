@@ -45,13 +45,11 @@ export const gamePage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
-				<!-- 버튼 내용은 동적으로 추가 -->
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-lg text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
 		<!-- 로그아웃 버튼 -->
-			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-300 transition duration-300">
-
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-lg text-white hover:bg-red-300 transition duration-300">
 			</button>
 		</div>
 	</aside>
@@ -65,7 +63,17 @@ export const gamePage = `
 
 export function setPlayer1(nickname: string)
 {
-	player1 = nickname;
+	player1 = sanitizeInput(nickname);
+}
+
+export function sanitizeInput(input: string): string
+{
+    const element = document.createElement('div');
+    if (input) {
+        element.textContent = input;
+        return element.innerHTML;
+    }
+    return '';
 }
 
 // 게임 옵션 선택 화면 렌더링
@@ -113,14 +121,20 @@ export async function setupGame()
 		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
 	});
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
-		const player2 = (document.getElementById("player2-name") as HTMLInputElement).value.trim() || "Local Player";
+		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Local Player";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 
 		if (player1 === player2)
 		{
-			alert(`Duplicate nickname: "${player2}". Please use a unique nickname.`);
+			alert(`Duplicate Nickname: "${player2}". Please use Unique Nickname.`);
 			return;
 		}
+		else if (player2.startsWith("AI"))
+		{
+			alert(`Forbidden Nickname: ${player2}. Please use Another Nickname`);
+			return;
+		}
+
 		await startGame(player1, player2)
 		setupGame();
 	});

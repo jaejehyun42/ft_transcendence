@@ -1,12 +1,9 @@
-const authenticateJWT = require('../auth/jwt');
-
 async function userInfoRoute(fastify, options){
     const db = fastify.db;
 
     fastify.get('/api/users/:nickname', async (request, reply) => {
         try {
             const { nickname } = request.params;
-    
             const user = await new Promise((resolve, reject) => {
                 db.get(
                     'SELECT profile_picture FROM users WHERE nickname = ?', [nickname], (err, row) => {

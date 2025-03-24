@@ -3,7 +3,7 @@ import { TooltipItem } from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // 폰트 설정 등록
-Chart.defaults.font.family = 'Silkscreen, dalmoori, sans-serif';
+Chart.defaults.font.family = 'CookieRun-Regular, sans-serif';
 Chart.defaults.color = '#374151';
 
 async function loadGameStats() {
@@ -29,7 +29,7 @@ async function loadGameStats() {
 async function calculateWinRates() {
     const gameData = await loadGameStats();
 
-    if (gameData.length === 0) {
+    if (!gameData || gameData.length === 0) {
         return { totalWins: 0, totalLosses: 0, pveWins: 0, pveLosses: 0, pvpWins: 0, pvpLosses: 0 };
     }
 
@@ -39,12 +39,12 @@ async function calculateWinRates() {
 
     console.log(gameData);
     gameData.forEach((game: any) => {
-        totalWins += game.ai_win + game.human_win;
-        totalLosses += game.ai_lose + game.human_lose;
-        pveWins += game.ai_win;
-        pveLosses += game.ai_lose;
-        pvpWins += game.human_win;
-        pvpLosses += game.human_lose;
+        totalWins += (game.ai_win || 0) + (game.human_win || 0);
+        totalLosses += (game.ai_lose || 0) + (game.human_lose || 0);
+        pveWins += game.ai_win || 0;
+        pveLosses += game.ai_lose || 0;
+        pvpWins += game.human_win || 0;
+        pvpLosses += game.human_lose || 0;
     });
 
     return {
@@ -81,7 +81,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         // 데이터 없음 -> 빈 차트 형태 유지
         data = [1];
         labels = ["No Data"];
-        backgroundColor = ["#E5E7EB"];  // 연한 회색
+        backgroundColor = ["#E5E7EB"];
     }
 
     new Chart(ctx, {
@@ -95,7 +95,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                 backgroundColor: backgroundColor as (string | CanvasGradient)[],
                 borderColor: '#F3F4F6',
                 borderWidth: 3,
-                hoverOffset: 8
+                hoverOffset: 8,
             }]
         },
         options: {
@@ -132,7 +132,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                             const value = data[tooltipItem.dataIndex];
                             const total = data.reduce((sum: number, num: number) => sum + num, 0);
                             const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : "0.00";
-                            return `${tooltipItem.label}: ${value} (${percentage}%)`;
+                            return ` ${tooltipItem.label}: ${value} (${percentage}%)`;
                         }
                     }
                 },

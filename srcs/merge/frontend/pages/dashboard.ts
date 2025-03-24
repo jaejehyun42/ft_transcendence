@@ -1,7 +1,6 @@
-// import { createHistory } from "../dashboard/match_history.js"
+import { setUpChart } from "../dashboard/chart.js"
 import { loadLanguage } from "../locales/lang.js";
 import { loadMatchHistory } from "../dashboard/matchApi.js"
-import { setUpChart } from "../dashboard/chart.js"
 
 export const dashboardPage = `
 	<!-- 오버레이 추가 -->
@@ -40,11 +39,11 @@ export const dashboardPage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-lg text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
 		<!-- 로그아웃 버튼 -->
-			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-300 transition duration-300">
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-lg text-white hover:bg-red-300 transition duration-300">
 			</button>
 		</div>
 	</aside>
@@ -99,9 +98,8 @@ export async function setDashBoard()
 		</div>
 		`;
 
-		// createHistory();
-		loadMatchHistory();
 		setUpChart();
+		loadMatchHistory();
 
 		const currentLang = localStorage.getItem("language") || "en";
 			await loadLanguage(currentLang);

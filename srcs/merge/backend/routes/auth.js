@@ -31,6 +31,19 @@ async function authRoute(fastify, options) {
                 return reply.status(401).send({ authenticated: false, message: 'Unauthorized' });
             }
 
+            try {
+                const decodedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+                const refreshTokenExpiresAt = decodedRefreshToken.exp;
+            
+                if (Date.now() / 1000 > refreshTokenExpiresAt) {
+                    console.log("🚨 리프레시 토큰 만료, 로그인 필요");
+                    return reply.status(401).send({ authenticated: false, message: 'Refresh token has expired' });
+                }
+            } catch (error) {
+                console.log("🚨 리프레시 토큰 검증 실패, 로그인 필요");
+                return reply.status(401).send({ authenticated: false, message: 'Invalid refresh token' });
+            }
+
             let decoded;
             try {
                 decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -60,7 +73,7 @@ async function authRoute(fastify, options) {
             reply.setCookie('access_token', newAccessToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'Strict',
+                sameSite: 'Lax',
                 maxAge: 15 * 60 * 1000 // 15분
             });
             console.log("✅ 인증 성공, 응답 데이터:", { authenticated: true, user: { userId: user.id, email: user.email } });
