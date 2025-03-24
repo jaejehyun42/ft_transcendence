@@ -25,7 +25,7 @@ async function matchHistoryRoute(fastify, options){
             await addMatchHistory(db, user1Id, user2Id, user1_score, user2_score);
 
             const result = user1_score > user2_score ? 'win' : 'lose';
-            const playerType = user2 === 'ai' ? 'ai' : 'human';
+            const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
             await gameModule.updateScore(db, user1Id, playerType, result);
             await gameModule.updateScore(db, user2Id, playerType, result);
