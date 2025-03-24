@@ -1,4 +1,4 @@
-import { createHistoryBox } from "./match_history.js"
+import { createHistoryBox, NonMatchHistory } from "./match_history.js"
 
 type MatchData = {
 	user1: string;
@@ -48,12 +48,20 @@ export async function loadMatchHistory() {
 	try {
 		const matches = await fetchRecentMatches(); // 🔹 5개의 경기 기록 가져오기
 
-		matches.forEach((match: MatchData) => {
-			const { user1, user2, user1_score, user2_score, match_date } = match;   
-			const timestamp = new Date(match_date).getTime();
-
-			createHistoryBox(user1, user2, user1_score, user2_score, timestamp);
-		});
+		if (matches.length === 0)
+		{
+			console.log("ℹ️ 최근 경기 없음 → NonMatchHistory() 실행");
+			await NonMatchHistory();
+		}
+		else
+		{
+			matches.forEach((match: MatchData) => {
+				const { user1, user2, user1_score, user2_score, match_date } = match;   
+				const timestamp = new Date(match_date).getTime();
+	
+				createHistoryBox(user1, user2, user1_score, user2_score, timestamp);
+			});
+		}
 	} catch (err) {
 		console.error('❌ 경기 히스토리 박스 생성 중 오류:', err);
 	}
