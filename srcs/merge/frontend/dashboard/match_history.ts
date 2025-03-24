@@ -1,3 +1,26 @@
+import { getProfilePictureByNickname } from "./matchApi.js";
+
+export async function NonMatchHistory() {
+    const container = document.getElementById('box-container');
+    
+    if (!container) {
+        console.warn('⚠️ box-container 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    const messageElement = document.createElement('div');
+    messageElement.className = 'col-span-12 text-center py-10';
+    messageElement.innerHTML = `
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900" data-i18n="no_recent_matches">최근 경기 기록이 없습니다</h3>
+        <p class="mt-1 text-sm text-gray-500" data-i18n="play_game_message">새로운 게임을 플레이해보세요!</p>
+    `;
+
+    container.appendChild(messageElement);
+}
+
 export async function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number) {
     const container = document.getElementById('box-container');
     if (!container) return;
@@ -133,26 +156,4 @@ async function loadMatchHistory() {
 
 export function createHistory() {
     loadMatchHistory();
-}
-
-async function getProfilePictureByNickname(nickname: string) {
-    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
-	try {
-		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-		});
-
-		if (!res.ok) {
-			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
-			return DEFAULT_PROFILE_PICTURE;
-		}
-
-		const data = await res.json();
-		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
-
-	} catch (err) {
-		console.error('❌ 프로필 이미지 가져오기 실패:', err);
-		return null;
-	}
 }
