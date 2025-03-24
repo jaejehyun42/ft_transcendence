@@ -63,7 +63,7 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //정보 들어갈 박스
     const box = document.createElement('div');
     win_lose_color.append(box);
-    box.className = 'w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center px-8 py-4';
+    box.className = 'w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center px-4 py-4';
 
     // 왼쪽 영역 (첫 번째 열) - 유저1
     const left_column = document.createElement('div');
@@ -94,7 +94,7 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //유저1 이름
     const user1_name = document.createElement('p');
     user1_name.textContent = user1;
-    user1_name.className = 'text-2xl font-bold text-black';
+    user1_name.className = 'text-2xl font-bold text-black w-full truncate';
     user1_txtbox.appendChild(user1_name);
 
     //유저1 점수
@@ -141,13 +141,13 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
         user2_winlose.textContent = `패`;
     else
         user2_winlose.textContent = `무`;
-    user2_winlose.className = 'text-3xl font-bold text-black';
+    user2_winlose.className = 'text-3xl font-bold text-black max-h-48 truncate';
     user2_txtbox.appendChild(user2_winlose);
 
     //유저2 이름
     const user2_name = document.createElement('p');
     user2_name.textContent = user2;
-    user2_name.className = 'text-2xl font-bold text-black';
+    user2_name.className = 'text-2xl font-bold text-black w-full text-right truncate';
     user2_txtbox.appendChild(user2_name);
 
     //유저2 점수
@@ -158,75 +158,8 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
 
     //유저2 이미지
     const user2_img = document.createElement('img');
-    user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
+    user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center justify-end';
     user2_img.src = await getProfilePictureByNickname(user2);
-    box.append(user2_img);
+    right_column.append(user2_img);
 
-    user1_name.className = 'text-2xl font-bold text-black';
-    user2_name.className = 'text-2xl font-bold text-black';
 }
-
-// type MatchData = {
-//     user1: string;
-//     user2: string;
-//     user1_score: number;
-//     user2_score: number;
-//     match_date: string; // ISO 날짜 문자열
-// };
-
-// async function fetchRecentMatches() {
-//     try {
-//         const res = await fetch('/api/match-history/latest');
-//         if (!res.ok)
-//             throw new Error(`HTTPS ${res.status}`);
-//         const data = await res.json();
-//         console.log("🎮 최근 경기 5개:", data);
-//         return data;
-//     } catch (err) {
-//         console.error('❌ 경기 데이터 불러오기 실패:', err);
-//         return [];
-//     }
-// }
-
-// async function loadMatchHistory() {
-//     try {
-//         const matches = await fetchRecentMatches(); // 🔹 5개의 경기 기록 가져오기
-
-//         matches.forEach((match: MatchData) => {
-//             const { user1, user2, user1_score, user2_score, match_date } = match;
-
-//             // 🔸 날짜 문자열 → timestamp 변환 (선택 사항)
-//             const timestamp = new Date(match_date).getTime();
-
-//             createHistoryBox(user1, user2, user1_score, user2_score, timestamp);
-//         });
-//     } catch (err) {
-//         console.error('❌ 경기 히스토리 박스 생성 중 오류:', err);
-//     }
-// }
-
-// export function createHistory() {
-//     loadMatchHistory();
-// }
-
-// async function getProfilePictureByNickname(nickname: string) {
-//     const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
-// 	try {
-// 		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
-// 			method: 'GET',
-// 			headers: { 'Content-Type': 'application/json' },
-// 		});
-
-// 		if (!res.ok) {
-// 			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
-// 			return DEFAULT_PROFILE_PICTURE;
-// 		}
-
-// 		const data = await res.json();
-// 		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
-
-// 	} catch (err) {
-// 		console.error('❌ 프로필 이미지 가져오기 실패:', err);
-// 		return null;
-// 	}
-// }
