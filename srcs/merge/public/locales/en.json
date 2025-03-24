@@ -25,7 +25,7 @@
   "profileupdatesuccess": "Profile updated successfully.",
   "nicknamealreadyexist": "Nickname already exists.",
   "nicknameandphotoreq": "Both nickname and photo(image) are required.",
-  "network_error": "A network error occurred.",
+  "networkerror": "A network error occurred.",
   "logout": "logout",
   "win": "win"
 }
