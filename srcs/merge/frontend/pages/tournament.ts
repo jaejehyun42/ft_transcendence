@@ -55,6 +55,7 @@ export async function setupTournament(name: string)
 			input.type = "text";
 			input.placeholder = `Player ${i}`;
 			input.className = "border px-4 py-2 mb-2 w-full";
+			input.maxLength = 10;
 			input.id = `player-${i}-name`;
 			nicknameInputsDiv.appendChild(input);
 		}

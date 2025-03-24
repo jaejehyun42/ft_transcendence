@@ -48,6 +48,11 @@ export const gamePage = `
 			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
 				<!-- 버튼 내용은 동적으로 추가 -->
 			</button>
+
+		<!-- 로그아웃 버튼 -->
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-300 transition duration-300">
+
+			</button>
 		</div>
 	</aside>
 
@@ -92,7 +97,7 @@ export async function setupGame()
 			style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
 				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
-				<input type="text" id="player2-name" placeholder="Local Player" class="border px-4 py-2 mb-4 w-full">
+				<input type="text" id="player2-name" placeholder="Local Player" class="border px-4 py-2 mb-4 w-full" maxlength="10">
 				<div class="flex space-x-4">
 					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
 					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
