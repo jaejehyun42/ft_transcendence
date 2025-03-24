@@ -63,7 +63,17 @@ export const gamePage = `
 
 export function setPlayer1(nickname: string)
 {
-	player1 = nickname;
+	player1 = sanitizeInput(nickname);
+}
+
+export function sanitizeInput(input: string): string
+{
+    const element = document.createElement('div');
+    if (input) {
+        element.textContent = input;
+        return element.innerHTML;
+    }
+    return '';
 }
 
 // 게임 옵션 선택 화면 렌더링
@@ -111,14 +121,20 @@ export async function setupGame()
 		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
 	});
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
-		const player2 = (document.getElementById("player2-name") as HTMLInputElement).value.trim() || "Local Player";
+		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Local Player";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 
 		if (player1 === player2)
 		{
-			alert(`Duplicate nickname: "${player2}". Please use a unique nickname.`);
+			alert(`Duplicate Nickname: "${player2}". Please use Unique Nickname.`);
 			return;
 		}
+		else if (player2.startsWith("AI"))
+		{
+			alert(`Forbidden Nickname: ${player2}. Please use Another Nickname`);
+			return;
+		}
+
 		await startGame(player1, player2)
 		setupGame();
 	});
