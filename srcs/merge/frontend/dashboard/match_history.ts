@@ -1,3 +1,111 @@
+// export async function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number) {
+//     const container = document.getElementById('box-container');
+//     if (!container) return;
+
+//     // 승패 색상
+//     const win_lose_color = document.createElement('div');
+//     container.append(win_lose_color);
+//     if (user1_score > user2_score)
+//         win_lose_color.className = 'col-span-12 pl-2 pr-2 h-32 bg-gradient-to-r from-blue-800 via-blue-800 to-red-800 m-2 rounded-xl';
+//     else if (user1_score < user2_score)
+//         win_lose_color.className = 'col-span-12 pl-2 pr-2 h-32 bg-gradient-to-r from-red-800 via-red-800 to-blue-800 m-2 rounded-xl';
+//     else
+//         win_lose_color.className = 'col-span-12 pl-2 pr-2 h-32 bg-gray-600 m-2 rounded-xl';
+
+//     //정보 들어갈 박스
+//     const box = document.createElement('div');
+//     win_lose_color.append(box);
+//     // box.className = 'w-full h-32 bg-white rounded-xl flex items-center p-8 justify-between';
+//     box.className = 'w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center p-8';
+
+//     //유저1 이미지
+//     const user1_img = document.createElement('img');
+//     user1_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
+//     user1_img.src = await getProfilePictureByNickname(user1);
+//     box.append(user1_img);
+
+//     const user1_txtbox = document.createElement('div');
+//     user1_txtbox.className = 'flex flex-col items-center';
+//     box.append(user1_txtbox);
+
+//     //유저1 승패
+//     const user1_winlose = document.createElement('p');
+//     if (user1_score > user2_score)
+//         user1_winlose.textContent = `승`;
+//     else if (user1_score < user2_score)
+//         user1_winlose.textContent = `패`;
+//     else
+//         user1_winlose.textContent = `무`;
+//     user1_winlose.className = 'text-3xl font-bold text-black';
+//     user1_txtbox.append(user1_winlose);
+
+//     //유저1 이름
+//     const user1_name = document.createElement('p');
+//     user1_name.textContent = user1;
+//     user1_name.className = 'text-2xl font-bold text-black';
+//     user1_txtbox.append(user1_name);
+
+//     //유저1 점수
+//     const user1_score_text = document.createElement('p');
+//     user1_score_text.textContent = `score: ${user1_score}`;
+//     user1_score_text.className = 'text-sm font-bold text-gray-500';
+//     user1_txtbox.append(user1_score_text);
+
+//     // 중앙 영역 (VS 또는 경기 날짜 표시)
+//     const center_info = document.createElement('div');
+//     center_info.className = 'flex flex-col items-center justify-center';
+//     box.append(center_info);
+
+//     // 경기 날짜 표시
+//     const date_display = document.createElement('p');
+//     date_display.textContent = new Date(match_date).toLocaleDateString('ko-KR', {
+//         year: 'numeric',
+//         month: 'numeric',
+//         day: 'numeric'
+//     });
+//     date_display.className = 'text-sm text-gray-500';
+//     center_info.append(date_display);
+
+//     // VS 표시
+//     const vs_text = document.createElement('p');
+//     vs_text.textContent = 'VS';
+//     vs_text.className = 'text-xl font-bold text-gray-500';
+//     center_info.append(vs_text);
+
+//     const user2_txtbox = document.createElement('div');
+//     user2_txtbox.className = 'flex flex-col items-center';
+//     box.append(user2_txtbox);
+
+//     //유저2 승패
+//     const user2_winlose = document.createElement('p');
+//     if (user1_score < user2_score)
+//         user2_winlose.textContent = `승`;
+//     else if (user1_score > user2_score)
+//         user2_winlose.textContent = `패`;
+//     else
+//         user2_winlose.textContent = `무`;
+//     user2_winlose.className = 'text-3xl font-bold text-black';
+//     user2_txtbox.append(user2_winlose);
+
+//     //유저2 이름
+//     const user2_name = document.createElement('p');
+//     user2_name.textContent = user2;
+//     user2_name.className = 'text-2xl font-bold text-black';
+//     user2_txtbox.append(user2_name);
+
+//     //유저2 점수
+//     const user2_score_text = document.createElement('p');
+//     user2_score_text.textContent = `score: ${user2_score}`;
+//     user2_score_text.className = 'text-sm font-bold text-gray-500';
+//     user2_txtbox.append(user2_score_text);
+
+//     //유저2 이미지
+//     const user2_img = document.createElement('img');
+//     user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
+//     user2_img.src = await getProfilePictureByNickname(user2);
+//     box.append(user2_img);
+// }
+
 export async function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number) {
     const container = document.getElementById('box-container');
     if (!container) return;
@@ -15,38 +123,51 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //정보 들어갈 박스
     const box = document.createElement('div');
     win_lose_color.append(box);
-    box.className = 'w-full h-32 bg-white rounded-xl flex items-center p-8 justify-between';
+    box.className = 'w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center px-8 py-4';
 
+    // 왼쪽 영역 (첫 번째 열) - 유저1
+    const left_column = document.createElement('div');
+    left_column.className = 'flex items-center justify-start gap-4';
+    box.appendChild(left_column);
+    
     //유저1 이미지
     const user1_img = document.createElement('img');
     user1_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
     user1_img.src = await getProfilePictureByNickname(user1);
-    box.append(user1_img);
+    left_column.appendChild(user1_img);
 
     const user1_txtbox = document.createElement('div');
-    user1_txtbox.className = 'flex flex-col items-center';
-    box.append(user1_txtbox);
+    user1_txtbox.className = 'flex flex-col items-start';
+    left_column.appendChild(user1_txtbox);
+
+    //유저1 승패
+    const user1_winlose = document.createElement('p');
+    if (user1_score > user2_score)
+        user1_winlose.textContent = `승`;
+    else if (user1_score < user2_score)
+        user1_winlose.textContent = `패`;
+    else
+        user1_winlose.textContent = `무`;
+    user1_winlose.className = 'text-3xl font-bold text-black';
+    user1_txtbox.appendChild(user1_winlose);
 
     //유저1 이름
     const user1_name = document.createElement('p');
-    if (user1_score > user2_score)
-        user1_name.textContent = `승: ${user1}`;
-    else if (user1_score < user2_score)
-        user1_name.textContent = `패: ${user1}`;
-    else
-        user1_name.textContent = `무: ${user1}`;
-    user1_txtbox.append(user1_name);
+    user1_name.textContent = user1;
+    user1_name.className = 'text-2xl font-bold text-black';
+    user1_txtbox.appendChild(user1_name);
 
+    //유저1 점수
     const user1_score_text = document.createElement('p');
     user1_score_text.textContent = `score: ${user1_score}`;
     user1_score_text.className = 'text-sm font-bold text-gray-500';
-    user1_txtbox.append(user1_score_text);
+    user1_txtbox.appendChild(user1_score_text);
 
-    // 중앙 영역 (VS 또는 경기 날짜 표시)
-    const center_info = document.createElement('div');
-    center_info.className = 'flex flex-col items-center';
-    box.append(center_info);
-
+    // 중앙 영역 (두 번째 열) - VS 및 날짜
+    const center_column = document.createElement('div');
+    center_column.className = 'flex flex-col items-center justify-center';
+    box.appendChild(center_column);
+    
     // 경기 날짜 표시
     const date_display = document.createElement('p');
     date_display.textContent = new Date(match_date).toLocaleDateString('ko-KR', {
@@ -55,41 +176,51 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
         day: 'numeric'
     });
     date_display.className = 'text-sm text-gray-500';
-    center_info.append(date_display);
+    center_column.appendChild(date_display);
 
     // VS 표시
     const vs_text = document.createElement('p');
     vs_text.textContent = 'VS';
     vs_text.className = 'text-xl font-bold text-gray-500';
-    center_info.append(vs_text);
+    center_column.appendChild(vs_text);
 
+    // 오른쪽 영역 (세 번째 열) - 유저2
+    const right_column = document.createElement('div');
+    right_column.className = 'flex items-center justify-end gap-4';
+    box.appendChild(right_column);
+    
     const user2_txtbox = document.createElement('div');
-    user2_txtbox.className = 'flex flex-col items-center';
-    box.append(user2_txtbox);
+    user2_txtbox.className = 'flex flex-col items-end';
+    right_column.appendChild(user2_txtbox);
+
+    //유저2 승패
+    const user2_winlose = document.createElement('p');
+    if (user1_score < user2_score)
+        user2_winlose.textContent = `승`;
+    else if (user1_score > user2_score)
+        user2_winlose.textContent = `패`;
+    else
+        user2_winlose.textContent = `무`;
+    user2_winlose.className = 'text-3xl font-bold text-black';
+    user2_txtbox.appendChild(user2_winlose);
 
     //유저2 이름
     const user2_name = document.createElement('p');
-    if (user1_score < user2_score)
-        user2_name.textContent = `승: ${user2}`;
-    else if (user1_score > user2_score)
-        user2_name.textContent = `패: ${user2}`;
-    else
-        user2_name.textContent = `무: ${user2}`;
-    user2_txtbox.append(user2_name);
+    user2_name.textContent = user2;
+    user2_name.className = 'text-2xl font-bold text-black';
+    user2_txtbox.appendChild(user2_name);
 
+    //유저2 점수
     const user2_score_text = document.createElement('p');
     user2_score_text.textContent = `score: ${user2_score}`;
     user2_score_text.className = 'text-sm font-bold text-gray-500';
-    user2_txtbox.append(user2_score_text);
+    user2_txtbox.appendChild(user2_score_text);
 
     //유저2 이미지
     const user2_img = document.createElement('img');
     user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
     user2_img.src = await getProfilePictureByNickname(user2);
-    box.append(user2_img);
-
-    user1_name.className = 'text-2xl font-bold text-black';
-    user2_name.className = 'text-2xl font-bold text-black';
+    right_column.appendChild(user2_img);
 }
 
 type MatchData = {
