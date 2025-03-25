@@ -1,3 +1,5 @@
+import { loadLanguage } from "../locales/lang";
+
 async function getProfilePictureByNickname(nickname: string) {
     const AI_PROFILE_PICTURE = "AI_player.png"
     const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
@@ -72,7 +74,7 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     
     //유저1 이미지
     const user1_img = document.createElement('img');
-    user1_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center';
+    user1_img.className = 'bg-blue-100 p-1 rounded-full w-24 h-24 object-cover object-center';
     user1_img.src = await getProfilePictureByNickname(user1);
     left_column.appendChild(user1_img);
 
@@ -83,11 +85,11 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //유저1 승패
     const user1_winlose = document.createElement('p');
     if (user1_score > user2_score)
-        user1_winlose.textContent = `승`;
+        user1_winlose.innerHTML = `<p data-i18n="win"> </p>`;
     else if (user1_score < user2_score)
-        user1_winlose.textContent = `패`;
+        user1_winlose.innerHTML = `<p data-i18n="lose"> </p>`;
     else
-        user1_winlose.textContent = `무`;
+        user1_winlose.innerHTML = `<p data-i18n="draw"> </p>`;
     user1_winlose.className = 'text-3xl font-bold text-black';
     user1_txtbox.appendChild(user1_winlose);
 
@@ -136,11 +138,11 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //유저2 승패
     const user2_winlose = document.createElement('p');
     if (user1_score < user2_score)
-        user2_winlose.textContent = `승`;
+        user2_winlose.innerHTML = `<p data-i18n="win"> </p>`;
     else if (user1_score > user2_score)
-        user2_winlose.textContent = `패`;
+        user2_winlose.innerHTML = `<p data-i18n="lose"> </p>`;
     else
-        user2_winlose.textContent = `무`;
+        user2_winlose.innerHTML = `<p data-i18n="draw"> </p>`;
     user2_winlose.className = 'text-3xl font-bold text-black max-h-48 truncate';
     user2_txtbox.appendChild(user2_winlose);
 
@@ -158,8 +160,10 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
 
     //유저2 이미지
     const user2_img = document.createElement('img');
-    user2_img.className = 'bg-red-100 p-1 rounded-full w-24 h-24 object-cover object-center justify-end';
+    user2_img.className = 'bg-blue-100 p-1 rounded-full w-24 h-24 object-cover object-center justify-end';
     user2_img.src = await getProfilePictureByNickname(user2);
     right_column.append(user2_img);
 
+    const currentLang = localStorage.getItem("language") || "en";
+    await loadLanguage(currentLang);
 }

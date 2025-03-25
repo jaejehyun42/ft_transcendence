@@ -80,19 +80,19 @@ export async function setDashBoard()
 		throw new Error("Error: Cannot find content element!");
 
 	contentDiv.innerHTML = `
-		<div class="relative w-320 flex flex-col items-center h-full">
+		<div class="relative flex flex-col items-center h-full overflow-auto">
 			<!-- 헤더 -->
 			<h2 data-i18n="dashboardPage" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 
 			<!-- 통계 -->
-			<div class="w-3/4 flex rounded-xl mt-25 p-3 bg-blue-100 justify-center">
+			<div class="w-4xl flex rounded-xl mt-25 p-3 bg-blue-100 shadow-lg justify-center">
 				<canvas id="totalWinRate" class="w-1/4"></canvas>
 				<canvas id="PvEWinRate" class="w-1/4"></canvas>
 				<canvas id="PvPWinRate" class="w-1/4"></canvas>
 			</div>
 
 			<!-- 매치 히스토리 -->
-			<div class="w-3/4 flex-1 rounded-xl mt-5 p-5 bg-blue-100 overflow-y-auto justify-center">
+			<div class="w-4xl flex-1 rounded-xl mt-5 p-5 bg-blue-50 shadow-lg overflow-y-auto justify-center min-h-[300px]">
 				<div id="box-container" class="grid grid-cols-12 items-center"></div>
 			</div>
 		</div>
