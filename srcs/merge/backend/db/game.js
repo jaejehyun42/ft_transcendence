@@ -58,7 +58,7 @@ async function updateScore(db, userId, player, result) {
         } else if (result === 'lose') {
             sql = `
                 UPDATE gamedb
-                SET ${loseColumn} = ${loseColumn} + 1,
+                SET ${loseColumn} = ${loseColumn} + 1
                 WHERE user_id = ?
             `;
         } else {
