@@ -79,7 +79,7 @@ async function profileRoute(fastify, options) {
         return reply.status(409).send({ error: '데이터가 필요합니다.' });
       }
 
-      if (nickname.startsWith('AI')) {
+      if (nickname && nickname.startsWith('AI')) {
         console.log('AI 닉네임 사용 불가');
         return reply.status(409).send({ error: 'AI 닉네임 사용 불가' });
       } 
