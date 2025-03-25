@@ -39,6 +39,7 @@
     "sqlite3": "^5.1.7",
     "jsonwebtoken": "^9.0.2",
     "chart.js": "^4.4.2",
-    "chartjs-plugin-datalabels": "^2.1.0"
+    "chartjs-plugin-datalabels": "^2.1.0",
+    "@faker-js/faker": "^9.6.0"
   }
 }

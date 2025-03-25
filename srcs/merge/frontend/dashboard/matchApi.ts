@@ -1,8 +1,8 @@
 import { createHistoryBox, NonMatchHistory } from "./match_history.js"
 
 type MatchData = {
-	user1: string;
-	user2: string;
+    user1_nickname: string;
+    user2_nickname: string;
 	user1_score: number;
 	user2_score: number;
 	match_date: string; // ISO 날짜 문자열
@@ -56,10 +56,10 @@ export async function loadMatchHistory() {
 		else
 		{
 			matches.forEach((match: MatchData) => {
-				const { user1, user2, user1_score, user2_score, match_date } = match;   
+				const { user1_nickname, user2_nickname, user1_score, user2_score, match_date } = match;   
 				const timestamp = new Date(match_date).getTime();
 	
-				createHistoryBox(user1, user2, user1_score, user2_score, timestamp);
+				createHistoryBox(user1_nickname, user2_nickname, user1_score, user2_score, timestamp);
 			});
 		}
 	} catch (err) {

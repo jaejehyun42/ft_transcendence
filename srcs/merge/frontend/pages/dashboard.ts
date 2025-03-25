@@ -80,7 +80,7 @@ export async function setDashBoard()
 		throw new Error("Error: Cannot find content element!");
 
 	contentDiv.innerHTML = `
-		<div class="relative flex flex-col items-center h-full">
+		<div class="relative w-320 flex flex-col items-center h-full">
 			<!-- 헤더 -->
 			<h2 data-i18n="dashboardPage" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 
