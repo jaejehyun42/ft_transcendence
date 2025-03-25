@@ -200,8 +200,10 @@ export function editProfile() {
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
                 else if (data.error == "닉네임과 프로필 사진(이미지) 모두 필요합니다.")
                     statusMessage.setAttribute("data-i18n", "nicknameandphotoreq");
-		else if (data.error == "request file too large")
+                else if (data.error == "request file too large")
                     statusMessage.setAttribute("data-i18n", "filetoolarge");
+                else if (data.error == "AI 닉네임 사용 불가")
+                    statusMessage.setAttribute("data-i18n", "ainicknamenotallowed");
                 loadLanguage(currentLang);
             }
         } catch (error) {

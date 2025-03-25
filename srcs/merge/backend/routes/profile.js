@@ -63,7 +63,6 @@ async function profileRoute(fastify, options) {
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
             const filename = Date.now() + '_' + part.filename;
             profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
-            profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
 
             // ✅ 두 개의 디렉토리에 파일 저장
             for (const dir of uploadDirs) {
@@ -77,8 +76,13 @@ async function profileRoute(fastify, options) {
 
       if (!nickname && !profilePicturePath) {
         console.log('데이터가 누락되었습니다.');
-        return reply.status(400).send({ error: '데이터가 필요합니다.' });
+        return reply.status(409).send({ error: '데이터가 필요합니다.' });
       }
+
+      if (nickname.startsWith('AI')) {
+        console.log('AI 닉네임 사용 불가');
+        return reply.status(409).send({ error: 'AI 닉네임 사용 불가' });
+      } 
 
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);
 				
