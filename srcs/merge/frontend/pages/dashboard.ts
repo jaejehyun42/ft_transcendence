@@ -4,7 +4,7 @@ import { loadMatchHistory } from "../dashboard/matchApi.js"
 
 export const dashboardPage = `
 	<!-- 오버레이 추가 -->
-	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
+	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden 2xl:hidden transition-opacity duration-300"></div>
 
 	<!-- 토글 버튼 -->
 	<button id="menu-toggle" class="fixed top-5 left-5 z-50 w-10 h-10 text-xl text-white rounded-lg 2xl:hidden" 
@@ -80,7 +80,7 @@ export async function setDashBoard()
 		throw new Error("Error: Cannot find content element!");
 
 	contentDiv.innerHTML = `
-		<div class="relative flex flex-col items-center h-full">
+		<div class="relative w-320 flex flex-col items-center h-full">
 			<!-- 헤더 -->
 			<h2 data-i18n="dashboardPage" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 

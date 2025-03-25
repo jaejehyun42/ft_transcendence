@@ -6,6 +6,7 @@ const disabledMatches = new Set<string>();
 // 토너먼트 설정 페이지
 export async function setupTournament(name: string)
 {
+	disabledMatches.clear();
 	const contentDiv = document.getElementById("content");
 	if (!contentDiv) throw new Error("Error: Cannot find content element!");
 	
@@ -17,7 +18,7 @@ export async function setupTournament(name: string)
 			
 			<!-- 입력 및 버튼 -->
 			<div class="flex flex-col space-y-4 items-center flex-grow justify-center">
-				<label data-i18n="numberofplayers" class="text-xl"></label>
+				<label data-i18n="numberofplayers" class="text-2xl"></label>
 				<input type="number" id="player-count" class="p-2 border rounded text-center w-24" min="1" max="8" value="4">
 				<button data-i18n="starttournament" id="enter-tournament" class="btn bg-purple-500 text-white text-xl py-3 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
 				</button>
@@ -65,7 +66,6 @@ export async function setupTournament(name: string)
 	document.getElementById("start-tournament")!.addEventListener("click", () => {
 		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
 		const nicknames = new Set<string>();
-		let duplicateFound = false;
 
 		nicknames.add(name);
 		for (let i = 2; i <= playerCount; i++) {
@@ -73,18 +73,20 @@ export async function setupTournament(name: string)
 			const finalName = playerName || `Player ${i}`;
 	
 			if (nicknames.has(finalName)) {
-				duplicateFound = true;
 				alert(`Duplicate nickname found: "${finalName}". Please use a unique nickname.`);
+				return;
+			}
+			if (finalName.startsWith("AI") || finalName === "???")
+			{
+				alert(`Forbidden Nickname: ${finalName}. Please use Another Nickname`);
 				return;
 			}
 			nicknames.add(finalName);
 		}
 	
-		if (!duplicateFound) {
-			console.log("Tournament Players:", Array.from(nicknames));
-			document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
-			startTournament(playerCount, Array.from(nicknames));
-		}
+		console.log("Tournament Players:", Array.from(nicknames));
+		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
+		startTournament(playerCount, Array.from(nicknames));
 	});
 
 	document.getElementById("close-modal")!.addEventListener("click", () => {

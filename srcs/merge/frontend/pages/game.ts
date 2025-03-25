@@ -10,7 +10,7 @@ export let player1 = "Nick Name";
 
 export const gamePage = `
 	<!-- 오버레이 추가 -->
-	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
+	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden 2xl:hidden transition-opacity duration-300"></div>
 
 	<!-- 토글 버튼 -->
 	<button id="menu-toggle" class="fixed top-5 left-5 z-50 w-10 h-10 text-xl text-white rounded-lg 2xl:hidden" 
@@ -105,7 +105,7 @@ export async function setupGame()
 			style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
 				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
-				<input type="text" id="player2-name" placeholder="Local Player" class="border px-4 py-2 mb-4 w-full" maxlength="10">
+				<input type="text" id="player2-name" placeholder="Player 2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
 				<div class="flex space-x-4">
 					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
 					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
@@ -117,11 +117,12 @@ export async function setupGame()
 	const currentLang = localStorage.getItem("language") || "en";
 		await loadLanguage(currentLang);
 
+	let result;
 	document.getElementById("local-mode")!.addEventListener("click", () => {
 		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
 	});
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
-		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Local Player";
+		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Player 2";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 
 		if (player1 === player2)
@@ -129,18 +130,20 @@ export async function setupGame()
 			alert(`Duplicate Nickname: "${player2}". Please use Unique Nickname.`);
 			return;
 		}
-		else if (player2.startsWith("AI"))
+		if (player2.startsWith("AI") || player2 === "???")
 		{
 			alert(`Forbidden Nickname: ${player2}. Please use Another Nickname`);
 			return;
 		}
 
-		await startGame(player1, player2)
-		setupGame();
+		result = await startGame(player1, player2)
+		if (result != "???")
+			setupGame();
 	});
 	document.getElementById("ai-mode")!.addEventListener("click", async () => {
-		await startGame(player1, "AI")
-		setupGame();
+		result = await startGame(player1, "AI")
+		if (result != "???")
+			setupGame();
 	});
 	document.getElementById("tournament-mode")!.addEventListener("click", async () => {
 		setupTournament(player1)
@@ -187,10 +190,12 @@ export async function startGame(player1: string, player2: string): Promise<strin
 		result = await startGameLoop(canvas, player1, player2, "PvE");
 	else
 		result = await startGameLoop(canvas, player1, player2, "PvP");
-	sendMatchResult(result);
-
+	
 	if (result["winner"])
+	{
+		sendMatchResult(result);
 		return result["winner"];
+	}
 	else
 		return "???";
 }
