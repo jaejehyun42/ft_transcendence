@@ -59,7 +59,6 @@ async function updateScore(db, userId, player, result) {
             sql = `
                 UPDATE gamedb
                 SET ${loseColumn} = ${loseColumn} + 1,
-                    ${winColumn} = CASE WHEN ${winColumn} > 0 THEN ${winColumn} - 1 ELSE 0 END
                 WHERE user_id = ?
             `;
         } else {
