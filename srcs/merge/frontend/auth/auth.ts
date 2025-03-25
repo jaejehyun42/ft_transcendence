@@ -27,7 +27,6 @@ export async function checkJWTAuth(
 
     } catch (error) {
         console.error("🚨 JWT 인증 오류:", error);
-        alert("JWT 인증 요청 중 오류 발생!");
         router.navigate("/login");
         return false;
     }
@@ -58,7 +57,6 @@ export async function checkOAuth(
 
     } catch (error) {
         console.error("🚨 구글 인증 오류:", error);
-        alert("구글 로그인 인증 요청 중 오류 발생!");
         router.navigate("/login");
         return false;
     }
