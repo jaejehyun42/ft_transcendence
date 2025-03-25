@@ -55,6 +55,7 @@ async function profileRoute(fastify, options) {
     
             if (isNicknameTaken) {
                 console.log('이미 존재하는 닉네임입니다.');
+                // Pause -> resume
                 return reply.status(409).send({ error: '이미 존재하는 닉네임입니다.' });
             }
           } else if (part.fieldname === 'profile_picture' && part.filename) {
