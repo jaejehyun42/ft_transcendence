@@ -23,15 +23,18 @@ async function fetchRecentMatches() {
 }
 
 export async function getProfilePictureByNickname(nickname: string) {
+    const AI_PROFILE_PICTURE = "AI_player.png"
     const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
+
 	try {
+        if (nickname == "AI" || nickname.startsWith('AI'))
+            return AI_PROFILE_PICTURE;
 		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		});
 
 		if (!res.ok) {
-			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
 			return DEFAULT_PROFILE_PICTURE;
 		}
 

@@ -102,6 +102,33 @@ async function profileRoute(fastify, options) {
       return reply.status(500).send({ error: err.message });
     }
   });
+
+  fastify.get('/profile/:nickname', async (request, reply) => {
+    const { nickname } = request.params;
+  
+    if (!nickname) {
+      return reply.code(400).send({ error: '닉네임을 입력하세요.' });
+    }
+  
+    try {
+      const sql = `SELECT 1 FROM users WHERE nickname = ? LIMIT 1`;
+      const row = await new Promise((resolve, reject) => {
+        db.get(sql, [nickname], (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        });
+      });
+  
+      if (row) {
+        reply.send({ exists: true, nickname });
+      } else {
+        reply.send({ exists: false, nickname });
+      }
+    } catch (err) {
+      console.error('❌ 닉네임 확인 중 오류:', err);
+      reply.code(500).send({ error: '서버 오류가 발생했습니다.' });
+    }
+  });
 }
 
 module.exports = profileRoute;

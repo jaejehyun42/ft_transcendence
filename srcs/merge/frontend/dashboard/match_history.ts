@@ -1,29 +1,4 @@
-async function getProfilePictureByNickname(nickname: string) {
-    const AI_PROFILE_PICTURE = "AI_player.png"
-    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
-
-	try {
-        console.log("Profile nickname: ", nickname);
-        if (nickname == "AI")
-            return AI_PROFILE_PICTURE;
-		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-		});
-
-		if (!res.ok) {
-			console.warn(`⚠️ 사용자 정보 없음 (${res.status}), 기본 이미지 사용`);
-			return DEFAULT_PROFILE_PICTURE;
-		}
-
-		const data = await res.json();
-		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
-
-	} catch (err) {
-		console.error('❌ 프로필 이미지 가져오기 실패:', err);
-		return null;
-	}
-}
+import { getProfilePictureByNickname } from "./matchApi";
 
 export async function NonMatchHistory() {
     const container = document.getElementById('box-container');
