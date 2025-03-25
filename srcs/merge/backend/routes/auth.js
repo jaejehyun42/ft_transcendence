@@ -42,8 +42,8 @@ async function authRoute(fastify, options) {
                     return reply.status(401).send({ authenticated: false, message: 'Refresh token has expired' });
                 }
             } catch (error) {
-                console.log("🚨 리프레시 토큰 검증 실패, 로그인 필요");
-                return reply.status(401).send({ authenticated: false, message: 'Invalid refresh token' });
+                console.log("🚨 리프레시 토큰 만료, 로그인 필요");
+                return reply.status(401).send({ authenticated: false, message: 'Refresh token has expired' });
             }
 
             let decoded;
