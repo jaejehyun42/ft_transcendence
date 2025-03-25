@@ -53,6 +53,7 @@ export function startGame(mode: string)
     rightScore = 0;
     gameMode = mode;
     gameRunning = true;
+    resumeGame();
 
     result["winner"] = null;
     result["name_1p"] = name_1p;

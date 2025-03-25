@@ -17,7 +17,6 @@ async function gameStatsRoute(fastify, options) {
             }
     
             const user = await dbModule.getUserByEmail(db, authData.user.email);
-            console.log(user);
             if (!user) {
                 return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
            }

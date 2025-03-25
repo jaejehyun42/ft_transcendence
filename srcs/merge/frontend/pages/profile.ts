@@ -4,7 +4,7 @@ import { setPlayer1 } from "./game.js";
 
 export const profilePage = `
 	<!-- 오버레이 추가 -->
-	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden transition-opacity duration-300"></div>
+	<div id="overlay" class="fixed top-0 left-0 z-40 w-full h-full bg-black opacity-0 hidden 2xl:hidden transition-opacity duration-300"></div>
 
 	<!-- 토글 버튼 -->
 	<button id="menu-toggle" class="fixed top-5 left-5 z-50 w-10 h-10 text-xl text-white rounded-lg 2xl:hidden" 
@@ -39,13 +39,12 @@ export const profilePage = `
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
-			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-300 transition duration-300">
+			<button id="lang-toggle" class="flex items-center px-4 py-2 rounded-lg bg-gray-500 text-lg text-white hover:bg-gray-300 transition duration-300">
 			</button>
 
 		<!-- 로그아웃 버튼 -->
-			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-300 transition duration-300">
+			<button data-i18n="logout" id="logout-btn" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg bg-red-500 text-lg text-white hover:bg-red-300 transition duration-300">
 			</button>
-
 		</div>
 	</aside>
 
@@ -133,6 +132,11 @@ export function editProfile() {
             if (!allowedTypes.includes(avatarInput.files?.[0].type)) { // 파일 타입 체크
                 alert("❌ 허용되지 않는 파일 형식입니다! (png, jpeg, jpg, webp만 가능)");
                 avatarInput.value = ""; // 파일 입력 필드 초기화
+            }
+            const maxSize = 3 * 1024 * 1024; // 3MB
+            if (avatarInput.files[0].size > maxSize) {
+                alert("❌ 파일이 너무 큽니다! 3MB 이하만 업로드 가능합니다.");
+                avatarInput.value = ""; // 입력 필드 초기화
             }
             const reader = new FileReader();
             reader.onload = function (e) {
