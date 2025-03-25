@@ -133,6 +133,11 @@ export function editProfile() {
                 alert("❌ 허용되지 않는 파일 형식입니다! (png, jpeg, jpg, webp만 가능)");
                 avatarInput.value = ""; // 파일 입력 필드 초기화
             }
+            const maxSize = 3 * 1024 * 1024; // 3MB
+            if (avatarInput.files[0].size > maxSize) {
+                alert("❌ 파일이 너무 큽니다! 3MB 이하만 업로드 가능합니다.");
+                avatarInput.value = ""; // 입력 필드 초기화
+            }
             const reader = new FileReader();
             reader.onload = function (e) {
                 if (typeof e.target?.result === "string") {
@@ -198,8 +203,6 @@ export function editProfile() {
                 statusMessage.className = "mt-4 text-center text-sm text-red-500";
                 if (data.error == "이미 존재하는 닉네임입니다.")
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
-                else if (data.error == "닉네임과 프로필 사진(이미지) 모두 필요합니다.")
-                    statusMessage.setAttribute("data-i18n", "nicknameandphotoreq");
 		else if (data.error == "request file too large")
                     statusMessage.setAttribute("data-i18n", "filetoolarge");
                 loadLanguage(currentLang);
