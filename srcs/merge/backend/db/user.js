@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker');
+
 async function executeQuery(db, sql, params = []) { 
 	return new Promise((resolve, reject) => {
 	  db.all(sql, params, (err, rows) => {
@@ -17,8 +19,13 @@ async function addUser(db, username, email) {
 		// nickname 컬럼 추가
 		const sql = `INSERT INTO users (username, nickname, email) VALUES (?, ?, ?)`;
 
-		// username을 nickname에도 넣기
-		db.run(sql, [username, username, email], function (err) {
+		let nickname = faker.internet.userName();
+		while (nickname.startsWith('AI')) {
+			nickname = faker.internet.userName();
+		}
+		nickname = nickname.length > 10 ? nickname.slice(0, 10) : nickname;
+
+		db.run(sql, [username, nickname, email], function (err) {
 			if (err) {
 				console.error('사용자 정보 추가 오류:', err.message);
 				reject(err);
@@ -157,22 +164,7 @@ async function saveRefreshToken(db, userId, refreshToken) {
 
 async function invalidateRefreshToken(db, refreshToken) {
     return new Promise((resolve, reject) => {
-        const query = `DELETE FROM users WHERE refresh_token = ?`;
-        db.run(query, [refreshToken], function (err) {
-            if (err) {
-                console.error('리프레시 토큰 무효화 오류:', err.message);
-                reject(err);
-            } else {
-                console.log(`리프레시 토큰 무효화 성공 (Refresh Token: ${refreshToken})`);
-                resolve(true);
-            }
-        });
-    });
-}
-
-async function invalidateRefreshToken(db, refreshToken) {
-    return new Promise((resolve, reject) => {
-        const query = `DELETE FROM users WHERE refresh_token = ?`;
+        const query = 'UPDATE users SET refresh_token = NULL WHERE refresh_token = ?';
         db.run(query, [refreshToken], function (err) {
             if (err) {
                 console.error('리프레시 토큰 무효화 오류:', err.message);

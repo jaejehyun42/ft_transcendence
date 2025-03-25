@@ -17,10 +17,9 @@ async function gameStatsRoute(fastify, options) {
             }
     
             const user = await dbModule.getUserByEmail(db, authData.user.email);
-            console.log(user);
             if (!user) {
                 return reply.status(404).send({ error: "사용자를 찾을 수 없습니다." });
-            }
+           }
 
             const row = await new Promise((resolve, reject) => {
                 db.get(`SELECT * FROM gamedb WHERE user_id = ?`, [user.id], (err, row) => {

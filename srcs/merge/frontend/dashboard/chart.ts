@@ -29,7 +29,7 @@ async function loadGameStats() {
 async function calculateWinRates() {
     const gameData = await loadGameStats();
 
-    if (gameData.length === 0) {
+    if (!gameData || gameData.length === 0) {
         return { totalWins: 0, totalLosses: 0, pveWins: 0, pveLosses: 0, pvpWins: 0, pvpLosses: 0 };
     }
 
@@ -39,12 +39,12 @@ async function calculateWinRates() {
 
     console.log(gameData);
     gameData.forEach((game: any) => {
-        totalWins += game.ai_win + game.human_win;
-        totalLosses += game.ai_lose + game.human_lose;
-        pveWins += game.ai_win;
-        pveLosses += game.ai_lose;
-        pvpWins += game.human_win;
-        pvpLosses += game.human_lose;
+        totalWins += (game.ai_win || 0) + (game.human_win || 0);
+        totalLosses += (game.ai_lose || 0) + (game.human_lose || 0);
+        pveWins += game.ai_win || 0;
+        pveLosses += game.ai_lose || 0;
+        pvpWins += game.human_win || 0;
+        pvpLosses += game.human_lose || 0;
     });
 
     return {
