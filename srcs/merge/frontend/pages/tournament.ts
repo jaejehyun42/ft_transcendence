@@ -1,12 +1,12 @@
 import { startGame, sanitizeInput } from "./game.js"
 import { loadLanguage } from "../locales/lang";
 
-const disabledMatches = new Set<string>();
+const matchWinners = new Map<string, string>(); 
 
 // 토너먼트 설정 페이지
 export async function setupTournament(name: string)
 {
-	disabledMatches.clear();
+	matchWinners.clear();
 	const contentDiv = document.getElementById("content");
 	if (!contentDiv) throw new Error("Error: Cannot find content element!");
 	
@@ -19,7 +19,7 @@ export async function setupTournament(name: string)
 			<!-- 입력 및 버튼 -->
 			<div class="flex flex-col space-y-4 items-center flex-grow justify-center">
 				<label data-i18n="numberofplayers" class="text-2xl"></label>
-				<input type="number" id="player-count" class="p-2 border rounded text-center w-24" min="1" max="8" value="4">
+				<input type="number" id="player-count" class="p-2 border rounded text-center w-24" min="1" max="8" value="1">
 				<button data-i18n="starttournament" id="enter-tournament" class="btn bg-purple-500 text-white text-xl py-3 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
 				</button>
 			</div>
@@ -54,7 +54,7 @@ export async function setupTournament(name: string)
 		for (let i = 2; i <= playerCount; i++) {
 			const input = document.createElement("input");
 			input.type = "text";
-			input.placeholder = `Player ${i}`;
+			input.placeholder = `Player_${i}`;
 			input.className = "border px-4 py-2 mb-2 w-full";
 			input.maxLength = 10;
 			input.id = `player-${i}-name`;
@@ -70,7 +70,7 @@ export async function setupTournament(name: string)
 		nicknames.add(name);
 		for (let i = 2; i <= playerCount; i++) {
 			const playerName = sanitizeInput((document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim());
-			const finalName = playerName || `Player ${i}`;
+			const finalName = playerName || `Player_${i}`;
 	
 			if (nicknames.has(finalName)) {
 				alert(`Duplicate nickname found: "${finalName}". Please use a unique nickname.`);
@@ -104,7 +104,7 @@ function startTournament(playerCount: number, nicknames: string[])
 	for (let i = 0; i < playerCount; i++)
 		players.push(`${nicknames[i]}`);
 	for (let i = playerCount + 1; i <= totalPlayers; i++)
-		players.push(`AI ${i - playerCount}`);
+		players.push(`AI_${i - playerCount}`);
 	players = players.sort(() => Math.random() - 0.5);
 
 	// 대진표 트리 생성
@@ -144,7 +144,7 @@ function renderBracket(bracket: string[][])
 		bracketHTML += `<div class="flex justify-center gap-10 w-full">`;
 		for (let i = 0; i < bracket[r].length / 2; i++)
 		{
-			const matchKey = `${r}-${i}`;
+			
 			if (r === bracket.length - 1) {
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-yellow-300 p-4 rounded-lg shadow-md w-40">
@@ -153,19 +153,40 @@ function renderBracket(bracket: string[][])
 				`;
 			}
 			else {
+				const matchKey = `${r}-${i}`;
 				const p1 = bracket[r][i * 2] || "???";
 				const p2 = bracket[r][i * 2 + 1] || "???";
-				const isDisabled = disabledMatches.has(matchKey) ? "disabled" : "";
+				const isDisabled = matchWinners.has(matchKey) ? "disabled" : "";
+
+				// 저장된 승자 확인
+				let winner = matchWinners.get(matchKey);
+				let p1Class = "";
+				let p2Class = "";
+				let buttonClass = "text-xl";
+				let buttonShape = "▶"
+
+				if (winner)
+				{
+					buttonClass = "text-green-500 font-bold text-xl";
+					buttonShape = "✔";
+					if (p1 === winner) {
+						p1Class = "text-green-500 font-bold";
+						p2Class = "text-red-500 font-light";
+					} else {
+						p1Class = "text-red-500 font-light";
+						p2Class = "text-green-500 font-bold";
+					}
+				}
 
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-gray-200 p-4 rounded-lg shadow-md w-40">
-						<span class="text-lg font-semibold">${p1}</span>
+						<span class="text-lg font-semibold ${p1Class}">${p1}</span>
 						<button 
 							class="match-btn text-gray-500 hover:text-gray-700 font-bold py-1 px-3 rounded mt-2 my-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 							data-round="${r}" data-match="${i}" data-player1="${p1}" data-player2="${p2}" ${isDisabled}>
-							<span class="text-2xl">▶</span>
+							<span class="${buttonClass}">${buttonShape}</span>
 						</button>
-						<span class="text-lg font-semibold">${p2}</span>
+						<span class="text-lg font-semibold ${p2Class}">${p2}</span>
 					</div>
 				`;
 			}
@@ -183,12 +204,10 @@ function renderBracket(bracket: string[][])
 			const index = parseInt(target.getAttribute("data-match")!, 10);
 			const player1 = target.getAttribute("data-player1")!;
 			const player2 = target.getAttribute("data-player2")!;
-			const matchKey = `${round}-${index}`;
 	
 			if (player1 === "???" || player2 === "???")
 				return;
 	
-			disabledMatches.add(matchKey);
 			target.disabled = true;
 			await setupGame(player1, player2, bracket, round, index);
 		});
@@ -204,6 +223,10 @@ async function setupGame(player1: string, player2: string, bracket: string[][], 
 		winner = Math.random() > 0.5 ? player1 : player2;
 	else
 		winner = await startGame(player1, player2);
+
+	// 승자 데이터 저장
+	const matchKey = `${round}-${index}`;
+	matchWinners.set(matchKey, winner);
 
 	// 승자를 다음 라운드에 추가
 	let nextIndex = Math.floor(index / 2) * 2;

@@ -105,7 +105,7 @@ export async function setupGame()
 			style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
 				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
-				<input type="text" id="player2-name" placeholder="Player 2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
+				<input type="text" id="player2-name" placeholder="Player_2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
 				<div class="flex space-x-4">
 					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
 					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
@@ -122,7 +122,7 @@ export async function setupGame()
 		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
 	});
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
-		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Player 2";
+		const player2 = sanitizeInput((document.getElementById("player2-name") as HTMLInputElement).value.trim()) || "Player_2";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 
 		if (player1 === player2)
