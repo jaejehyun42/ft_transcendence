@@ -23,8 +23,10 @@ async function authRoute(fastify, options) {
 
     fastify.get('/auth/check', async (request, reply) => {
         try {
-            const accessToken = request.cookies.access_token; 
-            const refreshToken = request.cookies.refresh_token;
+            const accessToken = request.cookies.access_jwt; 
+            const refreshToken = request.cookies.refresh_jwt;
+            const db = fastify.db;
+            const user = await dbModule.getUserByRefreshToken(db, refreshToken);
 
             if (!accessToken || !refreshToken) {
                 console.log("🚨 토큰 없음, 로그인 필요");
@@ -40,8 +42,8 @@ async function authRoute(fastify, options) {
                     return reply.status(401).send({ authenticated: false, message: 'Refresh token has expired' });
                 }
             } catch (error) {
-                console.log("🚨 리프레시 토큰 검증 실패, 로그인 필요");
-                return reply.status(401).send({ authenticated: false, message: 'Invalid refresh token' });
+                console.log("🚨 리프레시 토큰 만료, 로그인 필요");
+                return reply.status(401).send({ authenticated: false, message: 'Refresh token has expired' });
             }
 
             let decoded;
@@ -56,8 +58,6 @@ async function authRoute(fastify, options) {
                 }
             }
 
-            const db = fastify.db;
-            const user = await dbModule.getUserByRefreshToken(db, refreshToken);
             if (!user) {
                 console.log("🚨 Refresh Token이 DB에 없음, 다시 로그인 필요");
                 return reply.status(401).send({ authenticated: false, message: 'Invalid refresh token' });
@@ -70,10 +70,11 @@ async function authRoute(fastify, options) {
                 { expiresIn: '15m' } // Access Token 15분 유지
             );
 
-            reply.setCookie('access_token', newAccessToken, {
+            reply.setCookie('access_jwt', newAccessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'Lax',
+                path: '/', 
                 maxAge: 15 * 60 * 1000 // 15분
             });
             console.log("✅ 인증 성공, 응답 데이터:", { authenticated: true, user: { userId: user.id, email: user.email } });
@@ -90,8 +91,8 @@ async function authRoute(fastify, options) {
     fastify.get('/auth/logout', async (request, reply) => {
         try {
             // 1️⃣ Access Token & Refresh Token 쿠키 삭제
-            reply.clearCookie('access_token', { path: '/' });
-            reply.clearCookie('refresh_token', { path: '/' });
+            reply.clearCookie('access_jwt', { path: '/' });
+            reply.clearCookie('refresh_jwt', { path: '/' });
             
             const db = fastify.db;
             await dbModule.invalidateRefreshToken(db, request.cookies.refresh_token);

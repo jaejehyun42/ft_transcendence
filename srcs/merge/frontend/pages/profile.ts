@@ -205,6 +205,8 @@ export function editProfile() {
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
 		else if (data.error == "request file too large")
                     statusMessage.setAttribute("data-i18n", "filetoolarge");
+                else if (data.error == "AI 닉네임 사용 불가")
+                    statusMessage.setAttribute("data-i18n", "ainicknamenotallowed");
                 loadLanguage(currentLang);
             }
         } catch (error) {
