@@ -11,13 +11,13 @@ export async function setupTournament(name: string)
 	if (!contentDiv) throw new Error("Error: Cannot find content element!");
 	
 	contentDiv.innerHTML = `
-		<div class="relative flex flex-col items-center h-full">
+		<div class="relative flex flex-col items-center justify-center h-full">
 			<!-- 헤더 -->
 			<h2 data-i18n="tournamentsetup" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2">
 			</h2>
 			
 			<!-- 입력 및 버튼 -->
-			<div class="flex flex-col space-y-4 items-center flex-grow justify-center">
+			<div class="flex flex-col space-y-4 bg-purple-100 rounded-xl shadow-lg items-center justify-center p-6 w-auto min-h-[250px]">
 				<label data-i18n="numberofplayers" class="text-2xl"></label>
 				<input type="number" id="player-count" class="p-2 border rounded text-center w-24" min="1" max="8" value="1">
 				<button data-i18n="starttournament" id="enter-tournament" class="btn bg-purple-500 text-white text-xl py-3 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
@@ -42,9 +42,14 @@ export async function setupTournament(name: string)
 
 	// 토너먼트 참가 인원 이름 입력
 	document.getElementById("enter-tournament")!.addEventListener("click", () => {
-		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
-		const nicknameInputsDiv = document.getElementById("nickname-inputs")!;
+		const playerCountInput = document.getElementById("player-count") as HTMLInputElement;
+		const playerCount = parseInt(playerCountInput.value, 10);
 
+		if (isNaN(playerCount)) {
+			alert("Enter a valid number for player count.");
+			playerCountInput.value = "1";
+			return;
+		}
 		if (playerCount <= 0 || playerCount > 8)
 		{
 			alert("Player count must be between 1 and 8.");
@@ -55,6 +60,7 @@ export async function setupTournament(name: string)
 			return;
 		}
 
+		const nicknameInputsDiv = document.getElementById("nickname-inputs")!;
 		nicknameInputsDiv.innerHTML = ""; 
 		for (let i = 2; i <= playerCount; i++) {
 			const input = document.createElement("input");
@@ -134,7 +140,7 @@ function startTournament(playerCount: number, nicknames: string[])
 }
 
 // 대진표 렌더링
-function renderBracket(bracket: string[][])
+async function renderBracket(bracket: string[][])
 {
 	const contentDiv = document.getElementById("content");
 	if (!contentDiv)
@@ -143,10 +149,7 @@ function renderBracket(bracket: string[][])
 	let bracketHTML = `
 		<div class="relative flex flex-col items-center h-full">
 			<!-- 헤더 -->
-			<h2 data-i18n="tournamentbracket" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2">
-				🏆 Tournament Bracket
-			</h2>
-
+			<h2 data-i18n="tournamentbracket" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 			<!-- 대진표 -->
 			<div class="flex flex-col space-y-4 items-center flex-grow justify-center">
 	`;
@@ -162,8 +165,8 @@ function renderBracket(bracket: string[][])
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-yellow-300 p-4 rounded-lg shadow-md w-40">
 						<span id="winner" class="text-xl font-bold">${winner}</span>
-						<button id="winner-action-btn" class="hidden bg-blue-300 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200 whitespace-nowrap">
-							🏅 우승자 확정!
+						<button data-i18n="winnerConfirm" id="winner-action-btn" 
+							class="hidden bg-blue-300 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200 whitespace-nowrap max-w-full">
 						</button>
 					</div>
 				`;
@@ -211,6 +214,9 @@ function renderBracket(bracket: string[][])
 	}
 	bracketHTML += `</div></div>`;
 	contentDiv.innerHTML = bracketHTML;
+
+	const currentLang = localStorage.getItem("language") || "en";
+		await loadLanguage(currentLang);
 
 	// 우승자가 확정되었을 때 버튼 활성화
 	const winnerSpan = document.getElementById("winner");
