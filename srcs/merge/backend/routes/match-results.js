@@ -16,7 +16,6 @@ async function matchHistoryRoute(fastify, options){
             }
     
             const user1Id = await dbModule.getUserIdByNickname(db, user1);
-            // const user2Id = await dbModule.getUserIdByNickname(db, user2);
 
             if (!user1Id) {
                 return reply.status(404).send({ error: 'User not found' });
@@ -28,8 +27,7 @@ async function matchHistoryRoute(fastify, options){
             const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
             await gameModule.updateScore(db, user1Id, playerType, result);
-            // await gameModule.updateScore(db, user2Id, playerType, result);
-    
+
             // 최종 응답
             return reply.status(201).send({
                 user1,

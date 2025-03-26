@@ -37,40 +37,6 @@ CREATE TABLE IF NOT EXISTS matchhistory (
 );
 `;
 
-function insertAIUser(db) {
-	return new Promise((resolve, reject) => {
-		// 먼저 AI 유저 존재 여부 확인
-		db.get(`SELECT id FROM users WHERE username = 'AI' AND nickname = 'AI'`, (err, row) => {
-			if (row) {
-				console.log('ℹ️ AI 유저가 이미 존재합니다. 삽입을 생략합니다.');
-				return resolve(); // 이미 존재하면 종료
-			}
-
-			// 존재하지 않을 경우 삽입 진행
-			db.run(
-				`INSERT INTO users (username, nickname, email, profile_picture) VALUES ('AI', 'AI', 'ai@pong.com', '/AI_player')`,
-				function (err) {
-					if (err) {
-						console.error('❌ AI 유저 추가 실패:', err.message);
-						return reject(err);
-					}
-					const aiUserId = this.lastID;
-					console.log(`✅ AI 유저 추가 완료 (ID: ${aiUserId})`);
-
-					db.run(`INSERT INTO gamedb (user_id) VALUES (?)`, [aiUserId], (err) => {
-						if (err) {
-							console.error('❌ gamedb 삽입 실패:', err.message);
-							return reject(err);
-						}
-						console.log('✅ gamedb에 AI 유저 등록 완료');
-						resolve();
-					});
-				}
-			);
-		});
-	});
-}
-
 // 데이터베이스 연결 함수
 async function connectDB(dbPath) {
     return new Promise((resolve, reject) => {
@@ -99,7 +65,6 @@ async function initTables(db){
 	await runAsync(db, userTableSql);
 	await runAsync(db, gameTableSql);
 	await runAsync(db, matchHistoryTableSql);
-	await insertAIUser(db);
 }
 
 // Fastify 플러그인으로 데이터베이스 초기화
