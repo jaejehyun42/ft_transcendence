@@ -15,11 +15,13 @@ export async function NonMatchHistory() {
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900" data-i18n="no_recent_matches">최근 경기 기록이 없습니다</h3>
-        <p class="mt-1 text-sm text-gray-500" data-i18n="play_game_message">새로운 게임을 플레이해보세요!</p>
+        <h3 class="mt-3 text-sm font-medium text-gray-900" data-i18n="noMatches"></h3>
+        <p class="mt-1 text-sm text-gray-500" data-i18n="playMessage"></p>
     `;
-
     container.appendChild(messageElement);
+
+    const currentLang = localStorage.getItem("language") || "en";
+    await loadLanguage(currentLang);
 }
 
 export async function createHistoryBox(user1: string, user2: string, user1_score: number, user2_score: number, match_date: number) {
@@ -137,7 +139,4 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     user2_img.className = 'bg-blue-100 p-1 rounded-full w-24 h-24 object-cover object-center justify-end';
     user2_img.src = await getProfilePictureByNickname(user2);
     right_column.append(user2_img);
-
-    const currentLang = localStorage.getItem("language") || "en";
-    await loadLanguage(currentLang);
 }

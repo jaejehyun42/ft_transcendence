@@ -1,3 +1,5 @@
+import { setUpChart } from "../dashboard/chart";
+
 export async function loadLanguage(lang: string): Promise<void> {
     try {
         const url = `/locales/${lang}.json`
@@ -19,6 +21,7 @@ export async function loadLanguage(lang: string): Promise<void> {
                 }
             }
         });
+        await setUpChart();
 
         // ✅ 언어가 정상적으로 로드된 경우에만 저장
         localStorage.setItem("language", lang);

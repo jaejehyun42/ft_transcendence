@@ -3,8 +3,10 @@ import { TooltipItem } from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // 폰트 설정 등록
-Chart.defaults.font.family = 'CookieRun-Regular, sans-serif';
 Chart.defaults.color = '#374151';
+Chart.defaults.font.family = 'CookieRun-Regular, sans-serif';
+
+let charts: Record<string, Chart | null> = {};
 
 async function loadGameStats() {
     try {
@@ -37,7 +39,6 @@ async function calculateWinRates() {
     let pveWins = 0, pveLosses = 0;
     let pvpWins = 0, pvpLosses = 0;
 
-    console.log(gameData);
     gameData.forEach((game: any) => {
         totalWins += (game.ai_win || 0) + (game.human_win || 0);
         totalLosses += (game.ai_lose || 0) + (game.human_lose || 0);
@@ -54,9 +55,12 @@ async function calculateWinRates() {
     };
 }
 
-function createWinRateChart(canvasId: string, wins: number, losses: number, label: string) {
+function createWinRateChart(canvasId: string, wins: number, losses: number, label: string, lang: string) {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) return;
+
+    if (charts[canvasId])
+        charts[canvasId]?.destroy();
 
     const ctx = canvas.getContext('2d')!;
     const hasData = wins + losses > 0;
@@ -66,7 +70,10 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
     if (hasData) {
         // 정상 데이터
         data = [wins, losses];
-        labels = ["WIN", "LOSE"];
+        if (lang === "en")
+            labels = ["WIN", "LOSE"];
+        else
+            labels = ["승", "패"];
 
         const gradientWin = ctx.createLinearGradient(0, 0, 0, 150);
         gradientWin.addColorStop(0, '#6EE7B7');
@@ -80,11 +87,14 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
     } else {
         // 데이터 없음 -> 빈 차트 형태 유지
         data = [1];
-        labels = ["No Data"];
+        if (lang === "en")
+            labels = ["No Data"];
+        else
+            labels = ["데이터 없음"];
         backgroundColor = ["#E5E7EB"];
     }
 
-    new Chart(ctx, {
+    const newChart = new Chart(ctx, {
         type: 'doughnut',
         plugins: [ChartDataLabels],
         data: {
@@ -126,7 +136,12 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                         },
                         label: function (tooltipItem: TooltipItem<'doughnut'>) {
                             if (!hasData)
-                                return `No Data`;
+                            {
+                                if (lang === "en")
+                                    return `No Data`;
+                                else
+                                    return `데이터 없음`;
+                            }
                             const dataset = tooltipItem.dataset;
                             const data = dataset.data as number[];
                             const value = data[tooltipItem.dataIndex];
@@ -153,12 +168,26 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
             }
         }
     });
+    charts[canvasId] = newChart;
 }
 
 export async function setUpChart() {
+    const canvas = document.getElementById("totalWinRate") as HTMLCanvasElement
+    if (!canvas) return;
+
+    const currentLang = localStorage.getItem("language") || "en";
     const { totalWins, totalLosses, pveWins, pveLosses, pvpWins, pvpLosses } = await calculateWinRates();
 
-    createWinRateChart("totalWinRate", totalWins, totalLosses, "Total Win Rate");
-    createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE Win Rate");
-    createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP Win Rate");
+    if (currentLang === "en")
+    {
+        createWinRateChart("totalWinRate", totalWins, totalLosses, "Total Win Rate", currentLang);
+        createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE Win Rate", currentLang);
+        createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP Win Rate", currentLang);
+    }
+    else
+    {
+        createWinRateChart("totalWinRate", totalWins, totalLosses, "전체 승률", currentLang);
+        createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE 승률", currentLang);
+        createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP 승률", currentLang);
+    }
 }

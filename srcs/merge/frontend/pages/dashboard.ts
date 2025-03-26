@@ -1,4 +1,3 @@
-import { setUpChart } from "../dashboard/chart.js"
 import { loadLanguage } from "../locales/lang.js";
 import { loadMatchHistory } from "../dashboard/matchApi.js"
 
@@ -85,23 +84,21 @@ export async function setDashBoard()
 			<h2 data-i18n="dashboardPage" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 
 			<!-- 통계 -->
-			<div class="w-4xl flex rounded-xl mt-25 p-3 bg-blue-100 shadow-lg justify-center">
-				<canvas id="totalWinRate" class="w-1/4"></canvas>
-				<canvas id="PvEWinRate" class="w-1/4"></canvas>
-				<canvas id="PvPWinRate" class="w-1/4"></canvas>
+			<div class="w-5xl flex rounded-xl mt-25 p-3 bg-blue-100 shadow-lg justify-center">
+				<canvas id="totalWinRate" width="250" height="250"></canvas>
+				<canvas id="PvEWinRate" width="250" height="250"></canvas>
+				<canvas id="PvPWinRate" width="250" height="250"></canvas>
 			</div>
 
 			<!-- 매치 히스토리 -->
-			<div class="w-4xl flex-1 rounded-xl mt-5 p-5 bg-blue-50 shadow-lg overflow-y-auto justify-center min-h-[300px]">
+			<div class="w-5xl flex-1 rounded-xl mt-5 p-5 bg-blue-50 shadow-lg overflow-y-auto justify-center min-h-[300px]">
 				<div id="box-container" class="grid grid-cols-12 items-center"></div>
 			</div>
 		</div>
 		`;
 
-		setUpChart();
-		loadMatchHistory();
-
-		const currentLang = localStorage.getItem("language") || "en";
-			await loadLanguage(currentLang);
+	loadMatchHistory();
+	const currentLang = localStorage.getItem("language") || "en";
+	await loadLanguage(currentLang);
 }
 	

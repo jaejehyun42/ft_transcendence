@@ -32,5 +32,7 @@
   "win": "Win",
   "lose": "Lose",
   "draw": "Draw",
-  "dashboardPage": "📊 DASHBOARD"
+  "dashboardPage": "📊 DASHBOARD",
+  "noMatches": "No recent game history",
+  "playMessage": "Play a new game!"
 }
