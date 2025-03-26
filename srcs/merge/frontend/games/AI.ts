@@ -1,4 +1,4 @@
-import { ball, ballSize, paddleHeight, paddleRight } from "./draw.js";
+import { ball, paddleHeight, paddleRight } from "./draw.js";
 import { gameMode, gameRunning, aiKeys, ballSpeedX, ballSpeedY, paddleSpeed } from "./game.js";
 
 let aiTargetY = 0;
@@ -11,39 +11,38 @@ let moveID: number | null;
 function predictBallY(): number
 {
 	let tempX = ball.position.x;
-	let tempSpeedX = ballSpeedX;
+	let tempSpeedX = ballSpeedX / 60;
 	let predictedY = ball.position.y;
-	let predictedSpeedY = ballSpeedY;
+	let predictedSpeedY = ballSpeedY / 60;
 
-	while (tempX < 15.5 && tempX > -18)
+	while (tempX < 15 && tempX > -18)
 	{
-		tempX += tempSpeedX / 60;
-		predictedY += predictedSpeedY / 60;
+		tempX += tempSpeedX;
+		predictedY += predictedSpeedY;
 
 		// 벽 충돌 처리
-		if (predictedY + ballSize / 2 >= 9) {
-			predictedY = 9 - ballSize / 2;
+		if (predictedY >= 9) {
+			predictedY = 9;
 			predictedSpeedY *= -1;
 		} 
-		else if (predictedY - ballSize / 2 <= -9) {
-			predictedY = -9 + ballSize / 2;
+		else if (predictedY <= -9) {
+			predictedY = -9;
 			predictedSpeedY *= -1;
 		}
 
 		// 패들 충돌 처리
-		if (tempX <= -15.5 && tempSpeedX < 0) {
+		if (tempX <= -15 && tempSpeedX < 0) {
 			tempSpeedX *= -1;
 		}
 	}
 
+	console.log(predictedY);
 	return predictedY;
 }
 
 // 키 입력을 일정 시간 동안 유지하는 함수
 function simulateKeyPress(key: string, duration: number)
 {
-	console.log(`${key}, ${duration}ms`);
-	console.log(`Target: ${aiTargetY}, Position: ${paddleRight.position.y}`);
 	keyPressed = true;
 	aiKeys[key] = true;
 
