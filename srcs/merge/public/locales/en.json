@@ -29,6 +29,8 @@
   "networkerror": "A network error occurred.",
   "filetoolarge": "Request file is too large",
   "logout": "logout",
-  "win": "win",
+  "win": "Win",
+  "lose": "Lose",
+  "draw": "Draw",
   "dashboardPage": "📊 DASHBOARD"
 }
