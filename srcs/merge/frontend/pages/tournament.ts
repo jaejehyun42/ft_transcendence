@@ -1,4 +1,4 @@
-import { startGame, sanitizeInput } from "./game.js"
+import { startGame, sanitizeInput, setupGame } from "./game.js"
 import { loadLanguage } from "../locales/lang";
 
 const matchWinners = new Map<string, string>(); 
@@ -144,11 +144,16 @@ function renderBracket(bracket: string[][])
 		bracketHTML += `<div class="flex justify-center gap-10 w-full">`;
 		for (let i = 0; i < bracket[r].length / 2; i++)
 		{
-			
 			if (r === bracket.length - 1) {
+				const winner = bracket[r][i];
+
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-yellow-300 p-4 rounded-lg shadow-md w-40">
-						<span id="winner" class="text-xl font-bold">${bracket[r][i]}</span>
+						<span id="winner" class="text-xl font-bold">${winner}</span>
+						<button id="winner-action-btn"
+							class="hidden bg-blue-300 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200">
+							🏅 우승자 확정!
+						</button>
 					</div>
 				`;
 			}
@@ -196,6 +201,18 @@ function renderBracket(bracket: string[][])
 	bracketHTML += `</div></div>`;
 	contentDiv.innerHTML = bracketHTML;
 
+	// 우승자가 확정되었을 때 버튼 활성화
+	const winnerSpan = document.getElementById("winner");
+	const winnerActionBtn = document.getElementById("winner-action-btn") as HTMLButtonElement;
+
+	if (winnerSpan && winnerSpan.textContent !== "🏆") {
+		winnerActionBtn.classList.remove("hidden");
+		winnerActionBtn.addEventListener("click", () => {
+			alert(`🎉 ${winnerSpan.textContent} 가 우승했습니다!`);
+			setupGame();
+		});
+	}
+
 	// 경기 버튼 이벤트 추가
 	document.querySelectorAll(".match-btn").forEach((btn) => {
 		btn.addEventListener("click", async (event) => {
@@ -209,12 +226,12 @@ function renderBracket(bracket: string[][])
 				return;
 	
 			target.disabled = true;
-			await setupGame(player1, player2, bracket, round, index);
+			await setupTourGame(player1, player2, bracket, round, index);
 		});
 	});
 }
 
-async function setupGame(player1: string, player2: string, bracket: string[][], round: number, index: number)
+async function setupTourGame(player1: string, player2: string, bracket: string[][], round: number, index: number)
 {
 	let winner = "???";
 
