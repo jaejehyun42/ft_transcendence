@@ -45,6 +45,11 @@ export async function setupTournament(name: string)
 		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
 		const nicknameInputsDiv = document.getElementById("nickname-inputs")!;
 
+		if (playerCount <= 0 || playerCount > 8)
+		{
+			alert("Player count must be between 1 and 8.");
+			return;
+		}
 		if (playerCount == 1) {
 			startTournament(1, [name]);
 			return;
@@ -150,8 +155,7 @@ function renderBracket(bracket: string[][])
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-yellow-300 p-4 rounded-lg shadow-md w-40">
 						<span id="winner" class="text-xl font-bold">${winner}</span>
-						<button id="winner-action-btn"
-							class="hidden bg-blue-300 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200">
+						<button id="winner-action-btn" class="hidden bg-blue-300 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200 whitespace-nowrap">
 							🏅 우승자 확정!
 						</button>
 					</div>
