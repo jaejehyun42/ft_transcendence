@@ -15,20 +15,20 @@ async function matchHistoryRoute(fastify, options){
                 return reply.status(400).send({ error: 'User names are required' });
             }
     
-            const user1Id = await dbModule.getUserIdByNickname(db, user1);
-            // const user2Id = await dbModule.getUserIdByNickname(db, user2);
-
+            // 유저 ID 조회
+            const user1Id = await dbModule.getUserIdByNickname(db, user1).catch(() => null);
+    
             if (!user1Id) {
-                return reply.status(404).send({ error: 'User not found' });
+                console.log(`⚠️ 유저 "${user1}"를 찾을 수 없음. null 반환`);
+                return reply.send({ user1: null }); // ✨ null 반환
             }
     
             await addMatchHistory(db, user1Id, user2, user1_score, user2_score);
-
+    
             const result = user1_score > user2_score ? 'win' : 'lose';
             const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
             await gameModule.updateScore(db, user1Id, playerType, result);
-            // await gameModule.updateScore(db, user2Id, playerType, result);
     
             // 최종 응답
             return reply.status(201).send({

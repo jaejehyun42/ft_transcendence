@@ -23,12 +23,13 @@ async function fetchRecentMatches() {
 }
 
 export async function getProfilePictureByNickname(nickname: string) {
-    const AI_PROFILE_PICTURE = "AI_player.png"
-    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp"
+    const AI_PROFILE_PICTURE = "AI_player.png";
+    const DEFAULT_PROFILE_PICTURE = "/Basic_image.webp";
 
 	try {
-        if (nickname == "AI" || nickname.startsWith('AI'))
+        if (nickname === "AI" || nickname.startsWith('AI'))
             return AI_PROFILE_PICTURE;
+
 		const res = await fetch(`/api/users/${encodeURIComponent(nickname)}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
@@ -39,11 +40,10 @@ export async function getProfilePictureByNickname(nickname: string) {
 		}
 
 		const data = await res.json();
-		return data.profile_picture || DEFAULT_PROFILE_PICTURE;
-
+		return data.profile_picture ?? DEFAULT_PROFILE_PICTURE;
 	} catch (err) {
 		console.error('❌ 프로필 이미지 가져오기 실패:', err);
-		return null;
+		return DEFAULT_PROFILE_PICTURE;
 	}
 }
 
