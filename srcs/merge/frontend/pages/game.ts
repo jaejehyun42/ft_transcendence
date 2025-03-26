@@ -124,7 +124,7 @@ export async function setupGame()
 
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
 		const player2Input = document.getElementById("player2-name") as HTMLInputElement;
-		const player2 = sanitizeInput(player2Input.value.trim()) || "Player_2";
+		const player2 = sanitizeInput(player2Input.value.trim()) || "Player 2";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 	
 		if (player1 === player2) {

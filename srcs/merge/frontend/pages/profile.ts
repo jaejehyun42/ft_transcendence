@@ -178,6 +178,14 @@ export function editProfile() {
             loadLanguage(currentLang);
             return;
         }
+        else if (newNickname.startsWith("AI") || newNickname.startsWith("Player"))
+        {
+            console.error("⚠ 닉네임은 AI나 Player로 시작하면 안 됩니다.")
+            statusMessage.className = "mt-4 text-center text-sm text-red-500";
+            statusMessage.setAttribute("data-i18n", "nicknameForbidden");
+            loadLanguage(currentLang);
+            return;
+        }
 
         const formData = new FormData();
         if (newNickname)
@@ -203,7 +211,7 @@ export function editProfile() {
                 statusMessage.className = "mt-4 text-center text-sm text-red-500";
                 if (data.error == "이미 존재하는 닉네임입니다.")
                     statusMessage.setAttribute("data-i18n", "nicknamealreadyexist");
-		else if (data.error == "request file too large")
+		        else if (data.error == "request file too large")
                     statusMessage.setAttribute("data-i18n", "filetoolarge");
                 else if (data.error == "AI 닉네임 사용 불가")
                     statusMessage.setAttribute("data-i18n", "ainicknamenotallowed");

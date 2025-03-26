@@ -59,7 +59,7 @@ export async function setupTournament(name: string)
 		for (let i = 2; i <= playerCount; i++) {
 			const input = document.createElement("input");
 			input.type = "text";
-			input.placeholder = `Player_${i}`;
+			input.placeholder = `Player ${i}`;
 			input.className = "border px-4 py-2 mb-2 w-full";
 			input.maxLength = 10;
 			input.id = `player-${i}-name`;
@@ -68,14 +68,16 @@ export async function setupTournament(name: string)
 		document.getElementById("nickname-modal-wrapper")!.classList.remove("hidden");
 	});
 
-	document.getElementById("start-tournament")!.addEventListener("click", () => {
+	document.getElementById("start-tournament")!.addEventListener("click", async () => {
 		const playerCount = parseInt((document.getElementById("player-count") as HTMLInputElement).value, 10);
 		const nicknames = new Set<string>();
 
 		nicknames.add(name);
 		for (let i = 2; i <= playerCount; i++) {
 			const playerName = sanitizeInput((document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim());
-			const finalName = playerName || `Player_${i}`;
+			const finalName = playerName || `Player ${i}`;
+			const res = await fetch(`/profile/${encodeURIComponent(finalName)}`);
+			const data = await res.json();
 	
 			if (nicknames.has(finalName)) {
 				alert(`Duplicate nickname found: "${finalName}". Please use a unique nickname.`);
@@ -86,6 +88,11 @@ export async function setupTournament(name: string)
 				alert(`Forbidden Nickname: ${finalName}. Please use Another Nickname`);
 				return;
 			}
+			if (data.exists) {
+				alert(`Nickname "${finalName}" is already taken. Please choose another one.`);
+				return;
+			}
+			
 			nicknames.add(finalName);
 		}
 	
@@ -109,7 +116,7 @@ function startTournament(playerCount: number, nicknames: string[])
 	for (let i = 0; i < playerCount; i++)
 		players.push(`${nicknames[i]}`);
 	for (let i = playerCount + 1; i <= totalPlayers; i++)
-		players.push(`AI_${i - playerCount}`);
+		players.push(`AI ${i - playerCount}`);
 	players = players.sort(() => Math.random() - 0.5);
 
 	// 대진표 트리 생성

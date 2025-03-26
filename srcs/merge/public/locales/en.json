@@ -20,6 +20,7 @@
   "changephoto": "CHANGE PHOTO",
   "enternewname": "ENTER NEW NAME",
   "nicknamelength": "Nickname must be 10 characters or less.",
+  "nicknameForbidden": "Nicknames cannot begin with 'AI' or 'Player'.",
   "savechanges": "SAVE CHANGES",
   "nochanges": "No changes were made.",
   "profileupdatesuccess": "Profile updated successfully.",
