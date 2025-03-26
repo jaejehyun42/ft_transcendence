@@ -14,10 +14,18 @@ export async function checkJWTAuth(
 
         const data = await res.json();
         if (!data.authenticated) {
-            console.log("❌ JWT 인증 실패, 로그인 페이지로 이동");
-            alert("먼저 로그인 해주세요.");
-            router.navigate("/login");
-            return false;
+            if (data.message === "Refresh token has expired") {
+                console.log("🚨 리프레시 토큰 만료, 로그인 필요");
+                alert("리프레시 토큰 만료, 다시 로그인 해주세요.");
+                router.navigate("/login");
+                return false;
+            }
+            else{
+                console.log("❌ JWT 인증 실패, 로그인 페이지로 이동");
+                alert("먼저 로그인 해주세요.");
+                router.navigate("/login");
+                return false;
+            }
         }
 
         console.log(data);

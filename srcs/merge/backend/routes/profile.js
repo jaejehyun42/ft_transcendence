@@ -67,7 +67,6 @@ async function profileRoute(fastify, options) {
             // 고유 파일명 생성: 타임스탬프와 원본 파일명을 사용
             const filename = Date.now() + '_' + part.filename;
             profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
-            profilePicturePath = `/uploads/${filename}`; // 이게 db에 저장하는건지?
 
             // ✅ 두 개의 디렉토리에 파일 저장
             for (const dir of uploadDirs) {
@@ -81,8 +80,13 @@ async function profileRoute(fastify, options) {
 
       if (!nickname && !profilePicturePath) {
         console.log('데이터가 누락되었습니다.');
-        return reply.status(400).send({ error: '데이터가 필요합니다.' });
+        return reply.status(409).send({ error: '데이터가 필요합니다.' });
       }
+
+      if (nickname && nickname.startsWith('AI')) {
+        console.log('AI 닉네임 사용 불가');
+        return reply.status(409).send({ error: 'AI 닉네임 사용 불가' });
+      } 
 
       const result = await dbModule.updateInfo(db, request.session.userInfo.email, nickname, profilePicturePath);
 				
@@ -96,6 +100,33 @@ async function profileRoute(fastify, options) {
     } catch (err) {
       console.error('프로필 저장 중 오류:', err);
       return reply.status(500).send({ error: err.message });
+    }
+  });
+
+  fastify.get('/profile/:nickname', async (request, reply) => {
+    const { nickname } = request.params;
+  
+    if (!nickname) {
+      return reply.code(400).send({ error: '닉네임을 입력하세요.' });
+    }
+  
+    try {
+      const sql = `SELECT 1 FROM users WHERE nickname = ? LIMIT 1`;
+      const row = await new Promise((resolve, reject) => {
+        db.get(sql, [nickname], (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        });
+      });
+  
+      if (row) {
+        reply.send({ exists: true, nickname });
+      } else {
+        reply.send({ exists: false, nickname });
+      }
+    } catch (err) {
+      console.error('❌ 닉네임 확인 중 오류:', err);
+      reply.code(500).send({ error: '서버 오류가 발생했습니다.' });
     }
   });
 }
