@@ -1,6 +1,6 @@
 import { createScoreboard } from "./ui.js";
 import { applyPixelEffect, applyPixelPostProcessing, applyCRTFilter } from "./pixel.js";
-import { Engine, Scene, Color3, Color4, FreeCamera, HemisphericLight, Vector3, Mesh, MeshBuilder, StandardMaterial, GlowLayer } from "@babylonjs/core";
+import { Engine, Scene, Color3, Color4, FreeCamera, HemisphericLight, Vector3, Mesh, MeshBuilder, StandardMaterial, GlowLayer, Texture } from "@babylonjs/core";
 
 let engine: Engine;
 let camera: FreeCamera;
@@ -56,6 +56,7 @@ export function initializeDraw(style: string)
 
 function setupScene()
 {
+    scene.clearColor = new Color4(0, 0, 0, 0);
     createGameObjects();
     createWalls();
     createScoreboard();
@@ -86,9 +87,25 @@ function setupLightingAndCamera()
 
 function createGameObjects()
 {
+    setBackgroundImage();
     createGround();
     createBall();
     createPaddles();
+}
+
+// 배경 생성
+function setBackgroundImage()
+{
+    // 배경 추가
+    const backgroundPlane = MeshBuilder.CreatePlane("background", { size: 350 }, scene);
+    backgroundPlane.position.set(0, 200, 195);  // 카메라 뒤쪽에 배경을 배치
+    backgroundPlane.billboardMode = Mesh.BILLBOARDMODE_ALL; // 항상 카메라를 향하도록 설정
+
+    const backgroundMaterial = new StandardMaterial("backgroundMaterial", scene);
+    backgroundMaterial.diffuseTexture = new Texture("/bleachers.png", scene);
+    backgroundPlane.material = backgroundMaterial;
+
+    backgroundPlane.scaling.set(1.6, 0.8, 1);
 }
 
 // 바닥 생성
@@ -101,17 +118,17 @@ function createGround()
 
     // 바닥 재질
     let groundMaterial = new StandardMaterial("groundMat", scene);
-    groundMaterial.diffuseColor = new Color3(0.3, 0.3, 0.9); // 어두운 블루 계열
-    groundMaterial.specularColor = new Color3(0, 0, 0); // 광택 제거
+    groundMaterial.diffuseColor = new Color3(0.2, 0.6, 0.2);
+    groundMaterial.specularColor = new Color3(0, 0, 0);
     ground.material = groundMaterial;
 
     // 중앙선 생성
     centerLine = MeshBuilder.CreateBox("centerLine", { width: 0.3, height: 18, depth: 0.1 }, scene);
-    centerLine.position.set(0, 0, 0.5); // 살짝 띄워서 자연스럽게 보이도록
+    centerLine.position.set(0, 0, 0.5);
 
     // 중앙선 재질
     let lineMaterial = new StandardMaterial("lineMat", scene);
-    lineMaterial.diffuseColor = new Color3(1, 1, 1); // 흰색
+    lineMaterial.diffuseColor = new Color3(1, 1, 1);
     centerLine.material = lineMaterial;
 }
 

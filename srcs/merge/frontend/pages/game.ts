@@ -105,7 +105,7 @@ export async function setupGame()
 			style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
 				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
-				<input type="text" id="player2-name" placeholder="Player_2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
+				<input type="text" id="player2-name" placeholder="Player 2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
 				<div class="flex space-x-4">
 					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
 					<button id="close-modal" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
@@ -173,14 +173,16 @@ export async function startGame(player1: string, player2: string): Promise<strin
 	contentDiv.innerHTML = `
 		<div class="relative flex flex-col items-center h-full">
 			<!-- 헤더 -->
-			<h2 data-i18n="game" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2">
-			</h2>
+			<h2 data-i18n="gameBoard" class="text-5xl font-semibold absolute top-3 left-1/2 transform -translate-x-1/2"></h2>
 
 			<div class="flex flex-col space-y-6 justify-center items-center flex-grow">
 				<!-- 플레이어 닉네임 -->
-				<div id="scoreBoard" class="text-2xl font-bold">${player1} | ${player2}</div>
+				<div id="scoreBoard" class="text-2xl font-bold w-full flex justify-between px-8 mb-2">
+					<span class="bg-red-500 text-white text-center px-4 py-2 min-w-[150px] max-w-[200px] rounded-full">${player1}</span>
+					<span class="bg-blue-500 text-white text-center px-4 py-2 min-w-[150px] max-w-[200px] rounded-full">${player2}</span>
+				</div>
 				<!-- 게임 캔버스 -->
-				<canvas id="gameCanvas" width="1200" height="600" class="border-2 border-black"></canvas>
+				<canvas id="gameCanvas" width="1200" height="600"></canvas>
 			</div>
 		</div>
 	`;
