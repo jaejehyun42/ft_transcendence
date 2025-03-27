@@ -257,7 +257,7 @@ async function setupTourGame(player1: string, player2: string, bracket: string[]
 		winner = Math.random() > 0.5 ? player1 : player2;
 	else
 		winner = await startGame(player1, player2);
-	if (winner = "???")
+	if (winner === "???")
 		return ;
 
 	// 승자 데이터 저장
