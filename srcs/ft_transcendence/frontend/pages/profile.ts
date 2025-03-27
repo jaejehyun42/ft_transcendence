@@ -1,5 +1,5 @@
-import { router } from "../router.js";
-import { loadLanguage } from "../locales/lang.js"
+import { router } from "../router";
+import { loadLanguage } from "../locales/lang"
 import { setPlayer1 } from "./game.js";
 
 export const profilePage = `
@@ -117,10 +117,28 @@ export async function loadProfile() {
 export function editProfile() {
     const avatarInput = document.getElementById("avatar-input") as HTMLInputElement;
     const avatar = document.getElementById("avatar") as HTMLImageElement;
+    const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+    const cooldownUntil = parseInt(localStorage.getItem("saveCooldownUntil") || "0");
+    let currentLang: string = localStorage.getItem("language") || "en";
 
     if (!avatarInput || !avatar) {
         console.error("❌ avatarInput 또는 avatar 요소를 찾을 수 없습니다.");
         return;
+    }
+
+    if (cooldownUntil > Date.now()) {
+        saveBtn.disabled = true;
+        saveBtn.removeAttribute("data-i18n"); // 번역 중단하고 텍스트 직접 표시
+        saveBtn.setAttribute("data-i18n", "editprofiletimeout");
+        loadLanguage(currentLang); // 번역 다시 적용
+
+        const timeout = cooldownUntil - Date.now();
+        setTimeout(() => {
+            saveBtn.disabled = false;
+            saveBtn.setAttribute("data-i18n", "savechanges");
+            loadLanguage(localStorage.getItem("language") || "en");
+            localStorage.removeItem("saveCooldownUntil");
+        }, timeout);
     }
 
     // ✅ change 이벤트 리스너를 editProfile 실행 즉시 등록
@@ -207,16 +225,21 @@ export function editProfile() {
                 loadLanguage(currentLang);
                 loadProfile(); // ✅ 프로필 업데이트 후 화면 즉시 반영
 
+                const cooldownEndTime = Date.now() + 60_000; // 현재 시간 + 1
+                localStorage.setItem("saveCooldownUntil", cooldownEndTime.toString()); // 간단하게 localStorage 사용
                 const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
                 if (saveBtn) {
                     saveBtn.disabled = true;
                     saveBtn.removeAttribute("data-i18n"); // 번역 중단하고 텍스트 직접 표시
                     saveBtn.setAttribute("data-i18n", "editprofiletimeout");
+
+                    const timeout = cooldownEndTime - Date.now();
                     setTimeout(() => {
                         saveBtn.disabled = false;
                         saveBtn.setAttribute("data-i18n", "savechanges"); // 원래 번역 키 복원
                         loadLanguage(currentLang); // 번역 다시 적용
-                    }, 60 * 1000); // 1분
+                        localStorage.removeItem("saveCooldownUntil");
+                    }, timeout); // 1분
                 }
             } else {
                 console.error("❌ 프로필 업데이트 실패:", data.error);
