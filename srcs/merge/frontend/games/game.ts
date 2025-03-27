@@ -181,7 +181,7 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
         crossedPaddle = prevX < paddleEdge && curX >= paddleEdge;
 
     if (crossedPaddle &&
-        ball.position.y >= paddle.position.y - paddleHeight / 2 - ballSize / 4&&
+        ball.position.y >= paddle.position.y - paddleHeight / 2 - ballSize / 4 &&
         ball.position.y <= paddle.position.y + paddleHeight / 2 + ballSize / 4)
     {
         // 패들 중앙 기준 위치 (-1 ~ 1)
@@ -228,8 +228,8 @@ function collisionPaddleHorz(paddle: Mesh, deltaTime: number): boolean
         (prevY > paddleTopEdge && curY <= paddleTopEdge);
 
     if (crossedPaddle &&
-        ball.position.x >= paddle.position.x - paddleWidth / 2 &&
-        ball.position.x <= paddle.position.x + paddleWidth / 2)
+        ball.position.x >= paddle.position.x - paddleWidth / 2 - ballSize / 4 &&
+        ball.position.x <= paddle.position.x + paddleWidth / 2 + ballSize / 4)
     {
         if (ball.position.y > paddle.position.y) {
             ballSpeedY = Math.abs(ballSpeedY);
