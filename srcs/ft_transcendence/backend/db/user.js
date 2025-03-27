@@ -14,16 +14,19 @@ async function executeQuery(db, sql, params = []) {
 }
 
 // 사용자 정보 추가 함수
-async function addUser(db, username, email) { 
+async function addUser(db, username, nickname, email) { 
 	return new Promise((resolve, reject) => {
 		// nickname 컬럼 추가
 		const sql = `INSERT INTO users (username, nickname, email) VALUES (?, ?, ?)`;
 
-		let nickname = faker.internet.userName();
-		while (nickname.startsWith('AI')) {
+		if (!nickname)
+		{
 			nickname = faker.internet.userName();
+			while (nickname.startsWith('AI') || nickname.startsWith('Player')) {
+				nickname = faker.internet.userName();
+			}
+			nickname = nickname.length > 10 ? nickname.slice(0, 10) : nickname;
 		}
-		nickname = nickname.length > 10 ? nickname.slice(0, 10) : nickname;
 
 		db.run(sql, [username, nickname, email], function (err) {
 			if (err) {

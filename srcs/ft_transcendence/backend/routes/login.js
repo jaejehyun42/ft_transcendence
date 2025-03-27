@@ -74,7 +74,7 @@ async function loginRoute(fastify, options) {
 				return reply.redirect("/otp"); // ✅ 브라우저 직접 접근 시 OTP 페이지로 이동
 				//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });
 			} else {
-				await dbModule.addUser(db, userInfo.username, userInfo.email);
+				await dbModule.addUser(db, userInfo.username, null, userInfo.email);
 				request.session.successMessage = '로그인 성공!';
 				return reply.redirect("/otp");
 				//return reply.send({ success: true, userName: userInfo.name, email: userInfo.email });

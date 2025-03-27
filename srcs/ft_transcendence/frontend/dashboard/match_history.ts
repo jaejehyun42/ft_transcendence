@@ -41,11 +41,11 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     //정보 들어갈 박스
     const box = document.createElement('div');
     win_lose_color.append(box);
-    box.className = 'w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center px-4 py-4';
+    box.className = 'grid-cols-5 w-full h-32 bg-white rounded-xl grid grid-cols-3 items-center px-4 py-4';
 
     // 왼쪽 영역 (첫 번째 열) - 유저1
     const left_column = document.createElement('div');
-    left_column.className = 'flex items-center justify-start gap-4';
+    left_column.className = 'col-span-2 flex items-center justify-start gap-4';
     box.appendChild(left_column);
     
     //유저1 이미지
@@ -83,7 +83,7 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
 
     // 중앙 영역 (두 번째 열) - VS 및 날짜
     const center_column = document.createElement('div');
-    center_column.className = 'flex flex-col items-center justify-center';
+    center_column.className = 'col-span-1 flex flex-col items-center justify-center';
     box.appendChild(center_column);
     
     // 경기 날짜 표시
@@ -104,7 +104,7 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
 
     // 오른쪽 영역 (세 번째 열) - 유저2
     const right_column = document.createElement('div');
-    right_column.className = 'flex items-center justify-end gap-4';
+    right_column.className = 'col-span-2 flex items-center justify-end gap-4';
     box.appendChild(right_column);
     
     const user2_txtbox = document.createElement('div');
