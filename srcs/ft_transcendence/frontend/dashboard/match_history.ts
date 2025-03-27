@@ -138,5 +138,8 @@ export async function createHistoryBox(user1: string, user2: string, user1_score
     const user2_img = document.createElement('img');
     user2_img.className = 'bg-blue-100 p-1 rounded-full w-24 h-24 object-cover object-center justify-end';
     user2_img.src = await getProfilePictureByNickname(user2);
-    right_column.append(user2_img);
+    right_column.append(user2_img);    
+    
+    const currentLang = localStorage.getItem("language") || "en";
+    await loadLanguage(currentLang);
 }
