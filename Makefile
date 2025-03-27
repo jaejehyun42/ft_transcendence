@@ -11,8 +11,9 @@ down :
 
 clean :
 	make down
-	rm ./srcs/merge/public/uploads/*
 
 re :
 	make down
 	make up
+
+.PHONY: up down clean re
