@@ -55,5 +55,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-srcs/merge/public/uploads/*
-./srcs/merge/backend/cert/.certificate
+
+uploads/*
+.certificate
