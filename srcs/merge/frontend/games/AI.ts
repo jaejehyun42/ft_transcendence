@@ -36,7 +36,6 @@ function predictBallY(): number
 		}
 	}
 
-	console.log(predictedY);
 	return predictedY;
 }
 
