@@ -178,8 +178,8 @@ export async function startGame(player1: string, player2: string): Promise<strin
 			<div class="flex flex-col space-y-6 justify-center items-center flex-grow">
 				<!-- 플레이어 닉네임 -->
 				<div id="scoreBoard" class="text-2xl font-bold w-full flex justify-between px-8 mb-2">
-					<span class="bg-red-500 text-white text-center px-4 py-2 min-w-[150px] max-w-[200px] rounded-full">${player1}</span>
-					<span class="bg-blue-500 text-white text-center px-4 py-2 min-w-[150px] max-w-[200px] rounded-full">${player2}</span>
+					<span class="bg-red-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${player1}</span>
+					<span class="bg-blue-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${player2}</span>
 				</div>
 				<!-- 게임 캔버스 -->
 				<canvas id="gameCanvas" width="1200" height="600"></canvas>
