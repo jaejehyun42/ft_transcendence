@@ -15,19 +15,31 @@ async function matchHistoryRoute(fastify, options){
                 return reply.status(400).send({ error: 'User names are required' });
             }
     
-            // 유저 ID 조회
             const user1Id = await dbModule.getUserIdByNickname(db, user1).catch(() => null);
-    
+            
             if (!user1Id) {
                 console.log(`⚠️ 유저 "${user1}"를 찾을 수 없음. null 반환`);
                 return reply.send({ user1: null }); // ✨ null 반환
             }
-    
+
+            // user2 ID 조회 (존재하지 않으면 추가)
+            let user2Id = await dbModule.getUserIdByNickname(db, user2).catch(() => null);
+
+            if (!user2Id && !user2.startsWith('AI') && !user2.startsWith('Player')) {
+                user2Id = await dbModule.addUser(db, user2, user2, `${user2}@pong.com`).catch(() => null);
+                if (!user2Id) {
+                    console.error(`❌ 유저 "${user2}" 추가 실패`);
+                    return reply.status(500).send({ error: 'Failed to create user2' });
+                }
+                console.log(`✅ 유저 "${user2}" 추가 완료 (ID: ${user2Id})`);
+            }
+
             await addMatchHistory(db, user1Id, user2, user1_score, user2_score);
     
             const result = user1_score > user2_score ? 'win' : 'lose';
             const playerType = user2.startsWith('AI') ? 'ai' : 'human';
     
+             
             await gameModule.updateScore(db, user1Id, playerType, result);
     
             // 최종 응답

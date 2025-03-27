@@ -58,3 +58,4 @@ dkms.conf
 
 ./srcs/ft_transcendence/public/uploads/*
 .certificate
+!cert/
