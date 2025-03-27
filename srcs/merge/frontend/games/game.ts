@@ -8,7 +8,7 @@ import { ball, paddleLeft, paddleRight, paddleHeight, paddleWidth, ballSize } fr
 export let gameRunning = false;
 export let gameMode = "PvP";
 
-const WINNING_SCORE = 2;
+const WINNING_SCORE = 5;
 let leftScore = 0, rightScore = 0;
 let countdownEndTime: number | null = null;
 export let result: { [key: string]: string | null} = {
