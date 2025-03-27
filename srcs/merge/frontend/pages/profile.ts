@@ -206,6 +206,18 @@ export function editProfile() {
                 statusMessage.setAttribute("data-i18n", "profileupdatesuccess");
                 loadLanguage(currentLang);
                 loadProfile(); // ✅ 프로필 업데이트 후 화면 즉시 반영
+
+                const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.removeAttribute("data-i18n"); // 번역 중단하고 텍스트 직접 표시
+                    saveBtn.setAttribute("data-i18n", "editprofiletimeout");
+                    setTimeout(() => {
+                        saveBtn.disabled = false;
+                        saveBtn.setAttribute("data-i18n", "savechanges"); // 원래 번역 키 복원
+                        loadLanguage(currentLang); // 번역 다시 적용
+                    }, 60 * 1000); // 1분
+                }
             } else {
                 console.error("❌ 프로필 업데이트 실패:", data.error);
                 statusMessage.className = "mt-4 text-center text-sm text-red-500";

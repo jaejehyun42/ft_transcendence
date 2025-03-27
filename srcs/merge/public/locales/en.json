@@ -37,5 +37,6 @@
   "draw": "Draw",
   "dashboardPage": "📊 DASHBOARD",
   "noMatches": "No recent game history",
-  "playMessage": "Play a new game!"
+  "playMessage": "Play a new game!",
+  "editprofiletimeout": "⏳ Save available in 1 minutes"
 }

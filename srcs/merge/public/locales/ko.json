@@ -37,5 +37,6 @@
   "draw": "무승부",
   "dashboardPage": "📊 대시보드",
   "noMatches": "최근 경기 기록이 없습니다",
-  "playMessage": "새로운 게임을 플레이해보세요!"
+  "playMessage": "새로운 게임을 플레이해보세요!",
+  "editprofiletimeout": "⏳ 1분 후 다시 저장 가능"
 }
