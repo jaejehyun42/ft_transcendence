@@ -1,6 +1,6 @@
 import { setupTournament } from "./tournament.js";
 import { startGameLoop, stopGameLoop } from "../games/loop.js";
-import { loadLanguage } from "../locales/lang";
+import { loadLanguage } from "../locales/lang.js";
 
 document.addEventListener("showGameOptions", () => {
 	setupGame();

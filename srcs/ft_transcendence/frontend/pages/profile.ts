@@ -1,5 +1,5 @@
-import { router } from "../router";
-import { loadLanguage } from "../locales/lang"
+import { router } from "../router.js";
+import { loadLanguage } from "../locales/lang.js"
 import { setPlayer1 } from "./game.js";
 
 export const profilePage = `

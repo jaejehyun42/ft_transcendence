@@ -1,14 +1,14 @@
 services:
   nodejs:
-    build: ./merge
-    image: merge
-    container_name: merge
+    build: ./ft_transcendence
+    image: ft_transcendence
+    container_name: ft_transcendence
     ports:
       - "3000:3000"
     volumes:
       - data:/data
-      - ./merge/public/uploads:/app/public/uploads
-      - ./merge/backend/cert:/app/cert
+      - ./ft_transcendence/public/uploads:/app/public/uploads
+      - ./ft_transcendence/backend/cert:/app/cert
     env_file:
       - ./.env
 
