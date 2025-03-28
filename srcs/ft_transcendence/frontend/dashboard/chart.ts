@@ -72,8 +72,10 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         data = [wins, losses];
         if (lang === "en")
             labels = ["WIN", "LOSE"];
-        else
+        else if (lang === "kr")
             labels = ["승", "패"];
+        else
+            labels = ["Victoire", "Défaite"];
 
         const gradientWin = ctx.createLinearGradient(0, 0, 0, 150);
         gradientWin.addColorStop(0, '#6EE7B7');
@@ -89,8 +91,10 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         data = [1];
         if (lang === "en")
             labels = ["No Data"];
-        else
+        else if (lang === "kr")
             labels = ["데이터 없음"];
+        else
+            labels = ["Aucune donnée"];
         backgroundColor = ["#E5E7EB"];
     }
 
@@ -139,8 +143,10 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                             {
                                 if (lang === "en")
                                     return `No Data`;
-                                else
+                                else if (lang === "kr")
                                     return `데이터 없음`;
+                                else
+                                    return `Aucune donnée`;
                             }
                             const dataset = tooltipItem.dataset;
                             const data = dataset.data as number[];
@@ -184,10 +190,16 @@ export async function setUpChart() {
         createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE Win Rate", currentLang);
         createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP Win Rate", currentLang);
     }
-    else
+    else if (currentLang === "kr")
     {
         createWinRateChart("totalWinRate", totalWins, totalLosses, "전체 승률", currentLang);
         createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE 승률", currentLang);
         createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP 승률", currentLang);
+    }
+    else
+    {
+        createWinRateChart("totalWinRate", totalWins, totalLosses, "Taux de victoire global", currentLang);
+        createWinRateChart("PvEWinRate", pveWins, pveLosses, "Taux de victoire PVE", currentLang);
+        createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "Taux de victoire PVP", currentLang);
     }
 }

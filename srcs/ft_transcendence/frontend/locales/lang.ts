@@ -40,6 +40,49 @@ export function initLanguageToggle(): void {
 
     console.log("✅ 언어 변경 버튼 초기화됨!");
 
+    // 지원 언어 목록
+    const supportedLangs = ["en", "ko", "fr"];
+    let currentLang: string = localStorage.getItem("language") || "en";
+
+    function updateLanguageIcon(): void {
+        const langIconMap: Record<string, string> = {
+            en: "/icons/flag-usa.png",
+            ko: "/icons/flag-korea.png",
+            fr: "/icons/flag-france.png"
+        };
+        const langLabelMap: Record<string, string> = {
+            en: "English",
+            ko: "한국어",
+            fr: "Français"
+        };
+
+        langToggleBtn.innerHTML = `
+            <img src="${langIconMap[currentLang]}" alt="Language Icon" class="w-6 h-6">
+            <span class="ml-2 text-lg font-medium">${langLabelMap[currentLang]}</span>
+        `;
+    }
+
+    updateLanguageIcon();
+
+    langToggleBtn.onclick = async () => {
+        const currentIndex = supportedLangs.indexOf(currentLang);
+        currentLang = supportedLangs[(currentIndex + 1) % supportedLangs.length]; // 다음 언어로 순환
+        localStorage.setItem("language", currentLang);
+        await loadLanguage(currentLang);
+        updateLanguageIcon();
+    };
+}
+
+/*export function initLanguageToggle(): void {
+    const langToggleBtn = document.getElementById("lang-toggle") as HTMLButtonElement;
+
+    if (!langToggleBtn) {
+        console.warn("⚠️ 언어 변경 버튼이 없음. 페이지 로딩 후 다시 실행 필요.");
+        return;
+    }
+
+    console.log("✅ 언어 변경 버튼 초기화됨!");
+
     let currentLang: string = localStorage.getItem("language") || "en";
 
     function updateLanguageIcon(): void {
@@ -57,4 +100,4 @@ export function initLanguageToggle(): void {
         await loadLanguage(currentLang);
         updateLanguageIcon();
     };
-}
+}*/
