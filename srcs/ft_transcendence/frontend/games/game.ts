@@ -168,17 +168,13 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
     let prevX = ball.position.x - ballSpeedX * deltaTime;
     let curX = ball.position.x;
 
-    let paddleEdge;
-    if (paddle === paddleLeft)
-        paddleEdge = paddle.position.x + paddleWidth / 2 + ballSize / 2;
-    else
-        paddleEdge = paddle.position.x - paddleWidth / 2 - ballSize / 2;
+    let paddleEdge = paddle === paddleLeft 
+        ? paddle.position.x + paddleWidth / 2 + ballSize / 2
+        : paddle.position.x - paddleWidth / 2 - ballSize / 2;
 
-    let crossedPaddle;
-    if (paddle === paddleLeft)
-        crossedPaddle = prevX > paddleEdge && curX <= paddleEdge;
-    else
-        crossedPaddle = prevX < paddleEdge && curX >= paddleEdge;
+    let crossedPaddle = paddle === paddleLeft 
+        ? (prevX >= paddleEdge && curX < paddleEdge)
+        : (prevX <= paddleEdge && curX > paddleEdge);
 
     if (crossedPaddle &&
         ball.position.y >= paddle.position.y - paddleHeight / 2 - ballSize / 4 &&
@@ -193,7 +189,7 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 
         // 속도 계산
         let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-        if (increaseCount < 20)
+        if (increaseCount < 30)
         {
             speed *= speedIncrease;
             increaseCount++;
@@ -201,14 +197,10 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
 
         // 속도 설정
         ballSpeedX = (paddle === paddleLeft ? 1 : -1) * Math.abs(speed * Math.cos(bounceAngle));
-        ballSpeedY = (ballSpeedY >= 0 ? 1 : -1) * Math.abs(speed * Math.sin(bounceAngle));
+        ballSpeedY = Math.sign(ballSpeedY) * Math.abs(speed * Math.sin(bounceAngle));
 
         // 공 위치 보정
-        if (paddle === paddleLeft) {
-            ball.position.x = paddle.position.x + paddleWidth / 2 + ballSize / 2 + 0.02;
-        } else {
-            ball.position.x = paddle.position.x - paddleWidth / 2 - ballSize / 2 - 0.02;
-        }
+        ball.position.x = paddleEdge + (paddle === paddleLeft ? 0.02 : -0.02);
         return true;
     }
     return false;
