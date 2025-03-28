@@ -40,7 +40,6 @@ async function profileRoute(fastify, options) {
         
         const uploadDirs = ['/app/dist/uploads', '/app/public/uploads']; // ✅ 두 개의 디렉토리 저장
 
-        // 각 업로드 폴더가 존재하지 않으면 생성
         for (const dir of uploadDirs) {
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, { recursive: true });

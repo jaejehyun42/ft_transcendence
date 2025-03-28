@@ -56,5 +56,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-uploads/*
+./srcs/ft_transcendence/public/uploads/*
+!cert/
 .certificate
