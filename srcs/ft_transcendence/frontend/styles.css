@@ -1,1 +1,19 @@
 @import 'tailwindcss';
+
+@font-face {
+	font-family: 'CookieRun-Regular';
+	src: url('/font/CookieRun_Regular.otf') format('opentype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'CookieRun-Bold';
+	src: url('/font/CookieRun_Bold.otf') format('opentype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+body {
+	font-family: 'CookieRun-Bold', 'CookieRun-Regular', sans-serif;
+}
