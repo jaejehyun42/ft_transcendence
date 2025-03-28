@@ -32,9 +32,9 @@ export const dashboardPage = `
 		</div>
 	
 		<!-- 네비게이션 버튼 -->
-		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="home"></button>
-		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="game"></button>
-		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
+		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="home"></button>
+		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="game"></button>
+		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="status"></button>
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
@@ -52,8 +52,6 @@ export const dashboardPage = `
 		<div id="content" class="flex-1 bg-white p-6 rounded-lg shadow-md m-4"></div>
 	</main>
 `;
-
-
 
 export function ToOther(router: any) {
 	document.getElementById("dashboard")?.addEventListener("click", () => {
