@@ -1,0 +1,16 @@
+services:
+  nodejs:
+    build: ./ft_transcendence
+    image: ft_transcendence
+    container_name: ft_transcendence
+    ports:
+      - "3000:3000"
+    volumes:
+      - data:/data
+      - ./ft_transcendence/public/uploads:/app/public/uploads
+      - ./ft_transcendence/backend/cert:/app/cert
+    env_file:
+      - ./.env
+
+volumes:
+  data:

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong</title>
+    <script type="module" src="dist/router.js"></script>
+
+    <!-- 스타일시트 적용 -->
+    <link href="./frontend/styles.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'CookieRun-Regular';
+            src: url('/font/CookieRun_Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'CookieRun-Bold';
+            src: url('/font/CookieRun_Bold.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'CookieRun-Bold', 'CookieRun-Regular', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- 페이지 동적으로 삽입 -->
+    <div id="router" class="flex h-screen bg-gray-100"></div>
+</body>
+</html>
