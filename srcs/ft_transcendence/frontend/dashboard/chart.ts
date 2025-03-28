@@ -72,7 +72,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         data = [wins, losses];
         if (lang === "en")
             labels = ["WIN", "LOSE"];
-        else if (lang === "kr")
+        else if (lang === "ko")
             labels = ["승", "패"];
         else
             labels = ["Victoire", "Défaite"];
@@ -91,7 +91,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
         data = [1];
         if (lang === "en")
             labels = ["No Data"];
-        else if (lang === "kr")
+        else if (lang === "ko")
             labels = ["데이터 없음"];
         else
             labels = ["Aucune donnée"];
@@ -143,7 +143,7 @@ function createWinRateChart(canvasId: string, wins: number, losses: number, labe
                             {
                                 if (lang === "en")
                                     return `No Data`;
-                                else if (lang === "kr")
+                                else if (lang === "ko")
                                     return `데이터 없음`;
                                 else
                                     return `Aucune donnée`;
@@ -190,7 +190,7 @@ export async function setUpChart() {
         createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE Win Rate", currentLang);
         createWinRateChart("PvPWinRate", pvpWins, pvpLosses, "PvP Win Rate", currentLang);
     }
-    else if (currentLang === "kr")
+    else if (currentLang === "ko")
     {
         createWinRateChart("totalWinRate", totalWins, totalLosses, "전체 승률", currentLang);
         createWinRateChart("PvEWinRate", pveWins, pveLosses, "PvE 승률", currentLang);
