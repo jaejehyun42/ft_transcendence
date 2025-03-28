@@ -78,7 +78,7 @@ export function resetBall()
     increaseCount = 0;
     ball.position.x = 0;
     ball.position.y = 0;
-    ballSpeedX = constSpeedX;
+    ballSpeedX = Math.random() > 0.5 ? constSpeedX : -constSpeedX;
     ballSpeedY = Math.random() > 0.5 ? constSpeedY : -constSpeedY;
 }
 
