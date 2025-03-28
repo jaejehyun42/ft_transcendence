@@ -27,7 +27,7 @@ export async function setupTournament(name: string)
 
 		<div id="nickname-modal-wrapper" class="absolute inset-0 z-60 hidden flex items-center justify-center" style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center w-80">
-				<h3 class="text-2xl font-semibold mb-4">Enter Player's Nicknames</h3>
+				<h3 data-i18n="enterNickname" class="text-2xl font-semibold mb-4"></h3>
 				<div id="nickname-inputs" class="w-full mb-4"></div>
 				<div class="flex space-x-4">
 					<button id="start-tournament" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
@@ -257,15 +257,10 @@ async function setupTourGame(player1: string, player2: string, bracket: string[]
 	if (player1.startsWith("AI") && player2.startsWith("AI"))
 		winner = Math.random() > 0.5 ? player1 : player2;
 	else
-	{
 		winner = await startGame(player1, player2);
-		if (winner === "???")
-		{
-			alert("An error has occurred. Returning to the Gamemode selection screen.")
-			setupGame();
-			return ;
-		}
-	}
+
+	if (winner === "???")
+		return ;
 
 	// 승자 데이터 저장
 	const matchKey = `${round}-${index}`;

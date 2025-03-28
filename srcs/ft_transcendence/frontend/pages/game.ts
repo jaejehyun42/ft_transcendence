@@ -6,7 +6,7 @@ document.addEventListener("showGameOptions", () => {
 	setupGame();
 });
 
-export let player1 = "Nick Name";
+export let userName = "Nick Name";
 
 export const gamePage = `
 	<!-- 오버레이 추가 -->
@@ -39,9 +39,9 @@ export const gamePage = `
 		</div>
 	
 		<!-- 네비게이션 버튼 -->
-		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="home"></button>
-		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="game"></button>
-		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg hover:bg-blue-100" data-page="status"></button>
+		<button data-i18n="dashboard" id="dashboard" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="home"></button>
+		<button data-i18n="game" id="game" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="game"></button>
+		<button data-i18n="editprofilenoemoge" id="profile" class="nav-btn w-full text-xl text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100" data-page="status"></button>
 
 		<!-- 언어 변경 버튼 (사이드바 하단) -->
 		<div class="mt-auto mb-4">
@@ -63,7 +63,7 @@ export const gamePage = `
 
 export function setPlayer1(nickname: string)
 {
-	player1 = nickname;
+	userName = nickname;
 }
 
 export function escapeHTML(input: string)
@@ -103,7 +103,7 @@ export async function setupGame()
 		<div id="nickname-modal-wrapper" class="absolute inset-0 z-60 hidden flex items-center justify-center"
 			style="background-color: rgba(0, 0, 0, 0.45)">
 			<div id="nickname-modal" class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-				<h3 class="text-2xl font-semibold mb-4">Enter 2P's Nickname</h3>
+				<h3 data-i18n="enterNickname" class="text-2xl font-semibold mb-4"></h3>
 				<input type="text" id="player2-name" placeholder="Player 2" class="border px-4 py-2 mb-4 w-full" maxlength="10">
 				<div class="flex space-x-4">
 					<button id="start-local-game" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Start</button>
@@ -126,7 +126,7 @@ export async function setupGame()
 		const player2 = player2Input.value.trim() || "Player 2";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 	
-		if (player1 === player2) {
+		if (userName === player2) {
 			alert(`Duplicate Nickname: "${player2}". Please use Unique Nickname.`);
 			return;
 		}
@@ -143,16 +143,16 @@ export async function setupGame()
 			return;
 		}
 	
-		result = await startGame(player1, player2);
+		result = await startGame(userName, player2);
 		if (result !== "???") setupGame();
 	});
 
 	document.getElementById("ai-mode")!.addEventListener("click", async () => {
-		result = await startGame(player1, "AI")
+		result = await startGame(userName, "AI")
 		if (result != "???") setupGame();
 	});
 	document.getElementById("tournament-mode")!.addEventListener("click", async () => {
-		setupTournament(player1)
+		setupTournament(userName)
 	});
 	document.getElementById("close-modal")!.addEventListener("click", () => {
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
@@ -166,7 +166,7 @@ export async function startGame(player1: string, player2: string): Promise<strin
 	if (!contentDiv)
 		throw new Error("Error: Cannot find content element!");
 
-	if (player1.startsWith("AI"))
+	if (player1.startsWith("AI") || player2 === userName)
 		[player1, player2] = [player2, player1];
 
 	contentDiv.innerHTML = `
