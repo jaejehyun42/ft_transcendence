@@ -63,17 +63,16 @@ export const gamePage = `
 
 export function setPlayer1(nickname: string)
 {
-	player1 = sanitizeInput(nickname);
+	player1 = nickname;
 }
 
-export function sanitizeInput(input: string): string
+export function escapeHTML(input: string)
 {
-    const element = document.createElement('div');
-    if (input) {
-        element.textContent = input;
-        return element.innerHTML;
-    }
-    return '';
+    return input.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
 }
 
 // 게임 옵션 선택 화면 렌더링
@@ -124,7 +123,7 @@ export async function setupGame()
 
 	document.getElementById("start-local-game")!.addEventListener("click", async () => {
 		const player2Input = document.getElementById("player2-name") as HTMLInputElement;
-		const player2 = sanitizeInput(player2Input.value.trim()) || "Player 2";
+		const player2 = player2Input.value.trim() || "Player 2";
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 	
 		if (player1 === player2) {
@@ -178,8 +177,8 @@ export async function startGame(player1: string, player2: string): Promise<strin
 			<div class="flex flex-col space-y-6 justify-center items-center flex-grow">
 				<!-- 플레이어 닉네임 -->
 				<div id="scoreBoard" class="text-2xl font-bold w-full flex justify-between px-8 mb-2">
-					<span class="bg-red-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${player1}</span>
-					<span class="bg-blue-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${player2}</span>
+					<span class="bg-red-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${escapeHTML(player1)}</span>
+					<span class="bg-blue-500 text-white text-center px-4 py-2 min-w-[150px] rounded-full">${escapeHTML(player2)}</span>
 				</div>
 				<!-- 게임 캔버스 -->
 				<canvas id="gameCanvas" width="1200" height="600"></canvas>

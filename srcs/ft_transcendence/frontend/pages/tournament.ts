@@ -1,4 +1,4 @@
-import { startGame, sanitizeInput, setupGame } from "./game.js"
+import { startGame, escapeHTML, setupGame } from "./game.js"
 import { loadLanguage } from "../locales/lang";
 
 const matchWinners = new Map<string, string>(); 
@@ -80,8 +80,8 @@ export async function setupTournament(name: string)
 
 		nicknames.add(name);
 		for (let i = 2; i <= playerCount; i++) {
-			const playerName = sanitizeInput((document.getElementById(`player-${i}-name`) as HTMLInputElement).value.trim());
-			const finalName = playerName || `Player ${i}`;
+			const playerName = document.getElementById(`player-${i}-name`) as HTMLInputElement;
+			const finalName = playerName.value.trim() || `Player ${i}`;
 			const res = await fetch(`/profile/${encodeURIComponent(finalName)}`);
 			const data = await res.json();
 	
@@ -164,7 +164,7 @@ async function renderBracket(bracket: string[][])
 
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-yellow-300 p-4 rounded-lg shadow-md w-40">
-						<span id="winner" class="text-xl font-bold">${winner}</span>
+						<span id="winner" class="text-xl font-bold">${escapeHTML(winner)}</span>
 						<button data-i18n="winnerConfirm" id="winner-action-btn" 
 							class="hidden bg-blue-300 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-3 transition duration-200 whitespace-nowrap max-w-full">
 						</button>
@@ -199,13 +199,13 @@ async function renderBracket(bracket: string[][])
 
 				bracketHTML += `
 					<div class="flex flex-col items-center bg-gray-200 p-4 rounded-lg shadow-md w-40">
-						<span class="text-lg font-semibold ${p1Class}">${p1}</span>
+						<span class="text-lg font-semibold ${p1Class}">${escapeHTML(p1)}</span>
 						<button 
 							class="match-btn text-gray-500 hover:text-gray-700 font-bold py-1 px-3 rounded mt-2 my-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-							data-round="${r}" data-match="${i}" data-player1="${p1}" data-player2="${p2}" ${isDisabled}>
+							data-round="${r}" data-match="${i}" data-player1="${escapeHTML(p1)}" data-player2="${escapeHTML(p2)}" ${isDisabled}>
 							<span class="${buttonClass}">${buttonShape}</span>
 						</button>
-						<span class="text-lg font-semibold ${p2Class}">${p2}</span>
+						<span class="text-lg font-semibold ${p2Class}">${escapeHTML(p2)}</span>
 					</div>
 				`;
 			}
@@ -227,6 +227,7 @@ async function renderBracket(bracket: string[][])
 		winnerActionBtn.addEventListener("click", () => {
 			alert(`🎉 ${winnerSpan.textContent} 가 우승했습니다!`);
 			setupGame();
+			return ;
 		});
 	}
 
@@ -256,9 +257,15 @@ async function setupTourGame(player1: string, player2: string, bracket: string[]
 	if (player1.startsWith("AI") && player2.startsWith("AI"))
 		winner = Math.random() > 0.5 ? player1 : player2;
 	else
+	{
 		winner = await startGame(player1, player2);
-	if (winner === "???")
-		return ;
+		if (winner === "???")
+		{
+			alert("An error has occurred. Returning to the Gamemode selection screen.")
+			setupGame();
+			return ;
+		}
+	}
 
 	// 승자 데이터 저장
 	const matchKey = `${round}-${index}`;
