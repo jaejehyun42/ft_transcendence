@@ -1,6 +1,7 @@
 import { setupTournament } from "./tournament.js";
 import { startGameLoop, stopGameLoop } from "../games/loop.js";
 import { loadLanguage } from "../locales/lang.js";
+import { runAutoTraining } from "../games/AI.js";
 
 document.addEventListener("showGameOptions", () => {
 	setupGame();
@@ -96,6 +97,8 @@ export async function setupGame()
 				</button>
 				<button data-i18n="tournament" id="tournament-mode" class="btn bg-red-500 text-white text-xl py-6 px-6 rounded-lg shadow-lg hover:bg-red-600 transition duration-300">
 				</button>
+				<button data-i18n="autoTraining" id="auto-train-btn" class="btn bg-purple-500 text-white text-xl py-6 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300">
+				</button>
 			</div>
 		</div>
 
@@ -157,6 +160,29 @@ export async function setupGame()
 	document.getElementById("close-modal")!.addEventListener("click", () => {
 		document.getElementById("nickname-modal-wrapper")!.classList.add("hidden");
 	});
+	document.getElementById('auto-train-btn')!.addEventListener('click', async () => {
+		const btn = document.getElementById('auto-train-btn') as HTMLButtonElement;
+		btn.disabled = true;
+		btn.textContent = '학습 중... (0%)';
+		
+		// 진행 상태 업데이트 콜백
+		// const progressCallback = (progress :number) => {
+		//   btn.textContent = `학습 중... (${Math.round(progress)}%)`;
+		// };
+		
+		try {
+		  await runAutoTraining(500);
+		  btn.textContent = '학습 완료!';
+		} catch (e) {
+		  console.error('학습 실패:', e);
+		  btn.textContent = '학습 실패';
+		} finally {
+		  setTimeout(() => {
+			btn.disabled = false;
+			btn.textContent = '자동 학습 시작';
+		  }, 2000);
+		}
+	  });
 }
 
 export async function startGame(player1: string, player2: string): Promise<string>

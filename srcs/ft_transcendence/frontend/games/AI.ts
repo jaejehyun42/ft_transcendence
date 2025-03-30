@@ -5,18 +5,22 @@ import * as tf from '@tensorflow/tfjs';
 
 let aiTargetY = 0;
 let keyPressed = false;
-
 let lastBallDirectionX = 0; // 이전 프레임의 공 x방향
 
 let updateID: ReturnType<typeof setInterval> | null = null;
 let moveID: ReturnType<typeof setInterval> | null = null;
+
+// 전역 변수로 에이전트 선언
+let dqnAgent: DQNAgent | null = null;
+let lastState: tf.Tensor | null = null;
+let lastAction: number | null = null;
 
 // DQN 모델 클래스
 class DQNAgent {
   private model: tf.LayersModel;
   private targetModel: tf.LayersModel;
   private replayBuffer: any[] = [];
-  private epsilon: number = 1.0;
+  public epsilon: number = 1.0;
   private epsilonMin: number = 0.1;
   private epsilonDecay: number = 0.995;
   private gamma: number = 0.99;
@@ -134,9 +138,9 @@ class DQNAgent {
   }
 
   // 학습 함수
-public replay() {
+public async replay() {
 	if (this.replayBuffer.length < this.batchSize) return;
-	
+
 	// 미니배치 무작위 추출
 	const miniBatch = [];
 	for (let i = 0; i < this.batchSize; i++) {
@@ -179,7 +183,7 @@ public replay() {
 	const newQValues = maskedCurrentQ.add(maskedTargetQ);
 	
 	// 모델 학습
-	this.model.fit(stateBatch, newQValues, {
+	await this.model.fit(stateBatch, newQValues, {
 	  epochs: 1,
 	  verbose: 0
 	}).then(() => {
@@ -253,10 +257,6 @@ function calculateReward(): number {
 	return totalReward;
   }
 
-// 전역 변수로 에이전트 선언
-let dqnAgent: DQNAgent | null = null;
-let lastState: tf.Tensor | null = null;
-let lastAction: number | null = null;
 
 // AI 위치 업데이트 함수 (DQN 기반)
 export function updateAIPositionDQN() {
@@ -281,6 +281,9 @@ export function updateAIPositionDQN() {
   const action = dqnAgent.chooseAction(currentState);
   
   // 상태와 행동 저장
+  if (lastState !== null) {
+	lastState.dispose(); // 이전 상태 해제
+  }
   lastState = currentState;
   lastAction = action;
 
@@ -316,7 +319,7 @@ export async function startDQNSystem() {
   // 상태/행동 기록 초기화
   lastState = null;
   lastAction = null;
-  
+
   // DQN 업데이트 인터벌 설정
   updateID = setInterval(() => {
 	updateAIPositionDQN();
@@ -437,6 +440,149 @@ export async function saveModel() {
 	  // 브라우저의 IndexedDB에 모델 저장
 	  await dqnAgent.saveModel('indexeddb://pong-dqn-model');
 	  console.log("모델 저장 완료");
+	} catch (e) {
+	  console.error("모델 저장 실패:", e);
+	}
+  }
+
+export async function runAutoTraining(episodes: number = 1000) {
+	if (!dqnAgent) {
+	  dqnAgent = new DQNAgent();
+	}
+	
+	console.log("자동 학습 시작: " + episodes + "회");
+	
+	// 환경 시뮬레이션 변수
+	let simulatedBallX = 0;
+	let simulatedBallY = 0;
+	let simulatedBallSpeedX = 10;
+	let simulatedBallSpeedY = Math.random() * 10 - 5;
+	let simulatedPaddleY = 0;
+	let score = 0;
+	let episode = 0;
+	
+	// 환경 초기화 함수
+	const resetEnvironment = () => {
+	  simulatedBallX = 0;
+	  simulatedBallY = 0;
+	  simulatedBallSpeedX = 10;
+	  simulatedBallSpeedY = Math.random() * 10 - 5;
+	  simulatedPaddleY = 0;
+	  episode++;
+	  return getSimulatedState();
+	};
+	
+	// 상태 관측 함수
+	const getSimulatedState = () => {
+	  return tf.tensor2d([[
+		simulatedBallX / 20,
+		simulatedBallY / 10,
+		simulatedBallSpeedX / 15,
+		simulatedBallSpeedY / 15,
+		simulatedPaddleY / 10,
+		(simulatedPaddleY - simulatedBallY) / 10
+	  ]]);
+	};
+	
+	// 행동 수행 함수
+	const executeSimulatedAction = (action: number) => {
+	  // 패들 이동
+	  if (action === 0) { // 위로
+		simulatedPaddleY = Math.min(9, simulatedPaddleY + 1);
+	  } else if (action === 1) { // 아래로
+		simulatedPaddleY = Math.max(-9, simulatedPaddleY - 1);
+	  }
+	  
+	  // 공 이동
+	  simulatedBallX += simulatedBallSpeedX * 0.1;
+	  simulatedBallY += simulatedBallSpeedY * 0.1;
+	  
+	  // 벽 충돌
+	  if (simulatedBallY >= 9 || simulatedBallY <= -9) {
+		simulatedBallSpeedY *= -1;
+	  }
+	  
+	  // 패들 충돌 (x=15에서)
+	  let hitPaddle = false;
+	  if (simulatedBallX >= 14 && simulatedBallX <= 16 && 
+		  Math.abs(simulatedBallY - simulatedPaddleY) <= 2) {
+		simulatedBallSpeedX *= -1;
+		hitPaddle = true;
+	  }
+	  
+	  // 득점/실점 확인
+	  let done = false;
+	  let reward = 0;
+	  
+	  // 패들과 공의 거리 기반 기본 보상
+	  reward = 1 - Math.min(1, Math.abs(simulatedPaddleY - simulatedBallY) / 10);
+	  
+	  // 패들에 맞으면 큰 보상
+	  if (hitPaddle) {
+		reward += 10;
+		score++;
+	  }
+	  
+	  // 공이 화면 바깥으로 나가면 종료
+	  if (simulatedBallX > 20 || simulatedBallX < -20) {
+		done = true;
+		if (simulatedBallX > 20) {
+		  reward -= 5; // 실점 패널티
+		}
+	  }
+	  
+	  return { reward, done };
+	};
+	
+	// 학습 메인 루프
+	let currentState = resetEnvironment();
+	let totalReward = 0;
+	
+	for (let i = 0; i < episodes; i++) {
+	  let done = false;
+	  let stepCount = 0;
+	  totalReward = 0;
+	  
+	  while (!done && stepCount < 1000) { // 최대 1000 스텝
+		// 행동 선택
+		const action = dqnAgent.chooseAction(currentState);
+		
+		// 행동 수행 및 결과 관측
+		const { reward, done: episodeDone } = executeSimulatedAction(action);
+		const nextState = getSimulatedState();
+		
+		// 경험 저장
+		dqnAgent.remember(currentState, action, reward, nextState, episodeDone);
+		
+		// 학습
+		if (stepCount % 4 === 0) { // 매 4스텝마다 학습
+		  await dqnAgent.replay();
+		}
+		
+		totalReward += reward;
+		currentState.dispose(); // 이전 상태 메모리 해제
+		currentState = nextState;
+		
+		done = episodeDone;
+		stepCount++;
+	  }
+	  
+	  if (i % 10 === 0) {
+		console.log(`에피소드 ${i}/${episodes}, 보상: ${totalReward.toFixed(2)}, 입실론: ${dqnAgent.epsilon.toFixed(3)}`);
+	  }
+	  
+	  if (done) {
+		currentState.dispose();
+		currentState = resetEnvironment();
+	  }
+	}
+	
+	console.log("자동 학습 완료");
+	
+	// 학습된 모델 저장
+	try {
+	  await dqnAgent.saveModel('indexeddb://pong-dqn-model');
+	  console.log("자동 학습된 모델 저장 완료");
 	} catch (e) {
 	  console.error("모델 저장 실패:", e);
 	}
