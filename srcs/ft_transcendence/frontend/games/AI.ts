@@ -6,6 +6,8 @@ import * as tf from '@tensorflow/tfjs';
 let aiTargetY = 0;
 let keyPressed = false;
 
+let lastBallDirectionX = 0; // 이전 프레임의 공 x방향
+
 let updateID: ReturnType<typeof setInterval> | null = null;
 let moveID: ReturnType<typeof setInterval> | null = null;
 
@@ -83,6 +85,11 @@ class DQNAgent {
   // 타겟 모델 업데이트
   public updateTargetModel() {
 	this.targetModel.setWeights(this.model.getWeights());
+
+	this.targetModel.compile({
+		optimizer: tf.train.adam(0.001),
+		loss: 'meanSquaredError'
+	  });
   }
   
   // 경험 메모리에 저장
@@ -101,7 +108,31 @@ class DQNAgent {
 	}
   }
   
-  // 학습 함수
+  public async loadPretrainedModel(source: string): Promise<boolean> {
+	try {
+	  // 외부 모델 로드
+	  const loadedModel = await tf.loadLayersModel(source);
+	  this.model = loadedModel;
+
+	  loadedModel.compile({
+		optimizer: tf.train.adam(0.001),
+		loss: 'meanSquaredError'
+	  });
+	  
+	  // 타겟 모델도 업데이트
+	  this.updateTargetModel();
+	  console.log("사전 학습된 모델 로드 성공");
+	  return true;
+	} catch (e) {
+	  console.error("모델 로드 실패:", e);
+	  return false;
+	}
+  }
+
+  public async saveModel(path: string): Promise<void> {
+	await this.model.save(path);
+  }
+
   // 학습 함수
 public replay() {
 	if (this.replayBuffer.length < this.batchSize) return;
@@ -185,6 +216,43 @@ public replay() {
   }
 }
 
+// 개선된 보상 계산 함수
+function calculateReward(): number {
+	// 기본 보상: 패들과 공의 거리
+	const positionReward = 1 - Math.min(1, Math.abs(paddleRight.position.y - ball.position.y) / 10);
+	
+	// 공이 플레이어쪽으로 오고 있는지 확인 (더 중요한 시점)
+	const ballComingTowards = ballSpeedX > 0;
+	
+	// 공이 패들 근처에 있는지 확인
+	const isNearPaddle = ball.position.x > 10;
+	
+	// 성공적인 방어 보상 (공이 패들에 맞았을 때)
+	const defendSuccess = lastBallDirectionX > 0 && ballSpeedX < 0;
+	const defendReward = defendSuccess ? 10 : 0;
+	
+	// 가중치 부여
+	let totalReward = 0;
+	
+	if (isNearPaddle && ballComingTowards) {
+	  // 중요한 순간 - 위치 보상에 높은 가중치
+	  totalReward += positionReward * 3;
+	} else {
+	  // 일반적인 상황 - 낮은 가중치
+	  totalReward += positionReward * 0.5;
+	}
+	
+	// 방어 성공 보상 추가
+	totalReward += defendReward;
+	
+	// 디버깅
+	if (defendSuccess) {
+	  console.log("방어 성공! 보상:", defendReward);
+	}
+	
+	return totalReward;
+  }
+
 // 전역 변수로 에이전트 선언
 let dqnAgent: DQNAgent | null = null;
 let lastState: tf.Tensor | null = null;
@@ -200,7 +268,7 @@ export function updateAIPositionDQN() {
   // 이전 행동에 대한 보상 계산 및 학습 (게임 진행 중일 때)
   if (lastState !== null && lastAction !== null) {
 	// 보상 계산 (예: 패들이 공과 같은 y위치에 있을수록 보상)
-	const reward = 1 - Math.min(1, Math.abs(paddleRight.position.y - ball.position.y) / 10);
+	const reward = calculateReward();
 	
 	// 경험 저장
 	dqnAgent.remember(lastState, lastAction, reward, currentState, false);
@@ -215,22 +283,35 @@ export function updateAIPositionDQN() {
   // 상태와 행동 저장
   lastState = currentState;
   lastAction = action;
+
+//   currentState.dispose(); // 메모리 해제
   
   // 선택된 행동 실행
   dqnAgent.executeAction(action);
 }
 
 // DQN 시스템 시작 함수
-export function startDQNSystem() {
-  if (gameMode !== "PvE") return;
+export async function startDQNSystem() {
+	if (gameMode !== "PvE") return;
   
-  console.log("Starting DQN AI System");
-  
-  // 기존 인터벌 초기화
-  clearIntervalAI();
-  
-  // DQN 에이전트 초기화
-  dqnAgent = new DQNAgent();
+	console.log("Starting DQN AI System");
+	clearIntervalAI();
+	
+	// DQN 에이전트 초기화
+	dqnAgent = new DQNAgent();
+	
+	// 외부 모델 로드 시도
+	try {
+	  // 로컬 스토리지에서 로드
+	  const success = await dqnAgent.loadPretrainedModel('indexeddb://pong-dqn-model');
+	  if (success) {
+		console.log("저장된 모델을 성공적으로 로드했습니다.");
+	  } else {
+		console.log("저장된 모델이 없어 새 모델로 시작합니다.");
+	  }
+	} catch (e) {
+	  console.log("모델 로드 중 오류, 새 모델로 시작합니다.");
+	}
   
   // 상태/행동 기록 초기화
   lastState = null;
@@ -239,7 +320,7 @@ export function startDQNSystem() {
   // DQN 업데이트 인터벌 설정
   updateID = setInterval(() => {
 	updateAIPositionDQN();
-  }, 100); // 더 빠른 의사결정을 위해 주기 단축
+  }, 1000); // 더 빠른 의사결정을 위해 주기 단축
 }
 
 
@@ -293,7 +374,7 @@ export function updateAIPosition()
 		aiTargetY = predictBallY() * (0.9 + Math.random() * 0.2);
 }
 
-export function moveAIPostion()
+export function moveAIPosition()
 {
 	if (gameMode !== "PvE" || !gameRunning)
 		return;
@@ -325,7 +406,7 @@ export function startIntervalAI()
 	moveID = setInterval(() => {
 		if (Math.random() > 0.97)
 		{
-			aiKeys["ArrowUP"] = false;
+			aiKeys["ArrowUp"] = false;
 			aiKeys["ArrowDown"] = false;
 			if (Math.random() > 0.5)
 				simulateKeyPress("ArrowUp", 200);
@@ -348,3 +429,15 @@ export function clearIntervalAI()
 		moveID = null;
 	}
 }
+
+export async function saveModel() {
+	if (!dqnAgent) return;
+	
+	try {
+	  // 브라우저의 IndexedDB에 모델 저장
+	  await dqnAgent.saveModel('indexeddb://pong-dqn-model');
+	  console.log("모델 저장 완료");
+	} catch (e) {
+	  console.error("모델 저장 실패:", e);
+	}
+  }

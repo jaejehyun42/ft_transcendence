@@ -1,8 +1,8 @@
 import { createStartButton } from "./ui.js";
 import { startGame, update, result } from "./game.js";
-import { moveAIPostion, clearIntervalAI } from "./AI.js";
+import { moveAIPosition, clearIntervalAI } from "./AI.js";
 import { initializeDraw, initializeGame, disposeEngine, scene } from "./draw.js";
-import { startDQNSystem } from "./AI.js";
+import { startDQNSystem, saveModel } from "./AI.js";
 
 let gamePaused = false;
 let gameLoopRunning = false;
@@ -36,11 +36,14 @@ export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player
 export function stopGameLoop() 
 {
     gameLoopRunning = false;
-    if (animationFrameId) 
-    {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
     }
+    
+    // 게임 종료 시 모델 저장
+    saveModel(); // 비동기지만 간단히 하기 위해 await 생략
+    
     disposeEngine();
     clearIntervalAI();
     console.log("Game Stop");
@@ -66,7 +69,7 @@ function gameLoop(resolve: (result: { [key: string]: string | null }) => void)
 
         let deltaTime = scene.getEngine().getDeltaTime() / 1000;
         update(deltaTime);
-        moveAIPostion();
+        moveAIPosition();
     }
     
     animationFrameId = requestAnimationFrame(() => gameLoop(resolve));
