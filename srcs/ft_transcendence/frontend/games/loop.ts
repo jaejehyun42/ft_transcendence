@@ -1,7 +1,8 @@
 import { createStartButton } from "./ui.js";
 import { startGame, update, result } from "./game.js";
-import { moveAIPostion, startIntervalAI, clearIntervalAI } from "./AI.js";
+import { moveAIPostion, clearIntervalAI } from "./AI.js";
 import { initializeDraw, initializeGame, disposeEngine, scene } from "./draw.js";
+import { startDQNSystem } from "./AI.js";
 
 let gamePaused = false;
 let gameLoopRunning = false;
@@ -25,7 +26,8 @@ export function startGameLoop(canvas: HTMLCanvasElement, player1: string, player
         createStartButton((style) => {
             initializeDraw(style);
             startGame(mode);
-            startIntervalAI();
+            // startIntervalAI();
+            startDQNSystem();
             gameLoop(resolve);
         });
     });
