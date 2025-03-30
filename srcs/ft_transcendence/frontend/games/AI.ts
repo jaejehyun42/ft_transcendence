@@ -457,82 +457,102 @@ export async function runAutoTraining(episodes: number = 1000) {
 	let simulatedBallY = 0;
 	let simulatedBallSpeedX = 10;
 	let simulatedBallSpeedY = Math.random() * 10 - 5;
-	let simulatedPaddleY = 0;
+	let simulatedRightPaddleY = 0;  // 오른쪽 패들 (플레이어)
+	let simulatedLeftPaddleY = 0;   // 왼쪽 패들 (상대방)
 	let score = 0;
 	let episode = 0;
 	
 	// 환경 초기화 함수
 	const resetEnvironment = () => {
-	  simulatedBallX = 0;
-	  simulatedBallY = 0;
-	  simulatedBallSpeedX = 10;
-	  simulatedBallSpeedY = Math.random() * 10 - 5;
-	  simulatedPaddleY = 0;
-	  episode++;
-	  return getSimulatedState();
+		simulatedBallX = 0;
+		simulatedBallY = 0;
+		simulatedBallSpeedX = 10;
+		simulatedBallSpeedY = Math.random() * 10 - 5;
+		simulatedRightPaddleY = 0;
+		simulatedLeftPaddleY = 0;
+		episode++;
+		return getSimulatedState();
 	};
 	
 	// 상태 관측 함수
-	const getSimulatedState = () => {
-	  return tf.tensor2d([[
-		simulatedBallX / 20,
-		simulatedBallY / 10,
-		simulatedBallSpeedX / 15,
-		simulatedBallSpeedY / 15,
-		simulatedPaddleY / 10,
-		(simulatedPaddleY - simulatedBallY) / 10
-	  ]]);
-	};
+// 상태 관측 함수에 왼쪽 패들 정보 추가
+const getSimulatedState = () => {
+	return tf.tensor2d([[
+	  simulatedBallX / 20,
+	  simulatedBallY / 10,
+	  simulatedBallSpeedX / 15,
+	  simulatedBallSpeedY / 15,
+	  simulatedRightPaddleY / 10,
+	  (simulatedRightPaddleY - simulatedBallY) / 10
+	  // 왼쪽 패들 정보는 학습에 사용하지 않으므로 포함하지 않음
+	]]);
+  };
 	
 	// 행동 수행 함수
-	const executeSimulatedAction = (action: number) => {
-	  // 패들 이동
-	  if (action === 0) { // 위로
-		simulatedPaddleY = Math.min(9, simulatedPaddleY + 1);
-	  } else if (action === 1) { // 아래로
-		simulatedPaddleY = Math.max(-9, simulatedPaddleY - 1);
-	  }
-	  
-	  // 공 이동
-	  simulatedBallX += simulatedBallSpeedX * 0.1;
-	  simulatedBallY += simulatedBallSpeedY * 0.1;
-	  
-	  // 벽 충돌
-	  if (simulatedBallY >= 9 || simulatedBallY <= -9) {
-		simulatedBallSpeedY *= -1;
-	  }
-	  
-	  // 패들 충돌 (x=15에서)
-	  let hitPaddle = false;
-	  if (simulatedBallX >= 14 && simulatedBallX <= 16 && 
-		  Math.abs(simulatedBallY - simulatedPaddleY) <= 2) {
-		simulatedBallSpeedX *= -1;
-		hitPaddle = true;
-	  }
-	  
-	  // 득점/실점 확인
-	  let done = false;
-	  let reward = 0;
-	  
-	  // 패들과 공의 거리 기반 기본 보상
-	  reward = 1 - Math.min(1, Math.abs(simulatedPaddleY - simulatedBallY) / 10);
-	  
-	  // 패들에 맞으면 큰 보상
-	  if (hitPaddle) {
-		reward += 10;
-		score++;
-	  }
-	  
-	  // 공이 화면 바깥으로 나가면 종료
-	  if (simulatedBallX > 20 || simulatedBallX < -20) {
-		done = true;
-		if (simulatedBallX > 20) {
-		  reward -= 5; // 실점 패널티
+	// 행동 수행 함수 수정 - 왼쪽 패들 AI 추가
+const executeSimulatedAction = (action: number) => {
+	// 오른쪽 패들 이동 (학습 에이전트)
+	if (action === 0) { // 위로
+	  simulatedRightPaddleY = Math.min(9, simulatedRightPaddleY + 1);
+	} else if (action === 1) { // 아래로
+	  simulatedRightPaddleY = Math.max(-9, simulatedRightPaddleY - 1);
+	}
+	
+	// 왼쪽 패들 이동 (간단한 규칙 기반 AI)
+	// 공이 왼쪽으로 이동할 때만 움직임
+	if (simulatedBallSpeedX < 0) {
+	  // 75% 확률로 공을 따라감 (오류 확률 25%)
+	  if (Math.random() < 0.75) {
+		// 공을 향해 이동
+		if (simulatedLeftPaddleY < simulatedBallY - 0.5) {
+		  simulatedLeftPaddleY = Math.min(9, simulatedLeftPaddleY + 0.8);
+		} else if (simulatedLeftPaddleY > simulatedBallY + 0.5) {
+		  simulatedLeftPaddleY = Math.max(-9, simulatedLeftPaddleY - 0.8);
 		}
 	  }
-	  
-	  return { reward, done };
-	};
+	}
+	
+	// 공 이동
+	simulatedBallX += simulatedBallSpeedX * 0.1;
+	simulatedBallY += simulatedBallSpeedY * 0.1;
+	
+	// 벽 충돌
+	if (simulatedBallY >= 9 || simulatedBallY <= -9) {
+	  simulatedBallSpeedY *= -1;
+	}
+	
+	// 오른쪽 패들 충돌 (x=15에서)
+	let hitRightPaddle = false;
+	if (simulatedBallX >= 14 && simulatedBallX <= 16 && 
+		Math.abs(simulatedBallY - simulatedRightPaddleY) <= 2) {
+	  simulatedBallSpeedX *= -1;
+	  hitRightPaddle = true;
+	}
+	
+	// 득점/실점 확인
+	let done = false;
+	let reward = 0;
+	
+	// 패들과 공의 거리 기반 기본 보상
+	reward = 1 - Math.min(1, Math.abs(simulatedRightPaddleY - simulatedBallY) / 10);
+	
+	// 오른쪽 패들에 맞으면 큰 보상 (우리 패들)
+	if (hitRightPaddle) {
+	  reward += 10;
+	  score++;
+	}
+	
+	// 공이 화면 바깥으로 나가면 종료
+	if (simulatedBallX > 20) {
+	  done = true;
+	  reward -= 5; // 실점 패널티
+	} else if (simulatedBallX < -20) {
+	  done = true;
+	  reward += 2; // 득점 보상
+	}
+	
+	return { reward, done };
+  };
 	
 	// 학습 메인 루프
 	let currentState = resetEnvironment();

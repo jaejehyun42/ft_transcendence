@@ -171,8 +171,10 @@ export async function setupGame()
 		// };
 		
 		try {
-		  await runAutoTraining(500);
-		  btn.textContent = '학습 완료!';
+			for (let i = 0; i <= 100; i += 1) {
+				await runAutoTraining(100);
+				btn.textContent = '학습 완료!';
+			}
 		} catch (e) {
 		  console.error('학습 실패:', e);
 		  btn.textContent = '학습 실패';
