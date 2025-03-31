@@ -167,7 +167,7 @@ export async function setupGame()
 	
 		try {
 			// 학습 진행 중 진행 상태 업데이트 콜백
-			const totalEpisodes = 1000;				
+			const totalEpisodes = 100;				
 			for (let i=0; i<10; i++) {
 				// 학습 루프 진행
 				await runAutoTraining(totalEpisodes, (progress) => {

@@ -449,6 +449,12 @@ export async function runAutoTraining(episodes: number = 1000, progressCallback:
 			simulatedBallSpeedX *= -1;
 			hitRightPaddle = true;
 		}
+
+		// 왼쪽 패들 충돌 (x=-15에서)
+		if (simulatedBallX <= -14 && simulatedBallX >= -16 && 
+			Math.abs(simulatedBallY - simulatedLeftPaddleY) <= 2) {
+			simulatedBallSpeedX *= -1;
+		}
 		
 		// 득점/실점 확인
 		let done = false;
