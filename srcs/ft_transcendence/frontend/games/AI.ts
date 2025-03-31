@@ -16,42 +16,51 @@ class DQNAgent {
 	private targetModel: tf.LayersModel;
 	private replayBuffer: any[] = [];
 	public epsilon: number = 1.0;
-	private epsilonMin: number = 0.1;
-	private epsilonDecay: number = 0.995;
-	private gamma: number = 0.99;
-	private batchSize: number = 32;
-	
+	private targetUpdateFreq: number = 100; // 100회마다 업데이트
+	private trainStep: number = 0; // 학습 스텝 카운터 추가
+	private epsilonMin: number = 0.05;
+	private epsilonDecay: number = 0.998;  // 더 느린 감소
+	private gamma: number = 0.95;         // 단기 보상 강조	
+	private batchSize: number = 64;       // 더 큰 배치 크기
+	private replayBufferSize: number = 10000; // 버퍼 크기 확장
+
 	constructor() {
 		this.model = this.createModel();
 		this.targetModel = this.createModel();
 		this.updateTargetModel();
+		this.trainStep = 0; // 생성자에서 초기화
+
 	}
   
-	// 신경망 모델 생성
 	private createModel(): tf.LayersModel {
-		const model = tf.sequential();
-		model.add(tf.layers.dense({ inputShape: [6], units: 24, activation: 'relu' }));
-		model.add(tf.layers.dense({ units: 24, activation: 'relu' }));
-		model.add(tf.layers.dense({ units: 3, activation: 'linear' }));
-		
+		const model = tf.sequential({
+		  layers: [
+			tf.layers.dense({ inputShape: [6], units: 128, activation: 'relu' }),
+			tf.layers.dropout({ rate: 0.3 }), // 과적합 방지
+			tf.layers.dense({ units: 64, activation: 'relu' }),
+			tf.layers.dense({ units: 3, activation: 'linear' })
+		  ]
+		});
+	  
 		model.compile({
-			optimizer: tf.train.adam(0.001),
-			loss: 'meanSquaredError'
+		  optimizer: tf.train.adam(0.0005), // 학습률 조정
+		  loss: tf.losses.huberLoss // MSE보다 안정적인 Huber Loss
 		});
 		
 		return model;
-	}
+	  }
 
 	// 상태 관측 (입력 특성 구성)
 	public getState(): tf.Tensor {
-		// [공의 x위치, 공의 y위치, 공의 x속도, 공의 y속도, 패들의 y위치, 목표 y위치와의 차이]
+		const predictedY = predictBallPosition();
 		return tf.tensor2d([[
-			ball.position.x / 20, // 정규화
-			ball.position.y / 10,
-			ballSpeedX / 15,
-			ballSpeedY / 15,
-			paddleRight.position.y / 10,
-			(paddleRight.position.y - ball.position.y) / 10
+		  ball.position.x / 20,
+		  ball.position.y / 10,
+		  ballSpeedX / 20,       // 속도 범위 확장
+		  ballSpeedY / 20,
+		  paddleRight.position.y / 10,
+		  Math.atan2(ballSpeedY, ballSpeedX) / Math.PI,  // 공의 이동 각도
+		  predictedY / 10 // 추가 상태 정보
 		]]);
 	}
   
@@ -69,17 +78,15 @@ class DQNAgent {
 	}
 
 	// 행동을 실제 키 입력으로 변환
-	public executeAction(action: number, duration: number = 200) {
-		aiKeys["ArrowUp"] = false;
-		aiKeys["ArrowDown"] = false;
-
-		if (action === 0) { // 위로 이동
-			simulateKeyPress("ArrowUp", duration);
-		} else if (action === 1) { // 아래로 이동
-			simulateKeyPress("ArrowDown", duration);
+	public executeAction(action: number) {
+		const duration = 200; // 지속 시간 설정
+		if (action === 0) {
+		  simulateKeyPress("ArrowUp", duration); // 실제 키 시뮬레이션 사용
+		} else if (action === 1) {
+		  simulateKeyPress("ArrowDown", duration);
 		}
-		// action 2는 정지 (아무것도 안함)
 	}
+	  
   
 	// 타겟 모델 업데이트
 	public updateTargetModel() {
@@ -102,7 +109,7 @@ class DQNAgent {
 		});
 		
 		// 버퍼 크기 제한
-		if (this.replayBuffer.length > 2000) {
+		if (this.replayBuffer.length > this.replayBufferSize) {
 			this.replayBuffer.shift();
 		}
 	}
@@ -133,28 +140,36 @@ class DQNAgent {
 	}
 
 	// 학습 함수
-	public async replay() {
+	async replay() {
 		if (this.replayBuffer.length < this.batchSize) return;
-
-		// 미니배치 무작위 추출
-		const miniBatch = [];
-		for (let i = 0; i < this.batchSize; i++) {
-		const randomIndex = Math.floor(Math.random() * this.replayBuffer.length);
-		miniBatch.push(this.replayBuffer[randomIndex]);
-		}
-		
+	  
+		// 1. 무작위 인덱스 생성 (타입 명시)
+		const indices: number[] = Array.from(
+		  tf.util.createShuffledIndices(this.replayBuffer.length)
+		);
+	  
+		// 2. 미니배치 추출 (i 타입 명시)
+		const miniBatch = indices
+		  .slice(0, this.batchSize)
+		  .map((i: number) => this.replayBuffer[i]);
+	  
+		const stateBatch = tf.tensor2d(
+		  miniBatch.map((exp) => exp.state[0])
+		);
+		const actionBatch = tf.tensor1d(
+		  miniBatch.map((exp) => exp.action), 'int32'
+		);
 		// 배치 텐서 준비
-		const stateBatch = tf.tensor2d(miniBatch.map(exp => exp.state[0]));
-		const actionBatch = tf.tensor1d(miniBatch.map(exp => exp.action), 'int32');
 		const rewardBatch = tf.tensor1d(miniBatch.map(exp => exp.reward));
 		const nextStateBatch = tf.tensor2d(miniBatch.map(exp => exp.nextState[0]));
 		const doneBatch = tf.tensor1d(miniBatch.map(exp => exp.done ? 1 : 0));
 		
-		// 현재 상태에서의 Q 값 예측
-		const currentQValues = this.model.predict(stateBatch) as tf.Tensor;
-		
-		// 다음 상태에서의 Q 값 예측 (타겟 네트워크 사용)
-		const nextQValues = this.targetModel.predict(nextStateBatch) as tf.Tensor;
+		const [currentQValues, nextQValues] = tf.tidy(() => {
+			return [
+			  this.model.predict(stateBatch) as tf.Tensor,
+			  this.targetModel.predict(nextStateBatch) as tf.Tensor
+			];
+		  });
 		
 		// 최대 Q 값 계산
 		const maxNextQ = tf.max(nextQValues, 1);
@@ -208,48 +223,40 @@ class DQNAgent {
 		});
 		
 		// 주기적으로 타겟 네트워크 업데이트 (예: 매 10회 학습마다)
-		if (Math.random() < 0.1) {
-		this.updateTargetModel();
-		}
+		if (this.trainStep % this.targetUpdateFreq === 0) {
+			this.updateTargetModel();
+		  }
+		  this.trainStep++;
 	}
 }
 
 // 개선된 보상 계산 함수
 function calculateReward(): number {
-	// 기본 보상: 패들과 공의 거리
-	const positionReward = 1 - Math.min(1, Math.abs(paddleRight.position.y - ball.position.y) / 10);
+	// 공과 패들 중심까지의 정규화 거리 (0~1)
+	const distance = Math.abs(paddleRight.position.y - ball.position.y) / 10;
 	
-	// 공이 플레이어쪽으로 오고 있는지 확인 (더 중요한 시점)
-	const ballComingTowards = ballSpeedX > 0;
-	
-	// 공이 패들 근처에 있는지 확인
-	const isNearPaddle = ball.position.x > 10;
-	
-	// 성공적인 방어 보상 (공이 패들에 맞았을 때)
-	const defendSuccess = lastBallDirectionX > 0 && ballSpeedX < 0;
-	const defendReward = defendSuccess ? 10 : 0;
-	
-	// 가중치 부여
-	let totalReward = 0;
-	
-	if (isNearPaddle && ballComingTowards) {
-	  // 중요한 순간 - 위치 보상에 높은 가중치
-	  totalReward += positionReward * 3;
-	} else {
-	  // 일반적인 상황 - 낮은 가중치
-	  totalReward += positionReward * 0.5;
+	// 방향 가중치 (공이 오는 방향일 때 더 높은 보상)
+	const directionWeight = ballSpeedX > 0 ? 1.5 : 0.7;
+  
+	// 속도 가중치 (빠른 공일 때 더 높은 보상)
+	const speedWeight = Math.min(1, Math.sqrt(ballSpeedX**2 + ballSpeedY**2)/15);
+  
+	// 기본 위치 보상 (거리에 반비례)
+	let reward = (1 - distance) * directionWeight * speedWeight;
+  
+	// 성공적 타격 보상
+	if (lastBallDirectionX > 0 && ballSpeedX < 0) {
+	  reward += 10;
+	  console.log("Successful hit!");
 	}
-	
-	// 방어 성공 보상 추가
-	totalReward += defendReward;
-	
-	// 디버깅
-	if (defendSuccess) {
-	  console.log("방어 성공! 보상:", defendReward);
+  
+	// 실패 패널티 (공이 화면 밖으로 나갈 때)
+	if (ball.position.x > 20) {
+	  reward -= 15;
 	}
-	
-	return totalReward;
-  }
+  
+	return Math.min(Math.max(reward, -5), 10); // 보상 범위 제한
+}
 
 
 // AI 위치 업데이트 함수 (DQN 기반)
@@ -317,7 +324,7 @@ export async function startDQNSystem() {
   // DQN 업데이트 인터벌 설정
   updateID = setInterval(() => {
 	updateAIPositionDQN();
-  }, 1000); // 더 빠른 의사결정을 위해 주기 단축
+  }, 1000); 
 }
 
 // 키 입력을 일정 시간 동안 유지하는 함수
@@ -527,3 +534,34 @@ export async function runAutoTraining(episodes: number = 1000, progressCallback:
 		console.error("모델 저장 실패:", e);
 	}
 }
+
+const predictBallPosition = () => {
+	let predictedX = ball.position.x;
+	let predictedY = ball.position.y;
+	let currentSpeedX = ballSpeedX;
+	let currentSpeedY = ballSpeedY;
+	let steps = 0; // 안전 장치 추가
+  
+	// 최대 1000스텝으로 제한 (실제 환경에 맞게 조정)
+	while (steps < 1000) {
+	  predictedX += currentSpeedX * 0.1;
+	  predictedY += currentSpeedY * 0.1;
+	  steps++;
+  
+	  // 벽 충돌 검사 (상하)
+	  if (predictedY >= 9 || predictedY <= -9) {
+		currentSpeedY *= -1;
+	  }
+  
+	  // 패들 충돌 또는 경기장 이탈 검사
+	  if (
+		predictedX >= 15 ||  // 오른쪽 패들 근접
+		predictedX <= -20 || // 왼쪽 벽
+		Math.abs(predictedX - ball.position.x) > 50 // 갑작스러운 이동 방지
+	  ) {
+		break;
+	  }
+	}
+  
+	return predictedY;
+  };
