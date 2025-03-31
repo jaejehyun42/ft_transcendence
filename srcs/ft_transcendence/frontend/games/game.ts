@@ -1,5 +1,4 @@
 import { Mesh } from "@babylonjs/core";
-import { updateAIPosition } from "./AI.js"
 import { createImpactEffect } from "./effect.js";
 import { scoreText, showWinner } from "./ui.js";
 import { name_1p, name_2p, pauseGame, resumeGame } from "./loop.js";
@@ -65,7 +64,6 @@ export function startGame(mode: string)
     if (paddleRight) paddleRight.position.y = 0;
 
     setCountdown();
-    updateAIPosition();
 
     console.log("Game Start")
 }
@@ -105,7 +103,6 @@ export function updateCountdown()
         gameRunning = true;
         countdownEndTime = null;
         scoreText.text = `${leftScore}  -  ${rightScore}`;
-        updateAIPosition();
     }
 }
 

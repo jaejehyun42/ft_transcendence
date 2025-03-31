@@ -1,6 +1,5 @@
 import { createStartButton } from "./ui.js";
 import { startGame, update, result } from "./game.js";
-import { moveAIPosition, clearIntervalAI } from "./AI.js";
 import { initializeDraw, initializeGame, disposeEngine, scene } from "./draw.js";
 import { startDQNSystem, saveModel } from "./AI.js";
 
@@ -45,7 +44,6 @@ export function stopGameLoop()
     saveModel(); // 비동기지만 간단히 하기 위해 await 생략
     
     disposeEngine();
-    clearIntervalAI();
     console.log("Game Stop");
 }
 
@@ -69,7 +67,6 @@ function gameLoop(resolve: (result: { [key: string]: string | null }) => void)
 
         let deltaTime = scene.getEngine().getDeltaTime() / 1000;
         update(deltaTime);
-        moveAIPosition();
     }
     
     animationFrameId = requestAnimationFrame(() => gameLoop(resolve));

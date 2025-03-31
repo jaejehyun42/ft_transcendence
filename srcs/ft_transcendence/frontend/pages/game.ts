@@ -164,27 +164,29 @@ export async function setupGame()
 		const btn = document.getElementById('auto-train-btn') as HTMLButtonElement;
 		btn.disabled = true;
 		btn.textContent = '학습 중... (0%)';
-		
-		// 진행 상태 업데이트 콜백
-		// const progressCallback = (progress :number) => {
-		//   btn.textContent = `학습 중... (${Math.round(progress)}%)`;
-		// };
-		
+	
 		try {
-			for (let i = 0; i <= 100; i += 1) {
-				await runAutoTraining(100);
-				btn.textContent = '학습 완료!';
-			}
+			// 학습 진행 중 진행 상태 업데이트 콜백
+			const totalEpisodes = 1000;
+			
+			// 학습 루프 진행
+			await runAutoTraining(totalEpisodes, (progress) => {
+				// 학습 중 진행 상태 업데이트
+				btn.textContent = `학습 중... (${Math.round(progress)}%)`;
+			});
+			
+			btn.textContent = '학습 완료!';
 		} catch (e) {
-		  console.error('학습 실패:', e);
-		  btn.textContent = '학습 실패';
+			console.error('학습 실패:', e);
+			btn.textContent = '학습 실패';
 		} finally {
-		  setTimeout(() => {
-			btn.disabled = false;
-			btn.textContent = '자동 학습 시작';
-		  }, 2000);
+			setTimeout(() => {
+				btn.disabled = false;
+				btn.textContent = '자동 학습 시작';
+			}, 2000);
 		}
-	  });
+	});
+	
 }
 
 export async function startGame(player1: string, player2: string): Promise<string>
