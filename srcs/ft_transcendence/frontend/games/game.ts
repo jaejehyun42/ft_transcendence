@@ -131,6 +131,17 @@ export function update(deltaTime: number)
         if (aiKeys["ArrowDown"] && paddleRight.position.y > -7) paddleRight.position.y -= paddleSpeed * deltaTime;
     }
 
+    // 패들 바운더리 처리
+    if (paddleLeft.position.y > 7)
+        paddleLeft.position.y = 7
+    if (paddleLeft.position.y < -7)
+        paddleLeft.position.y = -7
+    if (paddleRight.position.y > 7)
+        paddleRight.position.y = 7
+    if (paddleRight.position.y < -7)
+        paddleRight.position.y = -7
+
+
     // 공 이동
     ball.position.x += ballSpeedX * deltaTime;
     ball.position.y += ballSpeedY * deltaTime;
@@ -168,13 +179,12 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
     let prevX = ball.position.x - ballSpeedX * deltaTime;
     let curX = ball.position.x;
 
-    let paddleEdge = paddle === paddleLeft 
-        ? paddle.position.x + paddleWidth / 2 + ballSize / 2
-        : paddle.position.x - paddleWidth / 2 - ballSize / 2;
+    let paddleLeftEdge = paddle.position.x - paddleWidth / 2 - ballSize / 2;
+    let paddleRightEdge = paddle.position.x + paddleWidth / 2 + ballSize / 2
 
     let crossedPaddle = paddle === paddleLeft 
-        ? (prevX >= paddleEdge && curX < paddleEdge)
-        : (prevX <= paddleEdge && curX > paddleEdge);
+        ? (prevX >= paddleRightEdge && curX < paddleRightEdge) || (curX > paddleLeftEdge && curX < paddleRightEdge)
+        : (prevX <= paddleLeftEdge && curX > paddleLeftEdge) || (curX > paddleRightEdge && curX < paddleLeftEdge);
 
     if (crossedPaddle &&
         ball.position.y >= paddle.position.y - paddleHeight / 2 - ballSize / 4 &&
@@ -200,7 +210,9 @@ function collisionPaddleVert(paddle: Mesh, deltaTime: number): boolean
         ballSpeedY = Math.sign(ballSpeedY) * Math.abs(speed * Math.sin(bounceAngle));
 
         // 공 위치 보정
-        ball.position.x = paddleEdge + (paddle === paddleLeft ? 0.02 : -0.02);
+        ball.position.x = paddle === paddleLeft
+            ? paddleRightEdge + 0.02
+            : paddleLeftEdge - 0.02;
         return true;
     }
     return false;
