@@ -107,3 +107,11 @@ const routes = {
 // 📌 라우터 실행
 export const router = new Router(routes);
 router.render();
+
+window.addEventListener("load", () => {
+    window.focus(); // 새로고침 후 브라우저 포커스 복구
+});
+  
+window.addEventListener("pageshow", () => {
+    window.focus(); // 뒤로가기 후 브라우저 포커스 복구
+});
