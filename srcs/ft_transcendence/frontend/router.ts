@@ -107,32 +107,3 @@ const routes = {
 // 📌 라우터 실행
 export const router = new Router(routes);
 router.render();
-
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        console.log("🔥 load 이벤트에서 포커스 복구 시도...");
-        window.focus();
-        document.body.tabIndex = -1;
-        document.body.focus();
-    }, 500);
-});
-
-window.addEventListener("pageshow", () => {
-    setTimeout(() => {
-        console.log("🔄 pageshow 이벤트에서 포커스 복구 시도...");
-        window.focus();
-        document.body.focus();
-
-        // 키 입력이 없을 때 강제로 키 이벤트 트리거
-        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
-    }, 500);
-});
-
-// 브라우저가 비활성화되었다가 다시 활성화될 때 포커스 복구
-document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-        console.log("🔄 브라우저가 다시 활성화됨! 포커스 복구.");
-        window.focus();
-        document.body.focus();
-    }
-});
